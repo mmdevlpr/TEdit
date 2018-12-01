@@ -18,6 +18,7 @@ import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.MediaScannerConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -38,6 +39,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.util.ErrorMessage;
 
 import java.io.BufferedReader;
@@ -269,7 +271,7 @@ public class Browser extends ListFragment {
         //open file
         String contents = null;
         try {
-            contents = readFile(file);
+            contents = DataAccessUtil.readFile(file);
         } catch (IOException e) {
             contents = null;
             Log.e("TEdit.Browser", "Unable to read file " + file.getPath() + ": "
@@ -437,17 +439,11 @@ public class Browser extends ListFragment {
 
         final File file = new File(currentDir, filename);
 
-        String mediaState = Environment.getExternalStorageState();
+        /*String mediaState = Environment.getExternalStorageState();
         if (!(Environment.MEDIA_MOUNTED.equals(mediaState)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState))) {
             ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
                     ctx.getString(R.string.error_unmounted));
-            em.show(ctx.getSupportFragmentManager(), "dialog");
-
-            return false;
-        }/* else if (!file.getPath().startsWith(Environment.getExternalStorageDirectory().getPath())) {
-            ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
-                    ctx.getString(R.string.error_protectedpath));
             em.show(ctx.getSupportFragmentManager(), "dialog");
 
             return false;
@@ -466,9 +462,11 @@ public class Browser extends ListFragment {
             return false;
         }
 
+        boolean err = false;
         try {
-            writeFile(file, body);
+            DataAccessUtil.writeFile(file, body);
         } catch (IOException e) {
+            err = true;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!ctx.checkWritePermission()) {
                     Log.e("TEdit.Browser", "Unable to save file " + file.getPath() + ". Permission denied: "
@@ -499,33 +497,6 @@ public class Browser extends ListFragment {
         }
 
         return true;
-    }
-
-    protected static void writeFile(File file, String body) throws IOException {
-        Log.i("TEdit", "Writing to file: " + file.getPath());
-
-        FileOutputStream fileOut = new FileOutputStream(file);
-        PrintStream pStream = new PrintStream(fileOut);
-
-        pStream.print(body);
-        pStream.close();
-        fileOut.close();
-    }
-
-    public static String readFile(File file) throws IOException {
-        FileReader fReader = new FileReader(file);
-        BufferedReader bReader = new BufferedReader(fReader);
-        String contents = "";
-        String newLine;
-
-        while ((newLine = bReader.readLine()) != null) {
-            contents += newLine;
-            contents += "\n";
-        }
-        bReader.close();
-        fReader.close();
-
-        return contents;
     }
 
     private class DirFilter implements FileFilter {
@@ -564,7 +535,6 @@ public class Browser extends ListFragment {
             } finally {
                 if (mime == null)
                     return acceptByExtension(file);
-                Log.i("TEdit", file.getName() + " MIME type: " + mime);
                 return mime.startsWith("text/");
             }
         }
@@ -597,7 +567,7 @@ public class Browser extends ListFragment {
                         public void onClick(DialogInterface dialog, int id) {
                             dismiss();
                             try {
-                                writeFile(new File(filePath), body);
+                                DataAccessUtil.writeFile(new File(filePath), body);
                                 if (ctx.dbIsOpen()) {
                                     ctx.getDB().updateText(ctx.getLastTxt(), filePath, body);
                                     ctx.openDocument(ctx.getLastTxt());
@@ -640,9 +610,10 @@ public class Browser extends ListFragment {
                     .setPositiveButton(getActivity().getString(R.string.okay), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
+                            File file = new File(filePath);
                             dismiss();
                             try {
-                                writeFile(new File(filePath), body);
+                                DataAccessUtil.writeFile(new File(filePath), body);
                                 if (ctx.dbIsOpen()) {
                                     ctx.getDB().updateText(ctx.getLastTxt(), filePath, body);
                                     ctx.openDocument(ctx.getLastTxt());

@@ -106,12 +106,9 @@ public class Editor extends Fragment {
         } else {
             ((TextView) view.findViewById(R.id.documentname)).setText(new File(path).getName());
 
-            String mediaState = Environment.getExternalStorageState();
-            if (!(Environment.MEDIA_MOUNTED.equals(mediaState)
-                    || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState))
-                    || !path.startsWith(Environment.getExternalStorageDirectory().getPath())) {
+            File file = new File(path);
+            if (!file.canWrite())
                 Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
