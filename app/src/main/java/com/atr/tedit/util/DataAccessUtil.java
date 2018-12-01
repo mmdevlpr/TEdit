@@ -1,3 +1,17 @@
+/*
+ * Free Public License 1.0.0
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL
+ * THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+ * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+ * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 package com.atr.tedit.util;
 
 import android.annotation.TargetApi;
@@ -20,8 +34,34 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.file.Files;
 
 public class DataAccessUtil {
+    private static final String[] EXTENSIONS = new String[] {
+            "txt",
+            "text",
+            "html",
+            "htm",
+            "php",
+            "xml",
+            "java",
+            "c",
+            "cpp",
+            "h",
+            "py"};
+
+    private static final String[] MIME = new String[] {
+            "text/plain",
+            "text/plain",
+            "text/html",
+            "text/html",
+            "text/x-php",
+            "text/xml",
+            "text/x-java-source",
+            "text/x-c",
+            "text/x-c",
+            "text/x-h",
+            "text/x-script.python"};
 
     /**
      * Retrieves the contents from data specified via a {@link android.net.Uri}.
@@ -238,6 +278,48 @@ public class DataAccessUtil {
      */
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * Attempts to determine the supported MIME type of a {@link java.io.File}.
+     *
+     * @param file The {@link java.io.File} to determine a MIME type for.
+     * @return A {@link java.lang.String} containing the MIME type in the format
+     * such as "text/plain" or "text/html". If a MIME type could not be
+     * determined an empty {@link java.lang.String} is returned.
+     */
+    public static String getFileMime(File file) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String mime = getFileMimePostO(file);
+
+            if (mime != null && !mime.isEmpty())
+                return mime;
+        }
+
+        int p = file.getName().indexOf('.');
+        if (p < 0 || p > file.getName().length() - 2)
+            return "";
+
+        String ext = file.getName().substring(p + 1);
+        for (int i = 0; i < EXTENSIONS.length; i++) {
+            if (EXTENSIONS[i].equalsIgnoreCase(ext))
+                return new String(MIME[i]);
+        }
+
+        return "";
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static String getFileMimePostO(File file) {
+        String mime = "";
+        try {
+            mime = Files.probeContentType(file.toPath());
+        } catch (Exception e) {
+            mime = "";
+            Log.w("TEdit MIME", "Error while determining MIME information for file " + file.getPath() + ": " + e.getMessage());
+        } finally {
+            return mime;
+        }
     }
 
     /**

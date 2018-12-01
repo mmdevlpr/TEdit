@@ -66,18 +66,6 @@ import java.util.logging.Logger;
 public class Browser extends ListFragment {
     private static final String invalidChars = "\'/\\*?:|\"<>%\n";
 
-    private static final String[] extensions = new String[] {
-            ".txt",
-            ".html",
-            ".htm",
-            ".php",
-            ".xml",
-            ".java",
-            ".c",
-            ".cpp",
-            ".h",
-            ".py"};
-
     public static final int TYPE_OPEN = 0;
     public static final int TYPE_SAVE = 1;
 
@@ -494,6 +482,14 @@ public class Browser extends ListFragment {
             em.show(ctx.getSupportFragmentManager(), "dialog");
 
             return false;
+        } finally {
+            //Update the media library with the new file.
+            if (!err) {
+                String mime = DataAccessUtil.getFileMime(file);
+                mime = (mime.isEmpty()) ? "text/plain" : mime;
+                MediaScannerConnection.scanFile(ctx, new String[]{file.getPath()},
+                        new String[]{mime}, null);
+            }
         }
 
         return true;
@@ -510,33 +506,7 @@ public class Browser extends ListFragment {
             if (file.isDirectory())
                 return false;
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                return acceptByMime(file);
-
-            return acceptByExtension(file);
-        }
-
-        private boolean acceptByExtension(File file) {
-            for (String s : extensions) {
-                if (file.getName().toLowerCase().endsWith(s))
-                    return true;
-            }
-
-            return false;
-        }
-
-        @TargetApi(Build.VERSION_CODES.O)
-        private boolean acceptByMime(File file) {
-            String mime = "";
-            try {
-                mime = Files.probeContentType(file.toPath());
-            } catch (Exception e) {
-                mime = null;
-            } finally {
-                if (mime == null)
-                    return acceptByExtension(file);
-                return mime.startsWith("text/");
-            }
+            return DataAccessUtil.getFileMime(file).startsWith("text/");
         }
     }
 
