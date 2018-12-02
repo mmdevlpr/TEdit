@@ -13,7 +13,7 @@
     <string name="error_writefile">Unable to save file!</string>
     <string name="error_nowritepermission">Permission Denied!\n\nPlease enable storage permission by opening your Android Settings app and selecting Apps&#8212;>TEdit&#8212;>Permissions.</string>
     <string name="error_permission_denied">Permission Denied</string>
-    <string name="error_readfile">Unable to read file!</string>
+    <string name="error_readfile">TEdit was not able to open the file.</string>
     <string name="error_invalidname">Invalid filename!</string>
     <string name="error_direxists">Directory already exists.</string>
     <string name="delete">Delete</string>
@@ -30,7 +30,6 @@
     <string name="filesaved">File Saved</string>
     <string name="filedeleted">File Deleted</string>
     <string name="noopendocuments">No Open Documents</string>
-    <string name="error_fileassoc">TEdit was unable to open the file.</string>
     <string name="help">Help</string>
     <string name="browser">Browser</string>
     <string name="editor">Editor</string>

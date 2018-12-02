@@ -222,7 +222,6 @@ public class Browser extends ListFragment {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
-        //String filename = ((TextView)((ViewGroup)view).getChildAt(1)).getText().toString();
         String filename = ((TextView)view.findViewById(R.id.dirText)).getText().toString();
         File file = new File(currentDir, filename);
 
@@ -243,7 +242,6 @@ public class Browser extends ListFragment {
         }
 
         if (type == TYPE_SAVE) {
-            //((EditText)((ViewGroup)((ViewGroup)this.getView()).getChildAt(0)).getChildAt(0)).setText(filename);
             ((EditText)getView().findViewById(R.id.savelayout).findViewById(R.id.filename)).setText(filename);
             return;
         }
@@ -251,6 +249,13 @@ public class Browser extends ListFragment {
         if (!file.exists()) {
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.missing_file));
+            em.show(ctx.getSupportFragmentManager(), "dialog");
+
+            return;
+        }
+
+        if (!file.canRead()) {
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),getString(R.string.error_readfile));
             em.show(ctx.getSupportFragmentManager(), "dialog");
 
             return;

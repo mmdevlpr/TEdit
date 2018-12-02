@@ -144,7 +144,7 @@ public class TEditActivity extends AppCompatActivity {
                     initializeToBrowser();
                     return;
                 }
-                initializeToText(content);
+                initializeToText(content, false);
                 return;
             }
 
@@ -154,7 +154,8 @@ public class TEditActivity extends AppCompatActivity {
                     initializeToText(file);
                     return;
                 }
-                initializeToText(content);
+                tmpFileToOpen = file;
+                initializeToText(content, false);
             } else
                 initializeToText(file);
 
@@ -244,7 +245,12 @@ public class TEditActivity extends AppCompatActivity {
     }
 
     private void initializeToText(File file) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        initializeToText(file, false);
+    }
+
+    private void initializeToText(File file, boolean skipPermissionCheck) {
+        if (!skipPermissionCheck
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkWritePermission()) {
                 tmpFileToOpen = file;
                 requestPermission(INIT_TEXT_PERMISSION);
@@ -260,7 +266,7 @@ public class TEditActivity extends AppCompatActivity {
             content = null;
         } finally {
             if (content == null) {
-                lastTxt = db.createText(DEFAULTPATH, getString(R.string.error_fileassoc));
+                lastTxt = db.createText(DEFAULTPATH, getString(R.string.error_readfile));
             } else
                 lastTxt = db.createText(file.getPath(), content);
 
@@ -274,8 +280,9 @@ public class TEditActivity extends AppCompatActivity {
         }
     }
 
-    private void initializeToText(String content) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    private void initializeToText(String content, boolean skipPermissionCheck) {
+        if (!skipPermissionCheck
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkWritePermission()) {
                 tmpTextContent = content;
                 requestPermission(INIT_TEXT_CONTENT_PERMISSION);
@@ -283,8 +290,9 @@ public class TEditActivity extends AppCompatActivity {
             }
         }
 
+        tmpFileToOpen = null;
         if (content == null) {
-            lastTxt = db.createText(DEFAULTPATH, getString(R.string.error_fileassoc));
+            lastTxt = db.createText(DEFAULTPATH, getString(R.string.error_readfile));
         } else
             lastTxt = db.createText(DEFAULTPATH, content);
 
@@ -845,12 +853,16 @@ public class TEditActivity extends AppCompatActivity {
                 initializeToBrowser(true);
                 break;
             case INIT_TEXT_PERMISSION:
-                if (results.length > 0
-                        && results[0] == PackageManager.PERMISSION_GRANTED) {
-                    initializeToText(tmpFileToOpen);
+                if ((results.length > 0
+                        && results[0] == PackageManager.PERMISSION_GRANTED)
+                        || tmpFileToOpen.canRead()) {
+                    initializeToText(tmpFileToOpen, true);
                     tmpFileToOpen = null;
                 } else if (!dbIsOpen()) {
                     finish();
+                } else if (tmpFileToOpen.canRead()) {
+                    initializeToText(tmpFileToOpen, true);
+                    tmpFileToOpen = null;
                 } else {
                     initializeToDBText();
                 }
@@ -858,12 +870,17 @@ public class TEditActivity extends AppCompatActivity {
             case INIT_TEXT_CONTENT_PERMISSION:
                 if (results.length > 0
                         && results[0] == PackageManager.PERMISSION_GRANTED) {
-                    initializeToText(tmpTextContent);
+                    if (tmpFileToOpen != null && tmpFileToOpen.canWrite()) {
+                        initializeToText(tmpFileToOpen, true);
+                        tmpFileToOpen = null;
+                    } else
+                        initializeToText(tmpTextContent, true);
                     tmpTextContent = null;
                 } else if (!dbIsOpen()) {
                     finish();
                 } else {
-                    initializeToDBText();
+                    initializeToText(tmpTextContent, true);
+                    tmpTextContent = null;
                 }
                 break;
         }
