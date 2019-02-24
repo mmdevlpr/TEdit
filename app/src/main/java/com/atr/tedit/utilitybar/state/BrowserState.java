@@ -40,7 +40,7 @@ public class BrowserState extends UtilityState {
         });
 
         Button newdir = new Button(BAR.ctx);
-        newdir.setBackgroundResource(R.drawable.button_dir);
+        newdir.setBackgroundResource(R.drawable.button_dir_new);
         newdir.setId(R.id.two);
         newdir.setNextFocusRightId(R.id.three);
         newdir.setNextFocusLeftId(R.id.one);

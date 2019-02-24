@@ -10,4 +10,8 @@
     <color name="browseTextAccent">#999999</color>
     <color name="editor">#FFFFFF</color>
     <color name="editorText">#555555</color>
+    <color name="greenDeep">#1f2c18</color>
+    <color name="greenDark">#2b3e21</color>
+    <color name="greenPrimary">#97bf80</color>
+    <color name="greenAccent">#cbffab</color>
 </resources>

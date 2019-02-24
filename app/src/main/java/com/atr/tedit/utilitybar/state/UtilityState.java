@@ -14,7 +14,7 @@ public abstract class UtilityState {
     public static final int ANIMLENGTH = 300;
     public static final float SCALE = 0.5f;
 
-    protected int animDelay = (int)(ANIMLENGTH * 0.2);
+    protected int animDelay = (int)(ANIMLENGTH * 0.1);
 
     public final int STATE;
     public final UtilityBar BAR;

@@ -26,6 +26,7 @@ import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -661,7 +662,7 @@ public class Browser extends ListFragment {
                 inDir = savedInstanceState.getString("TEdit.newdirectory", "");
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            final EditText et = new EditText(ctx);
+            final EditText et = new EditText(new ContextThemeWrapper(ctx, R.style.drkGreen));
             builder.setTitle(getString(R.string.newdirectory));
             builder.setMessage(getString(R.string.newdirmessage)).setView(et)
                 .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {

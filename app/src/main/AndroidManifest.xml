@@ -10,7 +10,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="true">
-        <activity android:name=".TEditActivity" android:windowSoftInputMode="stateHidden|adjustResize">
+        <activity android:name=".TEditActivity" android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -6,19 +6,29 @@
 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/greenPrimary</item>
+        <item name="alertDialogTheme">@style/AppTheme.Alert</item>
     </style>
 
-    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="drkGreen" parent="AppTheme">
+        <item name="colorAccent">@color/greenAccent</item>
+        <item name="android:textColorPrimary">@color/greenPrimary</item>
+        <item name="colorPrimary">@color/greenDark</item>
+        <item name="colorPrimaryDark">@color/greenDeep</item>
+        <item name="android:colorForeground">@color/greenPrimary</item>
+        <item name="android:textColorPrimaryInverse">@color/greenDeep</item>
+        <item name="android:textColorSecondaryInverse">?android:attr/textColorHintInverse</item>
     </style>
 
     <style name="AppTheme.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/greenPrimary</item>
+        <item name="colorAccent">@color/greenAccent</item>
+        <item name="android:colorBackground">@color/greenDark</item>
+        <item name="colorPrimary">@color/greenDark</item>
+        <item name="colorPrimaryDark">@color/greenDeep</item>
+        <item name="android:colorForeground">@color/greenPrimary</item>
+        <item name="android:textColorPrimaryInverse">@color/greenDeep</item>
+        <item name="android:textColorSecondaryInverse">?android:attr/textColorHintInverse</item>
     </style>
 
 </resources>
