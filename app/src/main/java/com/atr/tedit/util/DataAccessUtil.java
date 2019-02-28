@@ -48,7 +48,9 @@ public class DataAccessUtil {
             "c",
             "cpp",
             "h",
-            "py"};
+            "py",
+            "ini",
+            "cfg"};
 
     private static final String[] MIME = new String[] {
             "text/plain",
@@ -319,6 +321,66 @@ public class DataAccessUtil {
             Log.w("TEdit MIME", "Error while determining MIME information for file " + file.getPath() + ": " + e.getMessage());
         } finally {
             return mime;
+        }
+    }
+
+    /**
+     * Tests if a filename contains a file extension.
+     *
+     * @param file The file to test for an extension.
+     * @return True if the filename has an extension otherwise false.
+     */
+    public static boolean hasExtension(File file) {
+        return hasExtension(file.getName());
+    }
+
+    /**
+     * Tests if a filename contains a file extension.
+     *
+     * @param filename The filename to test for an extension.
+     * @return True if the filename has an extension otherwise false.
+     */
+    public static boolean hasExtension(String filename) {
+        return filename.indexOf(".") >= 0;
+    }
+
+    public static boolean probablyBinaryFile(File file) {
+        InputStreamReader isr = null;
+        FileInputStream fis = null;
+        boolean probBin = false;
+        try {
+            fis = new FileInputStream(file);
+            isr = new InputStreamReader(fis);
+            int i;
+            int count = 0;
+
+            while ((i = isr.read()) != -1 && count < 1024) {
+                char c = (char)isr.read();
+                count ++;
+                if ((c > (char)0 && c < (char)8) || (c > (char)13 && c < (char)26)) {
+                    probBin = true;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException ioe) {
+
+                }
+            }
+            if (isr != null) {
+                try {
+                    isr.close();
+                } catch (IOException ioe) {
+
+                }
+            }
+
+            return probBin;
         }
     }
 

@@ -14,7 +14,6 @@
  */
 package com.atr.tedit.mainstate;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -26,14 +25,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
-import com.atr.tedit.util.ErrorMessage;
+import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.TextSearch;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;

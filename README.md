@@ -3,6 +3,14 @@ TEdit
 
 TEdit is a simple text editor for Android devices. TEdit includes a graphical file browser to make locating existing files and saving new files easy. Additionally TEdit enables you to keep multiple files open simultaneously, simply select the file tabs icon to be presented with a list of currently open documents.
 
+TEdit Features:
+
+- Open multiple documents and switch between them with the Tabs view.
+
+- Search and replace text within your text documents.
+
+- Use the built-in file browser or an external file manager to open files.
+
 [<img src="https://f-droid.org/badge/get-it-on.png"
       alt="Get it on F-Droid"
       height="80">](https://f-droid.org/packages/com.atr.tedit/)

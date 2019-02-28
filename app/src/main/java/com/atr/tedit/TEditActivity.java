@@ -40,7 +40,7 @@ import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.mainstate.Tabs;
 import com.atr.tedit.util.DataAccessUtil;
-import com.atr.tedit.util.ErrorMessage;
+import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 

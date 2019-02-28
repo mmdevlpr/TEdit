@@ -36,7 +36,7 @@ import android.widget.TextView;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
-import com.atr.tedit.util.ErrorMessage;
+import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 

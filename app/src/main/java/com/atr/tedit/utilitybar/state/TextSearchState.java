@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import com.atr.tedit.R;
 import com.atr.tedit.mainstate.Editor;
-import com.atr.tedit.util.HelpDialog;
+import com.atr.tedit.dialog.HelpDialog;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 public class TextSearchState extends UtilityState {

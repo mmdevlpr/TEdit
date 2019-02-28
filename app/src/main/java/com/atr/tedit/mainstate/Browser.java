@@ -41,8 +41,9 @@ import android.widget.Toast;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
+import com.atr.tedit.dialog.PossibleBinary;
 import com.atr.tedit.util.DataAccessUtil;
-import com.atr.tedit.util.ErrorMessage;
+import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 import java.io.File;
@@ -254,7 +255,11 @@ public class Browser extends ListFragment {
             return;
         }
 
-        if (!file.exists()) {
+        openFile(file, false);
+    }
+
+    public void openFile(File file, boolean skipBinaryCheck) {
+        if (file == null || !file.exists()) {
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.missing_file));
             em.show(ctx.getSupportFragmentManager(), "dialog");
@@ -269,7 +274,12 @@ public class Browser extends ListFragment {
             return;
         }
 
-        //open file
+        if (!skipBinaryCheck && !DataAccessUtil.hasExtension(file) && DataAccessUtil.probablyBinaryFile(file)) {
+            PossibleBinary pBin = PossibleBinary.getInstance(file.getPath());
+            pBin.show(ctx.getSupportFragmentManager(), "alert");
+            return;
+        }
+
         String contents = null;
         try {
             contents = DataAccessUtil.readFile(file);
@@ -431,24 +441,7 @@ public class Browser extends ListFragment {
             return false;
         }
 
-        /*if (!hasExtension(filename.toLowerCase())) {
-            if (filename.endsWith(".")) {
-                filename += "txt";
-            } else
-                filename += ".txt";
-        }*/
-
         final File file = new File(currentDir, filename);
-
-        /*String mediaState = Environment.getExternalStorageState();
-        if (!(Environment.MEDIA_MOUNTED.equals(mediaState)
-                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState))) {
-            ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
-                    ctx.getString(R.string.error_unmounted));
-            em.show(ctx.getSupportFragmentManager(), "dialog");
-
-            return false;
-        }*/
 
         if (file.exists()) {
             //prompt overwrite
@@ -519,7 +512,7 @@ public class Browser extends ListFragment {
             if (file.isDirectory())
                 return false;
 
-            return DataAccessUtil.getFileMime(file).startsWith("text/");
+            return !DataAccessUtil.hasExtension(file) || DataAccessUtil.getFileMime(file).startsWith("text/");
         }
     }
 

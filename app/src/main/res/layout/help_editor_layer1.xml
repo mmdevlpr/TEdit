@@ -168,7 +168,7 @@
                     android:layout_gravity="top|left"/>
 
                 <TextView
-                    android:id="@+id/textViewtabs"
+                    android:id="@+id/textViewdown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"

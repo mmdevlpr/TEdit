@@ -12,7 +12,7 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package com.atr.tedit.util;
+package com.atr.tedit.dialog;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -27,49 +27,41 @@ import com.atr.tedit.R;
  * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
  */
 
-public class ErrorMessage extends DialogFragment {
+public class HelpDialog extends DialogFragment {
+    private int layout;
     private String title;
-    private String message;
 
-    public static ErrorMessage getInstance(String title, String message) {
+    public static HelpDialog newInstance(int layout, String title) {
         Bundle bundle = new Bundle();
-        bundle.putString("Message.title", title);
-        bundle.putString("Message.message", message);
+        bundle.putInt("TEdit.help.layout", layout);
+        bundle.putString("TEdit.help.title", title);
+        HelpDialog hd = new HelpDialog();
+        hd.setArguments(bundle);
 
-        ErrorMessage em = new ErrorMessage();
-        em.setArguments(bundle);
-
-        return em;
+        return hd;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        super.onCreateDialog(savedInstanceState);
 
         if (savedInstanceState == null) {
-            Bundle bundle = getArguments();
-            title = bundle.getString("Message.title", getActivity().getString(R.string.alert));
-            message = bundle.getString("Message.message", "");
-            builder.setTitle(title);
-            builder.setMessage(message)
-                .setPositiveButton(getActivity().getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dismiss();
-                    }
-                });
+            layout = getArguments().getInt("TEdit.help.layout", R.layout.help_browser);
+            title = getArguments().getString("TEdit.help.title", "Help");
         } else {
-            title = savedInstanceState.getString("Message.title", getActivity().getString(R.string.alert));
-            message = savedInstanceState.getString("Message.message", "");
-            builder.setTitle(title);
-            builder.setMessage(message)
-                .setPositiveButton(getActivity().getString(R.string.okay), new DialogInterface.OnClickListener() {
+            layout = savedInstanceState.getInt("TEdit.help.layout", R.layout.help_browser);
+            title = savedInstanceState.getString("TEdit.help.title", getString(R.string.help));
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title).setView(getActivity().getLayoutInflater().inflate(layout, null))
+                .setIcon(R.drawable.help_focused)
+                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         dismiss();
                     }
                 });
-        }
 
         return builder.create();
     }
@@ -78,7 +70,7 @@ public class ErrorMessage extends DialogFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString("Message.title", title);
-        outState.putString("Message.message", message);
+        outState.putInt("TEdit.help.layout", layout);
+        outState.putString("TEdit.help.title", title);
     }
 }
