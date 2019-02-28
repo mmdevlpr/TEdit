@@ -19,7 +19,10 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.widget.TextView;
 
+import com.atr.tedit.BuildConfig;
 import com.atr.tedit.R;
 
 /**
@@ -54,7 +57,11 @@ public class HelpDialog extends DialogFragment {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(title).setView(getActivity().getLayoutInflater().inflate(layout, null))
+        View viewLayout = getActivity().getLayoutInflater().inflate(layout, null);
+        TextView versionView = (TextView)viewLayout.findViewById(R.id.version);
+        if (versionView != null)
+            versionView.setText("v" + BuildConfig.VERSION_NAME);
+        builder.setTitle(title).setView(viewLayout)
                 .setIcon(R.drawable.help_focused)
                 .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
                     @Override

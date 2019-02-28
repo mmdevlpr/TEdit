@@ -42,6 +42,7 @@
     <string name="browser">Browser</string>
     <string name="editor">Editor</string>
     <string name="tabs">Tabs</string>
+    <string name="whatsnew">What\'s New</string>
     <string name="author">Developed by Adam T. Ryder</string>
     <string name="icon_author">Icon Design by David Mind</string>
     <string name="help_newdoc">Create a new document.</string>

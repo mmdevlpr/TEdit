@@ -17,6 +17,7 @@ package com.atr.tedit;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -36,6 +37,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.atr.tedit.dialog.HelpDialog;
 import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.mainstate.Tabs;
@@ -252,6 +254,11 @@ public class TEditActivity extends AppCompatActivity {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.activitycontent, frag);
         ft.commit();
+
+        if (isFirstRun()) {
+            saveVersion();
+            displayWhatsNew();
+        }
     }
 
     private void initializeToText(File file) {
@@ -267,6 +274,8 @@ public class TEditActivity extends AppCompatActivity {
                 return;
             }
         }
+
+
 
         String content = null;
         try {
@@ -287,6 +296,11 @@ public class TEditActivity extends AppCompatActivity {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.activitycontent, frag);
             ft.commit();
+
+            if (isFirstRun()) {
+                saveVersion();
+                displayWhatsNew();
+            }
         }
     }
 
@@ -313,6 +327,11 @@ public class TEditActivity extends AppCompatActivity {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.activitycontent, frag);
         ft.commit();
+
+        if (isFirstRun()) {
+            saveVersion();
+            displayWhatsNew();
+        }
     }
 
     private void initializeToDBText() {
@@ -327,6 +346,11 @@ public class TEditActivity extends AppCompatActivity {
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.add(R.id.activitycontent, frag);
                 ft.commit();
+
+                if (isFirstRun()) {
+                    saveVersion();
+                    displayWhatsNew();
+                }
                 return;
             }
         }
@@ -355,6 +379,28 @@ public class TEditActivity extends AppCompatActivity {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.activitycontent, frag);
         ft.commit();
+
+        if (isFirstRun()) {
+            saveVersion();
+            displayWhatsNew();
+        }
+    }
+
+    private boolean isFirstRun() {
+        SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+        int lastVer = prefs.getInt("version", 0);
+        return lastVer < BuildConfig.VERSION_CODE;
+    }
+
+    private void saveVersion() {
+        SharedPreferences.Editor prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE).edit();
+        prefs.putInt("version", BuildConfig.VERSION_CODE);
+        prefs.commit();
+    }
+
+    private void displayWhatsNew() {
+        HelpDialog hd = HelpDialog.newInstance(R.layout.whats_new, getString(R.string.whatsnew));
+        hd.show(getSupportFragmentManager(), "HelpDialog");
     }
 
     public long getLastTxt() {
@@ -541,6 +587,7 @@ public class TEditActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         if (dbOpen) {
             if (isFinishing())
                 db.deleteAll();
