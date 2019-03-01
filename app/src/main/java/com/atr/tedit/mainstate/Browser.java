@@ -12,9 +12,8 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package com.atr.tedit;
+package com.atr.tedit.mainstate;
 
-import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,24 +39,20 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.atr.tedit.R;
+import com.atr.tedit.TEditActivity;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.util.ErrorMessage;
+import com.atr.tedit.utilitybar.UtilityBar;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Adam T. Ryder
@@ -80,7 +75,7 @@ public class Browser extends ListFragment {
 
     private long keyToSave;
 
-    protected static Browser newInstance(String directory, long key) {
+    public static Browser newInstance(String directory, long key) {
         Bundle bundle = new Bundle();
         bundle.putInt("TEditBrowser.type", TYPE_SAVE);
         bundle.putString("TEditBrowser.currentDir", directory);
@@ -92,7 +87,7 @@ public class Browser extends ListFragment {
         return browser;
     }
 
-    protected static Browser newInstance(String directory) {
+    public static Browser newInstance(String directory) {
         Bundle bundle = new Bundle();
         bundle.putInt("TEditBrowser.type", TYPE_OPEN);
         bundle.putString("TEditBrowser.currentDir", directory);
@@ -166,6 +161,18 @@ public class Browser extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_BROWSE) {
+            ctx.getUtilityBar().getState().setEnabled(false);
+            ctx.getUtilityBar().handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.getUtilityBar().getState().setEnabled(true);
+                }
+            }, TEditActivity.SWAP_ANIM_LENGTH);
+        } else
+            ctx.getUtilityBar().setToBrowser();
+
         getListView().setEnabled(true);
         populateBrowser();
         if (type == TYPE_SAVE)
@@ -281,7 +288,7 @@ public class Browser extends ListFragment {
         }
     }
 
-    protected void upDir() {
+    public void upDir() {
         File parent = currentDir.getParentFile();
         if (parent == null)
             return;
@@ -407,7 +414,7 @@ public class Browser extends ListFragment {
         return false;
     }*/
 
-    protected boolean saveFile(String filename, final String body) {
+    public boolean saveFile(String filename, final String body) {
         if (!currentDir.exists()) {
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.missing_dir));

@@ -1,8 +1,11 @@
 package com.atr.tedit.utilitybar.state;
 
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
@@ -11,10 +14,10 @@ import com.atr.tedit.util.Callback;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 public abstract class UtilityState {
-    public static final int ANIMLENGTH = 300;
+    public static final int ANIMLENGTH = 200;
     public static final float SCALE = 0.5f;
 
-    protected int animDelay = (int)(ANIMLENGTH * 0.1);
+    protected int animDelay = 30;
 
     public final int STATE;
     public final UtilityBar BAR;
@@ -23,7 +26,7 @@ public abstract class UtilityState {
 
     private int layer = 0;
 
-    private boolean animating = false;
+    protected boolean animating = false;
 
     protected UtilityState(UtilityBar bar, int state) {
         BAR = bar;
@@ -46,15 +49,37 @@ public abstract class UtilityState {
         return animating;
     }
 
+    public void setEnabled(boolean enable) {
+        for (View v : LAYERS[layer]) {
+            v.setEnabled(enable);
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void animateGL(View view, float alpha, float scale, Interpolator interpolator, int delay) {
+    protected void animateGL(View view, float alpha, float scale, Interpolator interpolator, int delay) {
         view.animate().alpha(alpha).scaleX(scale).scaleY(scale).setDuration(ANIMLENGTH)
                 .setInterpolator(interpolator).setStartDelay(delay).withLayer();
     }
 
-    private void animateSW(View view, float alpha, float scale, Interpolator interpolator, int delay) {
+    protected void animateSW(View view, float alpha, float scale, Interpolator interpolator, int delay) {
         view.animate().alpha(alpha).scaleX(scale).scaleY(scale).setDuration(ANIMLENGTH)
                 .setInterpolator(interpolator).setStartDelay(delay);
+    }
+
+    protected void animateBarHeight(int fromHeight, int toHeight, Interpolator interpolator, int delay) {
+        ValueAnimator anim = ValueAnimator.ofInt(fromHeight, toHeight);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                ViewGroup.LayoutParams lp = BAR.bar.getLayoutParams();
+                lp.height = (int)valueAnimator.getAnimatedValue();
+                BAR.bar.setLayoutParams(lp);
+            }
+        });
+
+        anim.setDuration(ANIMLENGTH).setInterpolator(interpolator);
+        anim.setStartDelay(delay);
+        anim.start();
     }
 
     public void setToState() {
@@ -69,7 +94,7 @@ public abstract class UtilityState {
         }
     }
 
-    private void transOut() {
+    protected void transOut() {
         animating = true;
         View[] l = LAYERS[layer];
         int count = 0;
@@ -88,7 +113,7 @@ public abstract class UtilityState {
         }
     }
 
-    private void transIn() {
+    protected void transIn() {
         animating = true;
         View[] l = LAYERS[layer];
         int count = 0;

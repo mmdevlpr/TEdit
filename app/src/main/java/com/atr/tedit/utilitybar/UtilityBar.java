@@ -41,6 +41,7 @@ public class UtilityBar {
     public static final int STATE_BROWSE = 0;
     public static final int STATE_TEXT = 1;
     public static final int STATE_TAB = 2;
+    public static final int STATE_TEXT_SEARCH = 3;
 
     public final BrowserState UTILITY_STATE_BROWSER;
     public final TextState UTILITY_STATE_TEXT;

@@ -10,7 +10,10 @@
         <item name="alertDialogTheme">@style/AppTheme.Alert</item>
     </style>
 
-    <style name="drkGreen" parent="AppTheme">
+    <style name="AppTheme.Dark" parent="ThemeOverlay.AppCompat.Dark">
+    </style>
+
+    <style name="drkGreen" parent="AppTheme.Dark">
         <item name="colorAccent">@color/greenAccent</item>
         <item name="android:textColorPrimary">@color/greenPrimary</item>
         <item name="colorPrimary">@color/greenDark</item>

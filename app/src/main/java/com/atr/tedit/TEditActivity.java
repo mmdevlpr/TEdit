@@ -36,6 +36,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.atr.tedit.mainstate.Browser;
+import com.atr.tedit.mainstate.Editor;
+import com.atr.tedit.mainstate.Tabs;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.util.ErrorMessage;
 import com.atr.tedit.util.TEditDB;
@@ -50,6 +53,8 @@ import java.io.IOException;
  */
 
 public class TEditActivity extends AppCompatActivity {
+    public static final int SWAP_ANIM_LENGTH = 300;
+
     public static final String DEFAULTPATH = "Untitled";
     public static final int INIT_BROWSER_PERMISSION = 0;
     public static final int INIT_TEXT_PERMISSION = 1;
@@ -185,17 +190,17 @@ public class TEditActivity extends AppCompatActivity {
         frag = getSupportFragmentManager().findFragmentById(R.id.activitycontent);
         switch (lastState) {
             case STATE_BROWSE:
-                utilityBar.setToBrowser();
+                //utilityBar.setToBrowser();
                 state = STATE_BROWSE;
                 break;
             case STATE_TEXT:
                 if (lastTxt != -1) {
-                    utilityBar.setToText();
+                    //utilityBar.setToText();
                     state = STATE_TEXT;
                     break;
                 }
 
-                utilityBar.setToBrowser();
+                //utilityBar.setToBrowser();
                 FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
                 ft1.remove(frag);
                 frag = Browser.newInstance(currentPath.getPath());
@@ -204,12 +209,12 @@ public class TEditActivity extends AppCompatActivity {
                 state = STATE_BROWSE;
                 break;
             case STATE_TAB:
-                utilityBar.setToTab();
+                //utilityBar.setToTab();
                 state = STATE_TAB;
                 break;
             default:
                 state = STATE_BROWSE;
-                utilityBar.setToBrowser();
+                //utilityBar.setToBrowser();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.remove(frag);
                 frag = Browser.newInstance(currentPath.getPath());
@@ -221,6 +226,10 @@ public class TEditActivity extends AppCompatActivity {
 
     public DisplayMetrics getMetrics() {
         return dMetrics;
+    }
+
+    public UtilityBar getUtilityBar() {
+        return utilityBar;
     }
 
     private void initializeToBrowser() {
@@ -237,7 +246,7 @@ public class TEditActivity extends AppCompatActivity {
         }
 
         state = STATE_BROWSE;
-        utilityBar.setToBrowser();
+        //utilityBar.setToBrowser();
         frag = Browser.newInstance(currentPath.getPath());
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -272,7 +281,7 @@ public class TEditActivity extends AppCompatActivity {
                 lastTxt = db.createText(file.getPath(), content);
 
             state = STATE_TEXT;
-            utilityBar.setToText();
+            //utilityBar.setToText();
             frag = Editor.newInstance(lastTxt);
 
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -298,7 +307,7 @@ public class TEditActivity extends AppCompatActivity {
             lastTxt = db.createText(DEFAULTPATH, content);
 
         state = STATE_TEXT;
-        utilityBar.setToText();
+        //utilityBar.setToText();
         frag = Editor.newInstance(lastTxt);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -340,7 +349,7 @@ public class TEditActivity extends AppCompatActivity {
         cursor.close();
         lastTxt = id;
         state = STATE_TEXT;
-        utilityBar.setToText();
+        //utilityBar.setToText();
         frag = Editor.newInstance(getLastTxt());
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -352,7 +361,7 @@ public class TEditActivity extends AppCompatActivity {
         return lastTxt;
     }
 
-    protected void setLastTxt(long key) {
+    public void setLastTxt(long key) {
         lastTxt = key;
     }
 
@@ -375,7 +384,7 @@ public class TEditActivity extends AppCompatActivity {
         }
         state = STATE_TEXT;
         lastTxt = key;
-        utilityBar.setToText();
+        //utilityBar.setToText();
         swapFragment(Editor.newInstance(lastTxt));
     }
 
@@ -388,7 +397,7 @@ public class TEditActivity extends AppCompatActivity {
             file = new File(rootPath.getPath());
         currentPath = file;
 
-        utilityBar.setToBrowser();
+        //utilityBar.setToBrowser();
         swapFragment(Browser.newInstance(currentPath.getPath()));
     }
 
@@ -401,7 +410,7 @@ public class TEditActivity extends AppCompatActivity {
             file = new File(rootPath.getPath());
         savePath = file;
 
-        utilityBar.setToBrowser();
+        //utilityBar.setToBrowser();
         swapFragment(Browser.newInstance(savePath.getPath(), lastTxt));
     }
 
@@ -416,14 +425,8 @@ public class TEditActivity extends AppCompatActivity {
 
         cursor.close();
         state = STATE_TAB;
-        utilityBar.setToTab();
+        //utilityBar.setToTab();
         swapFragment(new Tabs());
-    }
-
-    public void upDir() {
-        if (!(frag instanceof Browser))
-            return;
-        ((Browser)frag).upDir();
     }
 
     public void saveFile(View view) {
@@ -493,7 +496,7 @@ public class TEditActivity extends AppCompatActivity {
         setCurrentPath(new File(path));
     }
 
-    protected void setCurrentPath(File file) {
+    public void setCurrentPath(File file) {
         if (file.isFile())
             file = file.getParentFile();
         if (!file.exists())
@@ -504,7 +507,7 @@ public class TEditActivity extends AppCompatActivity {
 
     protected void setSavePath(String path) { setSavePath(new File(path)); }
 
-    protected void setSavePath(File file) {
+    public void setSavePath(File file) {
         if (file.isFile())
             file = file.getParentFile();
         if (!file.exists())
@@ -513,15 +516,15 @@ public class TEditActivity extends AppCompatActivity {
         savePath = file;
     }
 
-    protected File getRootPath() {
+    public File getRootPath() {
         return rootPath;
     }
 
-    protected File getCurrentPath() {
+    public File getCurrentPath() {
         return currentPath;
     }
 
-    protected File getSavePath() {
+    public File getSavePath() {
         return savePath;
     }
 
@@ -561,7 +564,11 @@ public class TEditActivity extends AppCompatActivity {
                     closeBrowser();
                     break;
                 case STATE_TEXT:
-                    closeText();
+                    if (utilityBar.getState().STATE == UtilityBar.STATE_TEXT_SEARCH) {
+                        if (!utilityBar.isAnimating())
+                            utilityBar.setToText();
+                    } else
+                        closeText();
                     break;
                 case STATE_TAB:
                     closeTabs();
@@ -575,15 +582,15 @@ public class TEditActivity extends AppCompatActivity {
     }
 
     protected void closeBrowser() {
-        if (utilityBar.isAnimating())
-            return;
-
         if (!dbIsOpen()) {
             finish();
             return;
         }
 
         if (getLastTxt() != -1) {
+            if (utilityBar.isAnimating())
+                return;
+
             Cursor cursor = getDB().fetchText(getLastTxt());
             if (cursor != null) {
                 cursor.close();
@@ -606,8 +613,13 @@ public class TEditActivity extends AppCompatActivity {
             finish();
             return;
         }
+
         long id = cursor.getLong(cursor.getColumnIndex(TEditDB.KEY_ROWID));
         cursor.close();
+
+        if (utilityBar.isAnimating())
+            return;
+
         openDocument(id);
     }
 
@@ -746,7 +758,7 @@ public class TEditActivity extends AppCompatActivity {
         cursor.close();
         try {
             DataAccessUtil.writeFile(file, body);
-            Toast.makeText(this, "File Saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.filesaved, Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                     && !checkWritePermission()) {
@@ -813,7 +825,7 @@ public class TEditActivity extends AppCompatActivity {
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    protected boolean checkWritePermission() {
+    public boolean checkWritePermission() {
         return ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }

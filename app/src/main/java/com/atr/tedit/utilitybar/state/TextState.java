@@ -6,6 +6,7 @@ import android.widget.Button;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
+import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.util.HelpDialog;
 import com.atr.tedit.utilitybar.UtilityBar;
 
@@ -73,11 +74,23 @@ public class TextState extends UtilityState {
             }
         });
 
+        Button search = new Button(BAR.ctx);
+        search.setBackgroundResource(R.drawable.button_search);
+        search.setId(R.id.five);
+        search.setNextFocusRightId(R.id.six);
+        search.setNextFocusLeftId(R.id.four);
+        search.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               ((Editor)BAR.ctx.getFrag()).activateSearch();
+           }
+        });
+
         Button help = new Button(BAR.ctx);
         help.setBackgroundResource(R.drawable.button_help);
-        help.setId(R.id.five);
-        help.setNextFocusRightId(R.id.six);
-        help.setNextFocusLeftId(R.id.four);
+        help.setId(R.id.six);
+        help.setNextFocusRightId(R.id.zero);
+        help.setNextFocusLeftId(R.id.five);
         help.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,7 +99,7 @@ public class TextState extends UtilityState {
             }
         });
 
-        Button[] l = {newdoc, opendoc, savedoc, savedocas, tabs, help};
+        Button[] l = {newdoc, opendoc, savedoc, savedocas, search, tabs, help};
         int count = 0;
         for (Button v : l) {
             if (count == l.length - 1) {

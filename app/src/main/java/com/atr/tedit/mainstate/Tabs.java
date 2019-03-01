@@ -12,7 +12,7 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package com.atr.tedit;
+package com.atr.tedit.mainstate;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,8 +34,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.atr.tedit.R;
+import com.atr.tedit.TEditActivity;
 import com.atr.tedit.util.ErrorMessage;
 import com.atr.tedit.util.TEditDB;
+import com.atr.tedit.utilitybar.UtilityBar;
 
 import java.io.File;
 
@@ -67,6 +70,17 @@ public class Tabs extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TAB) {
+            ctx.getUtilityBar().getState().setEnabled(false);
+            ctx.getUtilityBar().handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.getUtilityBar().getState().setEnabled(true);
+                }
+            }, TEditActivity.SWAP_ANIM_LENGTH);
+        } else
+            ctx.getUtilityBar().setToTab();
 
         populateTabs();
         getListView().setEnabled(true);

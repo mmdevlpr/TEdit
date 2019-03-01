@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
                     android:layout_weight="0"
-                    app:srcCompat="@drawable/x_focused"
+                    app:srcCompat="@drawable/back"
                     android:layout_marginRight="8dp"
                     android:layout_gravity="top|left"/>
 

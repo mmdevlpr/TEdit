@@ -23,8 +23,8 @@ public class TabsState extends UtilityState {
         help.setAlpha(1);
         help.setFocusable(true);
         help.setId(R.id.zero);
-        help.setNextFocusRightId(R.id.one);
-        help.setNextFocusLeftId(R.id.one);
+        help.setNextFocusRightId(R.id.zero);
+        help.setNextFocusLeftId(R.id.zero);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(BAR.bar.getLayoutParams());
         lp.width = BAR.bWidth;
         lp.height = BAR.bHeight;

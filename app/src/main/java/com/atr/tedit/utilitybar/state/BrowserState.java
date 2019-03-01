@@ -4,7 +4,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.atr.tedit.Browser;
+import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.util.HelpDialog;
@@ -22,7 +22,7 @@ public class BrowserState extends UtilityState {
         dir_parent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BAR.ctx.upDir();
+                ((Browser)BAR.ctx.getFrag()).upDir();
             }
         });
         dir_parent.setEnabled(false);
@@ -70,7 +70,7 @@ public class BrowserState extends UtilityState {
         Button help = new Button(BAR.ctx);
         help.setBackgroundResource(R.drawable.button_help);
         help.setId(R.id.four);
-        help.setNextFocusRightId(R.id.five);
+        help.setNextFocusRightId(R.id.zero);
         help.setNextFocusLeftId(R.id.three);
         help.setOnClickListener(new View.OnClickListener() {
             @Override

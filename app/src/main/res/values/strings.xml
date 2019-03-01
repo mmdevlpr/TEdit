@@ -4,9 +4,14 @@
     <string name="empty_dir">No Contents</string>
     <string name="save_filename">Untitled.txt</string>
     <string name="alert">Alert</string>
+    <string name="error">Error</string>
     <string name="confirm">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="okay">Okay</string>
+    <string name="whole_word">Whole Word</string>
+    <string name="match_case">Match Case</string>
+    <string name="search">Search</string>
+    <string name="replace">Replace</string>
     <string name="missing_dir">Directory does not exist!</string>
     <string name="missing_file">File does not exist!</string>
     <string name="error_delete">Unable to delete file!</string>
@@ -16,6 +21,7 @@
     <string name="error_readfile">TEdit was not able to open the file.</string>
     <string name="error_invalidname">Invalid filename!</string>
     <string name="error_direxists">Directory already exists.</string>
+    <string name="error_oom">Unfortunately your device ran out of memory whilst attempting to perform this operation.</string>
     <string name="delete">Delete</string>
     <string name="overwrite">Overwrite</string>
     <string name="overwrite_message">Do you wish to overwrite %s?</string>
@@ -30,6 +36,7 @@
     <string name="filesaved">File Saved</string>
     <string name="filedeleted">File Deleted</string>
     <string name="noopendocuments">No Open Documents</string>
+    <string name="items_replaced">Item(s) Replaced</string>
     <string name="help">Help</string>
     <string name="browser">Browser</string>
     <string name="editor">Editor</string>
@@ -40,11 +47,17 @@
     <string name="help_parentdir">Move to the parent directory.</string>
     <string name="help_newdir">Create a new directory.</string>
     <string name="help_tabs">View the list of currently open documents.</string>
-    <string name="help_browseclose">Close the browser. If you have one or more open documents this will switch to the last open document otherwise, this will quit the TEdit application. Using the back button will perform the same action.</string>
+    <string name="help_browseclose">Use your device\'s back button to close the browser. If you have one or more open documents this will switch to the last open document otherwise, this will quit the TEdit application.</string>
     <string name="help_opendoc">Open a document.</string>
     <string name="help_savedoc">Save the current document.</string>
     <string name="help_saveas">Save a copy of the current document.</string>
-    <string name="help_editorclose">Close the current document. If more than one document is open this will switch to one of the other open documents otherwise, this will switch to the file browser. Using the back button will perform the same action.</string>
+    <string name="help_searchtext">Search and replace text within the text document.</string>
+    <string name="help_editorclose">Use your device\'s back button to close the current document. If more than one document is open this will switch to one of the other open documents otherwise, this will switch to the file browser.</string>
     <string name="help_tabswipe">Swipe any item left or right to close the respective text file.</string>
-    <string name="help_tabclose">Close the tabs view. If more than one document is open this will switch to the last open document otherwise, this will switch to the file browser. Using the back button will perform the same action.</string>
+    <string name="help_tabclose">Use your device\'s back button to close the tabs view. If more than one document is open this will switch to the last open document otherwise, this will switch to the file browser.</string>
+    <string name="help_replace">Replace the currently selected instance of the search phrase with the replace phrase.</string>
+    <string name="help_replaceall">Replace all instances of the search phrase with the replace phrase.</string>
+    <string name="help_left">Select and scroll to the previous instance of the search phrase within the text document.</string>
+    <string name="help_right">Select and scroll to the next instance of the search phrase within the text document.</string>
+    <string name="help_back">Use your device\'s back button to exit search mode.</string>
 </resources>
