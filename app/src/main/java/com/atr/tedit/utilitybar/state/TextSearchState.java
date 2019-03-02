@@ -268,12 +268,12 @@ public class TextSearchState extends UtilityState {
     }
 
     @Override
-    public void setToState() {
+    public void setToState(int layer) {
         LayoutParams lp = BAR.bar.getLayoutParams();
         lp.height = barHeight;
         BAR.bar.setLayoutParams(lp);
 
-        super.setToState();
+        super.setToState(layer);
     }
 
     @Override

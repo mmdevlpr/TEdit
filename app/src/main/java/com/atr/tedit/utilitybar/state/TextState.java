@@ -14,11 +14,11 @@ public class TextState extends UtilityState {
     public TextState(UtilityBar bar) {
         super(bar, UtilityBar.STATE_TEXT);
 
+        boolean twoLayer = (bar.padding_w * 2 + bar.bWidth * 7 + bar.margin * 6) > bar.barWidth;
+
         Button newdoc = new Button(BAR.ctx);
         newdoc.setBackgroundResource(R.drawable.button_doc);
         newdoc.setId(R.id.zero);
-        newdoc.setNextFocusRightId(R.id.one);
-        newdoc.setNextFocusLeftId(R.id.six);
         newdoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -29,8 +29,6 @@ public class TextState extends UtilityState {
         Button opendoc = new Button(BAR.ctx);
         opendoc.setBackgroundResource(R.drawable.button_dir);
         opendoc.setId(R.id.one);
-        opendoc.setNextFocusRightId(R.id.two);
-        opendoc.setNextFocusLeftId(R.id.zero);
         opendoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -41,8 +39,6 @@ public class TextState extends UtilityState {
         Button savedoc = new Button(BAR.ctx);
         savedoc.setBackgroundResource(R.drawable.button_save);
         savedoc.setId(R.id.two);
-        savedoc.setNextFocusRightId(R.id.three);
-        savedoc.setNextFocusLeftId(R.id.one);
         savedoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -53,8 +49,6 @@ public class TextState extends UtilityState {
         Button savedocas = new Button(BAR.ctx);
         savedocas.setBackgroundResource(R.drawable.button_save_as);
         savedocas.setId(R.id.three);
-        savedocas.setNextFocusRightId(R.id.four);
-        savedocas.setNextFocusLeftId(R.id.two);
         savedocas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,8 +59,6 @@ public class TextState extends UtilityState {
         Button tabs = new Button(BAR.ctx);
         tabs.setBackgroundResource(R.drawable.button_tabs);
         tabs.setId(R.id.four);
-        tabs.setNextFocusRightId(R.id.five);
-        tabs.setNextFocusLeftId(R.id.three);
         tabs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,8 +69,6 @@ public class TextState extends UtilityState {
         Button search = new Button(BAR.ctx);
         search.setBackgroundResource(R.drawable.button_search);
         search.setId(R.id.five);
-        search.setNextFocusRightId(R.id.six);
-        search.setNextFocusLeftId(R.id.four);
         search.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
@@ -89,40 +79,93 @@ public class TextState extends UtilityState {
         Button help = new Button(BAR.ctx);
         help.setBackgroundResource(R.drawable.button_help);
         help.setId(R.id.six);
-        help.setNextFocusRightId(R.id.zero);
-        help.setNextFocusLeftId(R.id.five);
-        help.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HelpDialog hd = HelpDialog.newInstance(R.layout.help_editor, BAR.ctx.getString(R.string.editor));
-                hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
-            }
-        });
 
-        Button[] l = {newdoc, opendoc, savedoc, savedocas, search, tabs, help};
-        int count = 0;
-        for (Button v : l) {
-            if (count == l.length - 1) {
-                v.setTranslationX(BAR.barWidth - BAR.bWidth - BAR.padding_w);
-            } else
-                v.setTranslationX(BAR.padding_w + (count * (BAR.margin + bar.bWidth)));
-            v.setTranslationY(BAR.padding_h);
+        if (!twoLayer) {
+            help.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HelpDialog hd = HelpDialog.newInstance(R.layout.help_editor, BAR.ctx.getString(R.string.editor));
+                    hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                }
+            });
 
-            v.setFocusable(true);
-            v.setWidth(BAR.bWidth);
-            v.setHeight(BAR.bHeight);
-            v.setScaleX(1);
-            v.setScaleY(1);
-            v.setAlpha(1);
-            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(BAR.bar.getLayoutParams());
-            lp.width = BAR.bWidth;
-            lp.height = BAR.bHeight;
-            v.setLayoutParams(lp);
+            Button[] l = {newdoc, opendoc, savedoc, savedocas, search, tabs, help};
+            LAYERS = new View[1][];
+            LAYERS[0] = l;
+        } else {
+            help.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HelpDialog hd = HelpDialog.newInstance(R.layout.help_editor_layer1, BAR.ctx.getString(R.string.editor));
+                    hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                }
+            });
 
-            count++;
+            Button up = new Button(BAR.ctx);
+            up.setBackgroundResource(R.drawable.button_arrow_up);
+            up.setId(R.id.seven);
+            up.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    BAR.getState().transToLayer(0);
+                }
+            });
+
+            Button down = new Button(BAR.ctx);
+            down.setBackgroundResource(R.drawable.button_arrow_down);
+            down.setId(R.id.eight);
+            down.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    BAR.getState().transToLayer(1);
+                }
+            });
+
+            Button helpL2 = new Button(BAR.ctx);
+            helpL2.setBackgroundResource(R.drawable.button_help);
+            helpL2.setId(R.id.six);
+            helpL2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HelpDialog hd = HelpDialog.newInstance(R.layout.help_editor_layer2, BAR.ctx.getString(R.string.editor));
+                    hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                }
+            });
+
+            Button[] l1 = {savedoc, search, tabs, down, help};
+            Button[] l2 = {newdoc, opendoc, savedocas, up, helpL2};
+            LAYERS = new View[2][];
+            LAYERS[0] = l1;
+            LAYERS[1] = l2;
         }
+        for (int i = 0; i < (twoLayer ? 2 : 1); i++) {
+            int count = 0;
+            for (View v : LAYERS[i]) {
+                if (count == LAYERS[i].length - 1) {
+                    v.setTranslationX(BAR.barWidth - BAR.bWidth - BAR.padding_w);
+                    v.setNextFocusRightId(LAYERS[i][0].getId());
+                    v.setNextFocusLeftId(LAYERS[i][count - 1].getId());
+                } else {
+                    v.setTranslationX(BAR.padding_w + (count * (BAR.margin + bar.bWidth)));
+                    v.setNextFocusRightId(LAYERS[i][count + 1].getId());
+                    if (count == 0)
+                        v.setNextFocusLeftId(LAYERS[i][LAYERS[i].length - 1].getId());
+                }
+                v.setTranslationY(BAR.padding_h);
 
-        LAYERS = new View[1][];
-        LAYERS[0] = l;
+                v.setFocusable(true);
+                //v.setWidth(BAR.bWidth);
+                //v.setHeight(BAR.bHeight);
+                v.setScaleX(1);
+                v.setScaleY(1);
+                v.setAlpha(1);
+                ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(BAR.bar.getLayoutParams());
+                lp.width = BAR.bWidth;
+                lp.height = BAR.bHeight;
+                v.setLayoutParams(lp);
+
+                count++;
+            }
+        }
     }
 }

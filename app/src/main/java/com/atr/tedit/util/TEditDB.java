@@ -33,6 +33,7 @@ public class TEditDB {
     public static final String KEY_SCROLLPOS = "scrollpos";
     public static final String KEY_SELECTION_START = "selstart";
     public static final String KEY_SELECTION_END = "selend";
+    public static final String KEY_TEXT_BAR_LAYER = "editorbarlayer";
     public static final String KEY_TEXT_SEARCH_ACTIVE = "textsearchactive";
     public static final String KEY_TEXT_SEARCH_PHRASE = "textsearchphrase";
     public static final String KEY_TEXT_SEARCH_REPLACE = "textsearchreplacephrase";
@@ -48,7 +49,7 @@ public class TEditDB {
             "create table texts (_id integer primary key autoincrement, "
                     + "path text not null, body text not null, "
                     + "scrollpos int not null, selstart int not null, selend int not null, "
-                    + "textsearchactive text not null, "
+                    + "editorbarlayer int not null, textsearchactive text not null, "
                     + "textsearchphrase text not null, textsearchreplacephrase text not null,"
                     + "textsearchwholeword int not null, textsearchmatchcase int not null);";
 
@@ -99,6 +100,7 @@ public class TEditDB {
         initialValues.put(KEY_SCROLLPOS, 0);
         initialValues.put(KEY_SELECTION_START, 0);
         initialValues.put(KEY_SELECTION_END, 0);
+        initialValues.put(KEY_TEXT_BAR_LAYER, 0);
         initialValues.put(KEY_TEXT_SEARCH_ACTIVE, 0);
         initialValues.put(KEY_TEXT_SEARCH_PHRASE, "");
         initialValues.put(KEY_TEXT_SEARCH_REPLACE, "");
@@ -136,7 +138,7 @@ public class TEditDB {
     public Cursor fetchText(long rowId) throws SQLException {
         Cursor mCursor = mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
                                 KEY_PATH, KEY_BODY, KEY_SCROLLPOS, KEY_SELECTION_START,
-                                KEY_SELECTION_END, KEY_TEXT_SEARCH_ACTIVE,
+                                KEY_SELECTION_END, KEY_TEXT_BAR_LAYER, KEY_TEXT_SEARCH_ACTIVE,
                                 KEY_TEXT_SEARCH_PHRASE, KEY_TEXT_SEARCH_REPLACE,
                                 KEY_TEXT_SEARCH_WHOLEWORD, KEY_TEXT_SEARCH_MATCHCASE},
                                 KEY_ROWID + "=" + rowId, null,
@@ -161,12 +163,13 @@ public class TEditDB {
     }
     
     public boolean updateTextState(long rowId, int scrollpos, int selectionStart, int selectionEnd,
-                                   int searchActive, String searchPhrase, String searchReplacePhrase,
-                                   int searchWholeWord, int searchMatchCase) {
+                                   int utilityBarLayer, int searchActive, String searchPhrase,
+                                   String searchReplacePhrase, int searchWholeWord, int searchMatchCase) {
         ContentValues args = new ContentValues();
         args.put(KEY_SCROLLPOS, scrollpos);
         args.put(KEY_SELECTION_START, selectionStart);
         args.put(KEY_SELECTION_END, selectionEnd);
+        args.put(KEY_TEXT_BAR_LAYER, utilityBarLayer);
         args.put(KEY_TEXT_SEARCH_ACTIVE, searchActive);
         args.put(KEY_TEXT_SEARCH_PHRASE, searchPhrase);
         args.put(KEY_TEXT_SEARCH_REPLACE, searchReplacePhrase);

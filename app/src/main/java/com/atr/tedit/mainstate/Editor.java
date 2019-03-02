@@ -181,6 +181,7 @@ public class Editor extends Fragment {
             }
         });
 
+        int utilityBarLayer = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_BAR_LAYER));
         boolean searchActive = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_ACTIVE)) != 0;
         String searchPhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_PHRASE));
         String replacePhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_REPLACE));
@@ -188,7 +189,8 @@ public class Editor extends Fragment {
         boolean searchMatchCase = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_MATCHCASE)) != 0;
 
         if (!searchActive) {
-            if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT) {
+            if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT
+                    && ctx.getUtilityBar().getState().getLayer() == utilityBarLayer) {
                 ctx.getUtilityBar().getState().setEnabled(false);
                 ctx.getUtilityBar().handler.postDelayed(new Runnable() {
                     @Override
@@ -197,7 +199,7 @@ public class Editor extends Fragment {
                     }
                 }, TEditActivity.SWAP_ANIM_LENGTH);
             } else
-                ctx.getUtilityBar().setToText();
+                ctx.getUtilityBar().setState(ctx.getUtilityBar().UTILITY_STATE_TEXT, utilityBarLayer);
 
             barSearch = new TextSearchState(ctx.getUtilityBar(), searchPhrase, replacePhrase, searchWholeWord,
                     searchMatchCase);
@@ -255,7 +257,7 @@ public class Editor extends Fragment {
 
         ctx.getDB().updateText(key, path, editText.getText().toString());
         ctx.getDB().updateTextState(key, editText.getScrollY(), editText.getSelectionStart(),
-                editText.getSelectionEnd(),
+                editText.getSelectionEnd(), ctx.getUtilityBar().getState().getLayer(),
                 ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT_SEARCH ? 1 : 0,
                 barSearch.getSearchPhrase(), barSearch.getReplacePhrase(),
                 barSearch.isWholeWord() ? 1 : 0, barSearch.isMatchCase() ? 1 : 0);

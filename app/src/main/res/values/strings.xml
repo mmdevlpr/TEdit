@@ -52,6 +52,8 @@
     <string name="help_savedoc">Save the current document.</string>
     <string name="help_saveas">Save a copy of the current document.</string>
     <string name="help_searchtext">Search and replace text within the text document.</string>
+    <string name="help_textlayer2">Switch to the second button layer.</string>
+    <string name="help_textlayer1">Switch to the first button layer.</string>
     <string name="help_editorclose">Use your device\'s back button to close the current document. If more than one document is open this will switch to one of the other open documents otherwise, this will switch to the file browser.</string>
     <string name="help_tabswipe">Swipe any item left or right to close the respective text file.</string>
     <string name="help_tabclose">Use your device\'s back button to close the tabs view. If more than one document is open this will switch to the last open document otherwise, this will switch to the file browser.</string>

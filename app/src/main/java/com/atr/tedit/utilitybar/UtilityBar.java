@@ -92,13 +92,17 @@ public class UtilityBar {
     }
 
     public void setState(final UtilityState nextState) {
+        this.setState(nextState, 0);
+    }
+
+    public void setState(final UtilityState nextState, int layer) {
         if (state.STATE == STATE_INIT) {
-            nextState.setToState();
+            nextState.setToState(layer);
             state = nextState;
             return;
         }
 
-        state.transToState(nextState, new Callback<UtilityState>() {
+        state.transTo(nextState, layer, new Callback<UtilityState>() {
             public void call(UtilityState var) {
                 if (var == null) {
                     state = nextState;

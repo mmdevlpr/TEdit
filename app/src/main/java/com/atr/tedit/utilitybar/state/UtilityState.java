@@ -83,10 +83,15 @@ public abstract class UtilityState {
     }
 
     public void setToState() {
+        setToState(layer);
+    }
+
+    public void setToState(int layer) {
         if (BAR.getState().STATE == STATE && BAR.getState().getLayer() == layer)
             return;
 
         BAR.bar.removeAllViews();
+        setLayer(layer);
         View[] l = LAYERS[layer];
         for (View v : l) {
             v.setEnabled(true);
@@ -167,7 +172,7 @@ public abstract class UtilityState {
     }
 
     public void transTo(final UtilityState toState, final int stateLayer, final Callback<UtilityState> callback) {
-        if (toState.STATE == STATE && toState.getLayer() == layer)
+        if (toState.STATE == STATE && toState.getLayer() == stateLayer)
             return;
 
         transOut();
