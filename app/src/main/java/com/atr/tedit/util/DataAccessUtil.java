@@ -63,7 +63,9 @@ public class DataAccessUtil {
             "text/x-c",
             "text/x-c",
             "text/x-h",
-            "text/x-script.python"};
+            "text/x-script.python",
+            "text/plain",
+            "text/plain"};
 
     /**
      * Retrieves the contents from data specified via a {@link android.net.Uri}.
