@@ -41,7 +41,7 @@ public class PossibleBinary extends DialogFragment {
                         dismiss();
                     }
                 })
-                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         dismiss();
