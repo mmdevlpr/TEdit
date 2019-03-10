@@ -14,6 +14,8 @@
  */
 package com.atr.tedit.mainstate;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +26,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
@@ -32,28 +35,34 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.PossibleBinary;
+import com.atr.tedit.dialog.VolumePicker;
+import com.atr.tedit.file.AndPath;
+import com.atr.tedit.file.descriptor.AndFile;
+import com.atr.tedit.util.AndFileFilter;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.utilitybar.UtilityBar;
 
+import org.json.JSONException;
+
 import java.io.File;
-import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Comparator;
 
 /**
  * @author Adam T. Ryder
@@ -69,17 +78,17 @@ public class Browser extends ListFragment {
     private int type;
     private TEditActivity ctx;
 
-    private File currentDir;
+    private AndPath currentPath;
 
     private int numDirs;
     private int numFiles;
 
     private long keyToSave;
 
-    public static Browser newInstance(String directory, long key) {
+    public static Browser newInstance(String path, long key) {
         Bundle bundle = new Bundle();
         bundle.putInt("TEditBrowser.type", TYPE_SAVE);
-        bundle.putString("TEditBrowser.currentDir", directory);
+        bundle.putString("TEditBrowser.currentPath", path);
         bundle.putLong("TEditBrowser.keyToSave", key);
 
         Browser browser = new Browser();
@@ -88,10 +97,10 @@ public class Browser extends ListFragment {
         return browser;
     }
 
-    public static Browser newInstance(String directory) {
+    public static Browser newInstance(String path) {
         Bundle bundle = new Bundle();
         bundle.putInt("TEditBrowser.type", TYPE_OPEN);
-        bundle.putString("TEditBrowser.currentDir", directory);
+        bundle.putString("TEditBrowser.currentPath", path);
 
         Browser browser = new Browser();
         browser.setArguments(bundle);
@@ -113,28 +122,45 @@ public class Browser extends ListFragment {
         if (savedInstanceState == null) {
             Bundle bundle = getArguments();
             type = bundle.getInt("TEditBrowser.type", TYPE_OPEN);
-            currentDir = new File(bundle.getString("TEditBrowser.currentDir",
-                    type == TYPE_OPEN ? ctx.getCurrentPath().getPath()
-                    : ctx.getSavePath().getPath()));
             if (type == TYPE_SAVE)
                 keyToSave = bundle.getLong("TEditBrowser.keyToSave", -1);
 
+            String path = bundle.getString("TEditBrowser.currentPath", "");
+            if (path.isEmpty()) {
+                currentPath = ctx.getCurrentPath().clone();
+                return;
+            }
+
+            AndPath tmpPath = null;
+            try {
+                tmpPath = AndPath.fromJson(ctx, path);
+            } catch (Exception e) {
+                tmpPath = null;
+            }
+
+            currentPath = tmpPath == null ? ctx.getCurrentPath().clone() : tmpPath;
             return;
         }
 
-        String mediaState = Environment.getExternalStorageState();
         type = savedInstanceState.getInt("TEditBrowser.type", TYPE_OPEN);
-        if (Environment.MEDIA_MOUNTED.equals(mediaState)
-                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
-            currentDir = new File(savedInstanceState.getString("TEditBrowser.currentDir",
-                    Environment.getExternalStorageDirectory().getPath()));
-        } else {
-            currentDir = new File(savedInstanceState.getString("TEditBrowser.currentDir",
-                    "/"));
-        }
         if (type == TYPE_SAVE)
             keyToSave = savedInstanceState.getLong("TEditBrowser.keyToSave", -1);
-        
+
+        String path = savedInstanceState.getString("TEditBrowser.currentPath", "");
+        if (path.isEmpty()) {
+            currentPath = ctx.getCurrentPath().clone();
+            return;
+        }
+
+        AndPath tmpPath = null;
+        try {
+            tmpPath = AndPath.fromJson(ctx, path);
+        } catch (Exception e) {
+            tmpPath = null;
+            Log.i("TEdit", e.getMessage());
+        }
+
+        currentPath = tmpPath == null ? ctx.getCurrentPath().clone() : tmpPath;
     }
 
     @Override
@@ -154,7 +180,7 @@ public class Browser extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("TEditBrowser.currentDir", currentDir.getPath());
+        outState.putString("TEditBrowser.currentPath", currentPath.toJson());
         outState.putInt("TEditBrowser.type", type);
         outState.putLong("TEditBrowser.keyToSave", keyToSave);
     }
@@ -185,7 +211,6 @@ public class Browser extends ListFragment {
         super.onPause();
 
         if (type == TYPE_SAVE) {
-            ctx.setSavePath(currentDir);
             getView().findViewById(R.id.filename).setEnabled(false);
         }
         getListView().setEnabled(false);
@@ -203,9 +228,8 @@ public class Browser extends ListFragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == 0) {
-            String filename = ((TextView)((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView
-                    .findViewById(R.id.dirText)).getText().toString();
-            File file = new File(currentDir, filename);
+            AndFile file = (AndFile)getListAdapter()
+                    .getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
             if (file.isDirectory()) {
                 Log.w("TEdit", "Attempt to delete directory: " + file.getPath());
                 return true;
@@ -231,14 +255,17 @@ public class Browser extends ListFragment {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
-        String filename = ((TextView)view.findViewById(R.id.dirText)).getText().toString();
-        File file = new File(currentDir, filename);
-
+        /*String filename = ((TextView)view.findViewById(R.id.dirText)).getText().toString();
+        File file = new File(currentDir, filename);*/
+        AndFile file = (AndFile)listView.getAdapter().getItem(position);
         if (position < numDirs) {
             if (file.exists()) {
-                currentDir = file;
-                if (type != TYPE_SAVE)
-                    ctx.setCurrentPath(currentDir);
+                if (!currentPath.moveToChild(file)) {
+                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                            getString(R.string.missing_dir));
+                    em.show(ctx.getSupportFragmentManager(), "dialog");
+                    return;
+                }
                 populateBrowser();
                 return;
             }
@@ -251,14 +278,14 @@ public class Browser extends ListFragment {
         }
 
         if (type == TYPE_SAVE) {
-            ((EditText)getView().findViewById(R.id.savelayout).findViewById(R.id.filename)).setText(filename);
+            ((EditText)getView().findViewById(R.id.savelayout).findViewById(R.id.filename)).setText(file.getName());
             return;
         }
 
         openFile(file, false);
     }
 
-    public void openFile(File file, boolean skipBinaryCheck) {
+    public void openFile(AndFile file, boolean skipBinaryCheck) {
         if (file == null || !file.exists()) {
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.missing_file));
@@ -274,15 +301,16 @@ public class Browser extends ListFragment {
             return;
         }
 
-        if (!skipBinaryCheck && !DataAccessUtil.hasExtension(file) && DataAccessUtil.probablyBinaryFile(file)) {
-            PossibleBinary pBin = PossibleBinary.getInstance(file.getPath());
+        if (!skipBinaryCheck && !DataAccessUtil.hasExtension(file.getName())
+                && DataAccessUtil.probablyBinaryFile(file, ctx)) {
+            PossibleBinary pBin = PossibleBinary.getInstance(file.getPathIdentifier());
             pBin.show(ctx.getSupportFragmentManager(), "alert");
             return;
         }
 
         String contents = null;
         try {
-            contents = DataAccessUtil.readFile(file);
+            contents = DataAccessUtil.readFile(file, ctx);
         } catch (IOException e) {
             contents = null;
             Log.e("TEdit.Browser", "Unable to read file " + file.getPath() + ": "
@@ -293,25 +321,17 @@ public class Browser extends ListFragment {
 
             return;
         } finally {
-            if (contents != null)
-                ctx.newDocument(file.getPath(), contents);
+            if (contents == null)
+                return;
+
+            ctx.setCurrentPath(currentPath);
+            ctx.newDocument(file.getPathIdentifier(), contents);
         }
     }
 
     public void upDir() {
-        File parent = currentDir.getParentFile();
-        if (parent == null)
+        if (currentPath.moveToParent() == null)
             return;
-
-        File[] dirList = parent.listFiles(new DirFilter());
-        if (dirList == null || dirList.length == 0) {
-            Toast.makeText(ctx, getString(R.string.error_permission_denied), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        currentDir = parent;
-        if (type != TYPE_SAVE)
-            ctx.setCurrentPath(currentDir);
         populateBrowser();
     }
 
@@ -319,87 +339,70 @@ public class Browser extends ListFragment {
         return ((EditText)getView().findViewById(R.id.savelayout).findViewById(R.id.filename)).getText().toString();
     }
 
-    public File getCurrentDir() {
-        return currentDir;
+    public AndPath getCurrentPath() {
+        return currentPath;
     }
 
     private void populateBrowser() {
-        List<Map<String, Object>> items;
-        String mediaState = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(mediaState)
-                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
-            if (!currentDir.exists()) {
-                do {
-                    currentDir = currentDir.getParentFile();
-                } while (currentDir != null && !currentDir.exists());
+        if (!currentPath.getCurrent().exists()) {
+            while(currentPath.moveToParent() != null && !currentPath.getCurrent().exists())
+                continue;
 
-                if (currentDir == null)
-                    currentDir = new File(ctx.getRootPath().getPath());
-
+            if (!currentPath.getCurrent().exists()) {
                 ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                         getString(R.string.missing_dir));
                 em.show(ctx.getSupportFragmentManager(), "dialog");
-
-                if (!currentDir.exists())
-                    return;
+                return;
             }
-            if (type == TYPE_OPEN) {
-                ((TextView)getView().findViewById(R.id.browsepath)).setText(currentDir.getPath());
-            } else
-                ((TextView)getView().findViewById(R.id.savebrowsepath)).setText(currentDir.getPath());
-
-            File[] dirList = currentDir.listFiles(new DirFilter());
-            File[] fileList = currentDir.listFiles(new TxtFilter());
-            if (dirList == null)
-                dirList = new File[0];
-            if (fileList == null)
-                fileList = new File[0];
-            numDirs = dirList.length;
-            numFiles = fileList.length;
-
-            //sort directories
-            if (numDirs > 1) {
-                String[] tmpDirs = new String[dirList.length];
-                for (int i = 0; i < tmpDirs.length; i++)
-                    tmpDirs[i] = dirList[i].getPath();
-                Arrays.sort(tmpDirs, String.CASE_INSENSITIVE_ORDER);
-
-                for (int i = 0; i < dirList.length; i++)
-                    dirList[i] = new File(tmpDirs[i]);
-            }
-
-            //sort files
-            if (numFiles > 1) {
-                String[] tmpFiles = new String[fileList.length];
-                for (int i = 0; i < tmpFiles.length; i++)
-                    tmpFiles[i] = fileList[i].getPath();
-                Arrays.sort(tmpFiles, String.CASE_INSENSITIVE_ORDER);
-
-                for (int i = 0; i < fileList.length; i++)
-                    fileList[i] = new File(tmpFiles[i]);
-            }
-
-            items = new ArrayList<>(fileList.length + dirList.length);
-            for (File f : dirList) {
-                Map<String, Object> item = new HashMap<>(2);
-                item.put("item", f.getName());
-                item.put("icon", R.drawable.dir);
-                items.add(item);
-            }
-
-            for (File f : fileList) {
-                Map<String, Object> item = new HashMap<>(2);
-                item.put("item", f.getName());
-                item.put("icon", R.drawable.doc);
-                items.add(item);
-            }
-        } else {
-            items = new ArrayList<>(0);
         }
 
-        SimpleAdapter adapter = new SimpleAdapter(ctx, items, R.layout.browser_row,
-                new String[] {"item", "icon"}, new int[] {R.id.dirText, R.id.dirIcon});
-        setListAdapter(adapter);
+        TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
+                : (TextView)getView().findViewById(R.id.savebrowsepath);
+        pathView.setText(currentPath.getPath());
+
+        AndFile[] dirList = currentPath.listFiles(new DirFilter());
+        AndFile[] fileList = currentPath.listFiles(new TxtFilter());
+        numDirs = dirList.length;
+        numFiles = fileList.length;
+
+        Comparator<AndFile> comparator = new Comparator<AndFile>() {
+            @Override
+            public int compare(final AndFile o1, final AndFile o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        };
+        Arrays.sort(dirList, comparator);
+        Arrays.sort(fileList, comparator);
+
+        ArrayList<AndFile> items = new ArrayList<>(fileList.length + dirList.length);
+        for (AndFile f : dirList) {
+            items.add(f);
+        }
+        for (AndFile f : fileList) {
+            items.add(f);
+        }
+
+        setListAdapter(new ArrayAdapter<AndFile>(ctx, R.layout.browser_row, items) {
+
+            @Override
+            public int getCount() { return super.getCount(); }
+
+            @Override
+            public View getView(int position, View view, ViewGroup parent) {
+                View row = view;
+                if (row == null)
+                    row = ((Activity)getContext()).getLayoutInflater().inflate(R.layout.browser_row,
+                            parent, false);
+                ImageView iv = row.findViewById(R.id.dirIcon);
+                TextView tv = row.findViewById(R.id.dirText);
+                AndFile item = getItem(position);
+
+                iv.setImageResource(item.isDirectory() ? R.drawable.dir : R.drawable.doc);
+                tv.setText(item.getName());
+
+                return row;
+            }
+        });
     }
 
     private static boolean isValidName (String name) {
@@ -415,22 +418,13 @@ public class Browser extends ListFragment {
         }
     }
 
-    /*private boolean hasExtension(String name) {
-        for (String ext : extensions) {
-            if (name.endsWith(ext))
-                return true;
-        }
-
-        return false;
-    }*/
-
-    public boolean saveFile(String filename, final String body) {
-        if (!currentDir.exists()) {
+    public AndFile saveFile(String filename, final String body) {
+        if (!currentPath.getCurrent().exists()) {
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.missing_dir));
             em.show(ctx.getSupportFragmentManager(), "dialog");
 
-            return false;
+            return null;
         }
 
         if (!isValidName(filename)) {
@@ -438,35 +432,144 @@ public class Browser extends ListFragment {
                     getString(R.string.error_invalidname));
             em.show(ctx.getSupportFragmentManager(), "dialog");
 
-            return false;
+            return null;
         }
 
-        final File file = new File(currentDir, filename);
+        if (currentPath.getCurrent().getType() == AndFile.TYPE_FILE) {
+            File lFile = new File(currentPath.getPath(), filename);
 
-        if (file.exists()) {
-            //prompt overwrite
-            Bundle bundle = new Bundle();
-            bundle.putString("Overwrite.filePath", file.getPath());
-            bundle.putString("Overwrite.body", body);
+            if (lFile.exists()) {
+                //prompt overwrite
+                Bundle bundle = new Bundle();
+                bundle.putString("Overwrite.filePath", currentPath.toJson());
+                bundle.putString("Overwrite.fileName", filename);
+                bundle.putString("Overwrite.body", body);
 
-            OverwriteDialog od = new OverwriteDialog();
-            od.setArguments(bundle);
-            od.show(ctx.getSupportFragmentManager(), "Overwrite");
+                OverwriteDialog od = new OverwriteDialog();
+                od.setArguments(bundle);
+                od.show(ctx.getSupportFragmentManager(), "Overwrite");
 
-            return false;
+                return null;
+            }
+        } else {
+            AndFile[] files = currentPath.listFiles();
+            AndFile owFile = null;
+            for (AndFile f : files) {
+                if (f.isFile() && f.getName().equals(filename)) {
+                    owFile = f;
+                    break;
+                }
+            }
+
+            if (owFile != null) {
+                //prompt overwrite
+                Bundle bundle = new Bundle();
+                bundle.putString("Overwrite.filePath", currentPath.toJson());
+                bundle.putString("Overwrite.fileName", filename);
+                bundle.putString("Overwrite.body", body);
+
+                OverwriteDialog od = new OverwriteDialog();
+                od.setArguments(bundle);
+                od.show(ctx.getSupportFragmentManager(), "Overwrite");
+
+                return null;
+            }
         }
 
+        AndFile file = null;
+        if (currentPath.getCurrent().getType() == AndFile.TYPE_FILE) {
+            file = AndFile.createDescriptor(new File(currentPath.getPath(), filename));
+        } else {
+            DocumentFile df = createDocumentFile(filename);
+            if (df == null)
+                return null;
+
+            file = AndFile.createDescriptor(df);
+        }
+
+        if (writeFile(file, ctx, body))
+            return file;
+
+        return null;
+    }
+
+    private DocumentFile createDocumentFile(String filename) {
+        String mime = DataAccessUtil.getFileNameMime(filename);
+        if (mime.isEmpty())
+            mime = "text/plain";
+        DocumentFile df = ((DocumentFile)currentPath.getCurrent().getFile()).createFile(mime, filename);
+        if (df == null) {
+            StringBuilder newName = new StringBuilder(filename);
+            int pidx = filename.lastIndexOf(".");
+            if (pidx >= 0 && pidx < filename.length() - 1) {
+                newName.append(".");
+                newName.append(DataAccessUtil.getMimeExt(filename.substring(pidx + 1), "txt"));
+            } else if (pidx == filename.length() - 1) {
+                newName.append("txt");
+            } else
+                newName.append(".txt");
+
+            AndFile[] files = currentPath.listFiles();
+            boolean exists;
+            int count = 0;
+            do {
+                exists = false;
+                for (AndFile f : files) {
+                    if (f.getName().equals(newName.toString())) {
+                        exists = true;
+                        newName.insert(0, Integer.toString((int)Math.floor(Math.random() * 10)));
+                    }
+                }
+                count++;
+            } while (exists && count < 5);
+
+            if (count == 5) {
+                Log.e("TEdit.Browser", "Unable to save file " + currentPath.getPath() + "/" + filename
+                        + ". The Android distribution renamed the file to an unknown existing filename.");
+                ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.error),
+                        ctx.getString(R.string.error_androidfilerename));
+                em.show(ctx.getSupportFragmentManager(), "dialog");
+                return null;
+            }
+
+            newName.delete(newName.length() - 4, newName.length());
+            df = ((DocumentFile)currentPath.getCurrent().getFile()).createFile(mime, newName.toString());
+            if (df == null) {
+                Log.e("TEdit.Browser", "Unable to save file " + currentPath.getPath() + "/" + filename
+                        + ". The Android distribution renamed the file to an unknown existing filename.");
+                ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.error),
+                        ctx.getString(R.string.error_androidfilerename));
+                em.show(ctx.getSupportFragmentManager(), "dialog");
+                return null;
+            }
+        }
+
+        if (!df.getName().equals(filename)) {
+            if (!df.renameTo(filename)) {
+                Log.e("TEdit.Browser", "Android could not save the file "
+                        + "under the requested name, " + filename
+                        + ". The file was saved under the name: " + df.getName());
+                ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
+                        ctx.getString(R.string.alert_androidrenamedfile) + " " + df.getName());
+                em.show(ctx.getSupportFragmentManager(), "dialog");
+            }
+        }
+
+        return df;
+    }
+
+    private static boolean writeFile(AndFile file, TEditActivity ctx, String body) {
         boolean err = false;
         try {
-            DataAccessUtil.writeFile(file, body);
+            DataAccessUtil.writeFile(file, ctx, body);
         } catch (IOException e) {
             err = true;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!ctx.checkWritePermission()) {
                     Log.e("TEdit.Browser", "Unable to save file " + file.getPath() + ". Permission denied: "
                             + e.getMessage());
-                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                            getString(R.string.error_nowritepermission));
+                    ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
+                            ctx.getString(R.string.error_nowritepermission));
                     em.show(ctx.getSupportFragmentManager(), "dialog");
 
                     return false;
@@ -483,41 +586,67 @@ public class Browser extends ListFragment {
 
             Log.e("TEdit.Browser", "Unable to save file " + file.getPath() + ": "
                     + e.getMessage());
-            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                    getString(R.string.error_writefile));
+            ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
+                    ctx.getString(R.string.error_writefile));
             em.show(ctx.getSupportFragmentManager(), "dialog");
 
             return false;
-        } finally {
-            //Update the media library with the new file.
-            if (!err) {
-                String mime = DataAccessUtil.getFileMime(file);
+        }
+        //Update the media library with the new file.
+        if (!err) {
+            if (file.getType() == AndFile.TYPE_FILE) {
+                String mime = DataAccessUtil.getFileNameMime(file.getName());
                 mime = (mime.isEmpty()) ? "text/plain" : mime;
                 MediaScannerConnection.scanFile(ctx, new String[]{file.getPath()},
                         new String[]{mime}, null);
             }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
-    private class DirFilter implements FileFilter {
-        public boolean accept(File file) {
+    public void setVolume(AndFile volume) {
+        if (currentPath.getRoot().getPathIdentifier().equals(volume.getPathIdentifier()))
+            return;
+
+        if (!volume.exists()) {
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                    getString(R.string.missing_dir));
+            em.show(ctx.getSupportFragmentManager(), "dialog");
+            return;
+        }
+
+        currentPath = AndPath.fromAndFile(volume);
+        populateBrowser();
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public void launchVolumePicker() {
+        VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier());
+        vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
+    }
+
+    private class DirFilter implements AndFileFilter {
+        public boolean accept(AndFile file) {
             return file.isDirectory();
         }
     }
 
-    private class TxtFilter implements FileFilter {
-        public boolean accept(File file) {
+    private class TxtFilter implements AndFileFilter {
+        public boolean accept(AndFile file) {
             if (file.isDirectory())
                 return false;
 
-            return !DataAccessUtil.hasExtension(file) || DataAccessUtil.getFileMime(file).startsWith("text/");
+            return !DataAccessUtil.hasExtension(file.getName()) || file.getMIME().startsWith("text/");
         }
     }
 
     public static class OverwriteDialog extends DialogFragment {
-        private String filePath;
+        private AndPath path = null;
+        private String error = "";
+        private String name;
         private String body;
         private TEditActivity ctx;
 
@@ -533,96 +662,106 @@ public class Browser extends ListFragment {
 
             if (savedInstanceState == null) {
                 Bundle bundle = getArguments();
-                filePath = bundle.getString("Overwrite.filePath");
-                body = bundle.getString("Overwrite.body", "");
-                String filename = new File(filePath).getName();
-                builder.setTitle(getString(R.string.overwrite));
-                builder.setMessage(getString(R.string.overwrite_message).replace("%s", filename))
-                    .setPositiveButton(getActivity().getString(R.string.okay), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            dismiss();
-                            try {
-                                DataAccessUtil.writeFile(new File(filePath), body);
-                                if (ctx.dbIsOpen()) {
-                                    ctx.getDB().updateText(ctx.getLastTxt(), filePath, body);
-                                    ctx.openDocument(ctx.getLastTxt());
-                                }
-                                Toast.makeText(ctx, getString(R.string.filesaved), Toast.LENGTH_SHORT).show();
-                            } catch (IOException e) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                                        && !ctx.checkWritePermission()) {
-                                    Log.e("TEdit.Browser", "Unable to save file " + filePath + ". Permission denied: "
-                                            + e.getMessage());
-                                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                            getString(R.string.error_nowritepermission));
-                                    em.show(ctx.getSupportFragmentManager(), "dialog");
-                                } else if (!filePath.startsWith(Environment.getExternalStorageDirectory().getPath())) {
-                                    ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
-                                            ctx.getString(R.string.error_protectedpath));
-                                    em.show(ctx.getSupportFragmentManager(), "dialog");
-                                } else {
-                                    Log.e("TEdit.Browser", "Unable to save file " + filePath + ": "
-                                            + e.getMessage());
-                                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                            getString(R.string.error_writefile));
-                                    em.show(getActivity().getSupportFragmentManager(), "dialog");
-                                }
-                            }
-                        }
-                    })
-                    .setNegativeButton(getActivity().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            dismiss();
-                        }
-                    });
+                String filePath = bundle.getString("Overwrite.filePath", "");
+                try {
+                    path = AndPath.fromJson(ctx, filePath);
+                } catch (FileNotFoundException e ) {
+                    path = null;
+                    Log.e("TEdit.Overwrite", "Unable to save file " + path.getPath() + "/" + name +
+                            ": The path does not exist.");
+                    error = getString(R.string.error_nofilepath);
+                } catch (JSONException je) {
+                    path = null;
+                    error = getString(R.string.error_json);
+                }
+
+                name = bundle.getString("Overwrite.fileName", "");
+                if (name == null)
+                    error = getString(R.string.error_nofilename);
+                body = bundle.getString("Overwrite.body", null);
+                if (body == null)
+                    error = getString(R.string.error_newtextbody);
             } else {
-                filePath = savedInstanceState.getString("Overwrite.filePath");
-                body = savedInstanceState.getString("Overwrite.body");
-                String filename = new File(filePath).getName();
-                builder.setTitle(getString(R.string.overwrite));
-                builder.setMessage(getString(R.string.overwrite_message).replace("%s", filename))
-                    .setPositiveButton(getActivity().getString(R.string.okay), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            File file = new File(filePath);
-                            dismiss();
-                            try {
-                                DataAccessUtil.writeFile(new File(filePath), body);
-                                if (ctx.dbIsOpen()) {
-                                    ctx.getDB().updateText(ctx.getLastTxt(), filePath, body);
-                                    ctx.openDocument(ctx.getLastTxt());
-                                }
-                                Toast.makeText(ctx, getString(R.string.filesaved), Toast.LENGTH_SHORT).show();
-                            } catch (IOException e) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                                        && !ctx.checkWritePermission()) {
-                                    Log.e("TEdit.Browser", "Unable to save file " + filePath + ". Permission denied: "
-                                            + e.getMessage());
-                                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                            getString(R.string.error_nowritepermission));
-                                    em.show(ctx.getSupportFragmentManager(), "dialog");
-                                } else if (!filePath.startsWith(Environment.getExternalStorageDirectory().getPath())) {
-                                    ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
-                                            ctx.getString(R.string.error_protectedpath));
-                                    em.show(ctx.getSupportFragmentManager(), "dialog");
-                                } else {
-                                    Log.e("TEdit.Browser", "Unable to save file " + filePath + ": "
-                                            + e.getMessage());
-                                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                            getString(R.string.error_writefile));
-                                    em.show(getActivity().getSupportFragmentManager(), "dialog");
+                String filePath = savedInstanceState.getString("Overwrite.filePath", "");
+                error = savedInstanceState.getString("Overwrite.error", "");
+                if (error.isEmpty()) {
+                    try {
+                        path = AndPath.fromJson(ctx, filePath);
+                    } catch (FileNotFoundException e) {
+                        path = null;
+                        Log.e("TEdit.Overwrite", "Unable to save file " + name +
+                                ": The path does not exist.");
+                        error = getString(R.string.error_nofilepath);
+                    } catch (JSONException je) {
+                        path = null;
+                        error = getString(R.string.error_json);
+                    }
+
+                    name = savedInstanceState.getString("Overwrite.fileName", "");
+                    if (name == null)
+                        error = getString(R.string.error_nofilename);
+                    body = savedInstanceState.getString("Overwrite.body", null);
+                    if (body == null)
+                        error = getString(R.string.error_newtextbody);
+                }
+            }
+
+            String title = error.isEmpty() ? getString(R.string.overwrite) : getString(R.string.error);
+            String message = error.isEmpty() ? getString(R.string.overwrite_message).replace("%s", name)
+                    : error;
+
+            builder.setTitle(title);
+            builder.setMessage(message);
+            if (error.isEmpty()) {
+                builder.setPositiveButton(getActivity().getString(R.string.okay), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dismiss();
+
+                        AndFile file;
+                        if (path.getCurrent().getType() == AndFile.TYPE_FILE) {
+                            file = AndFile.createDescriptor(new File(path.getPath(), name));
+                        } else {
+                            AndFile[] files = path.listFiles();
+                            AndFile owFile = null;
+                            for (AndFile f : files) {
+                                if (f.isFile() && f.getName().equals(name)) {
+                                    owFile = f;
+                                    break;
                                 }
                             }
+
+                            if (owFile != null) {
+                                file = owFile;
+                            } else {
+                                Log.e("TEdit.Overwrite", "Unable to save file " + path.getPath() + "/" + name +
+                                        ": The file does not exist.");
+                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.error),
+                                        getString(R.string.error_nofilepath));
+                                em.show(getActivity().getSupportFragmentManager(), "dialog");
+                                return;
+                            }
                         }
-                    })
-                    .setNegativeButton(getActivity().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            dismiss();
-                        }
-                    });
+
+                        if (!writeFile(file, ctx, body))
+                            return;
+
+                        ctx.openDocument(ctx.getLastTxt());
+                    }
+                })
+                .setNegativeButton(getActivity().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dismiss();
+                    }
+                });
+            } else {
+                builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dismiss();
+                    }
+                });
             }
 
             return builder.create();
@@ -631,14 +770,19 @@ public class Browser extends ListFragment {
         @Override
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
-            outState.putString("Overwrite.filePath", filePath);
+            outState.putString("Overwrite.filePath", path != null ? path.toJson() : "");
+            if (!error.isEmpty())
+                outState.putString("Overwrite.error", error);
+            outState.putString("Overwrite.fileName", name);
             outState.putString("Overwrite.body", body);
         }
     }
 
     public static class NewDirectory extends DialogFragment {
         private TEditActivity ctx;
-        private String inDir;
+        private AndPath path;
+        private EditText et;
+        private String error = "";
 
         public static NewDirectory newInstance(String createIn) {
             NewDirectory nd = new NewDirectory();
@@ -656,23 +800,56 @@ public class Browser extends ListFragment {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String inDir;
+            String name = "";
             if (savedInstanceState == null) {
                 inDir = getArguments().getString("TEdit.newdirectory", "");
-            } else
+            } else {
+                error = savedInstanceState.getString("TEdit.newDirectory.error", "");
                 inDir = savedInstanceState.getString("TEdit.newdirectory", "");
+                name = savedInstanceState.getString("TEdit.newDirectory.name", "");
+            }
+
+            if (error.isEmpty()) {
+                try {
+                    path = AndPath.fromJson(ctx, inDir);
+                } catch (FileNotFoundException e) {
+                    path = null;
+                    error = getString(R.string.error_nofilepath);
+                } catch (JSONException je) {
+                    path = null;
+                    error = getString(R.string.error_json);
+                }
+            } else
+                path = null;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            final EditText et = new EditText(new ContextThemeWrapper(ctx, R.style.drkGreen));
-            builder.setTitle(getString(R.string.newdirectory));
-            builder.setMessage(getString(R.string.newdirmessage)).setView(et)
-                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            if (path != null) {
+                et = new EditText(new ContextThemeWrapper(ctx, R.style.drkGreen));
+                if (!name.isEmpty())
+                    et.setText(name);
+
+                builder.setTitle(getString(R.string.newdirectory));
+                builder.setMessage(getString(R.string.newdirmessage)).setView(et)
+                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (et.hasFocus()) {
+                                    InputMethodManager imm = (InputMethodManager)
+                                            ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+                                }
+                                dismiss();
+                            }
+                        }).setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        dismiss();
-                    }
-                }).setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                        if (et.hasFocus()) {
+                            InputMethodManager imm = (InputMethodManager)
+                                    ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+                        }
+
                         dismiss();
                         String dirName = et.getText().toString();
                         if (!isValidName(dirName)) {
@@ -683,20 +860,48 @@ public class Browser extends ListFragment {
                             return;
                         }
 
-                        File dir = new File(inDir, dirName);
-                        if (dir.exists()) {
-                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                    getString(R.string.error_direxists));
-                            em.show(ctx.getSupportFragmentManager(), "dialog");
+                        if (path.getCurrent().getType() == AndFile.TYPE_FILE) {
+                            File dir = new File(path.getPath(), dirName);
+                            if (dir.exists()) {
+                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                        getString(R.string.error_direxists));
+                                em.show(ctx.getSupportFragmentManager(), "dialog");
 
-                            return;
+                                return;
+                            }
+
+                            if (!dir.mkdirs()) {
+                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                        getString(R.string.error_nonewdir));
+                                em.show(ctx.getSupportFragmentManager(), "dialog");
+
+                                return;
+                            }
+                        } else {
+                            DocumentFile newDir = ((DocumentFile)path.getCurrent().getFile())
+                                    .createDirectory(dirName);
+                            if (newDir == null) {
+                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                        getString(R.string.error_nonewdir));
+                                em.show(ctx.getSupportFragmentManager(), "dialog");
+
+                                return;
+                            }
                         }
 
-                        dir.mkdirs();
                         Toast.makeText(ctx, getString(R.string.dircreated), Toast.LENGTH_SHORT).show();
-                        ((Browser)ctx.getFrag()).populateBrowser();
+                        ((Browser) ctx.getFrag()).populateBrowser();
                     }
                 });
+            } else {
+                builder.setTitle(R.string.error).setMessage(error);
+                builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dismiss();
+                    }
+                });
+            }
 
             return builder.create();
         }
@@ -705,7 +910,11 @@ public class Browser extends ListFragment {
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
 
-            outState.putString("TEdit.newdirectory", inDir);
+            outState.putString("TEdit.newdirectory", path.toJson());
+            if (!error.isEmpty())
+                outState.putString("TEdit.newDirectory.error", error);
+            if (et != null)
+                outState.putString("TEdit.newDirectory.name", et.getText().toString());
         }
     }
 }

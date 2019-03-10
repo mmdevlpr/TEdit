@@ -32,12 +32,11 @@ import android.widget.Toast;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
+import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.util.TextSearch;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 import com.atr.tedit.utilitybar.state.TextSearchState;
-
-import java.io.File;
 
 /**
  * @author Adam T. Ryder
@@ -53,6 +52,8 @@ public class Editor extends Fragment {
 
     private TextSearch searchString;
     private TextSearchState barSearch;
+
+    private AndFile file;
 
     public static Editor newInstance(long key) {
         Bundle bundle = new Bundle();
@@ -123,9 +124,13 @@ public class Editor extends Fragment {
         if (path.equals(TEditActivity.DEFAULTPATH)) {
             ((TextView)view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
         } else {
-            ((TextView) view.findViewById(R.id.documentname)).setText(new File(path).getName());
+            file = AndFile.createDescriptor(path, ctx);
 
-            File file = new File(path);
+            if (file == null) {
+                ((TextView) view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+            } else
+                ((TextView) view.findViewById(R.id.documentname)).setText(file.getName());
+
             if (!file.canWrite())
                 Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();
         }

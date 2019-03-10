@@ -1,5 +1,29 @@
+/*
+ * Free Public License 1.0.0
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL
+ * THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+ * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+ * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 package com.atr.tedit.utilitybar.state;
 
+import android.annotation.TargetApi;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,8 +41,6 @@ public class BrowserState extends UtilityState {
         Button dir_parent = new Button(BAR.ctx);
         dir_parent.setBackgroundResource(R.drawable.button_dir_parent);
         dir_parent.setId(R.id.zero);
-        dir_parent.setNextFocusRightId(R.id.one);
-        dir_parent.setNextFocusLeftId(R.id.five);
         dir_parent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -30,8 +52,6 @@ public class BrowserState extends UtilityState {
         Button doc = new Button(BAR.ctx);
         doc.setBackgroundResource(R.drawable.button_doc);
         doc.setId(R.id.one);
-        doc.setNextFocusRightId(R.id.two);
-        doc.setNextFocusLeftId(R.id.zero);
         doc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,14 +62,12 @@ public class BrowserState extends UtilityState {
         Button newdir = new Button(BAR.ctx);
         newdir.setBackgroundResource(R.drawable.button_dir_new);
         newdir.setId(R.id.two);
-        newdir.setNextFocusRightId(R.id.three);
-        newdir.setNextFocusLeftId(R.id.one);
         newdir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!(BAR.ctx.getFrag() instanceof Browser))
                     return;
-                String bDir = ((Browser)BAR.ctx.getFrag()).getCurrentDir().getPath();
+                String bDir = ((Browser)BAR.ctx.getFrag()).getCurrentPath().toJson();
                 Browser.NewDirectory newDir = Browser.NewDirectory.newInstance(bDir);
                 newDir.show(BAR.ctx.getSupportFragmentManager(), "NewDirectory");
             }
@@ -58,8 +76,6 @@ public class BrowserState extends UtilityState {
         Button tabs = new Button(BAR.ctx);
         tabs.setBackgroundResource(R.drawable.button_tabs);
         tabs.setId(R.id.three);
-        tabs.setNextFocusRightId(R.id.four);
-        tabs.setNextFocusLeftId(R.id.two);
         tabs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,23 +86,51 @@ public class BrowserState extends UtilityState {
         Button help = new Button(BAR.ctx);
         help.setBackgroundResource(R.drawable.button_help);
         help.setId(R.id.four);
-        help.setNextFocusRightId(R.id.zero);
-        help.setNextFocusLeftId(R.id.three);
-        help.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser, BAR.ctx.getString(R.string.browser));
-                hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
-            }
-        });
 
-        Button[] l = {dir_parent, doc, newdir, tabs, help};
+        Button[] l;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            help.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser_prelollipop, BAR.ctx.getString(R.string.browser));
+                    hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                }
+            });
+
+            Button drives = new Button(BAR.ctx);
+            drives.setBackgroundResource(R.drawable.button_drives);
+            drives.setId(R.id.five);
+            drives.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    launchVolumePicker();
+                }
+            });
+
+            l = new Button[]{dir_parent, doc, newdir, drives, tabs, help};
+        } else {
+            help.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser, BAR.ctx.getString(R.string.browser));
+                    hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                }
+            });
+
+            l = new Button[]{dir_parent, doc, newdir, tabs, help};
+        }
         int count = 0;
         for (Button v : l) {
             if (count == l.length - 1) {
                 v.setTranslationX(BAR.barWidth - BAR.bWidth - BAR.padding_w);
-            } else
+                v.setNextFocusRightId(l[0].getId());
+                v.setNextFocusLeftId(l[count - 1].getId());
+            } else {
                 v.setTranslationX(BAR.padding_w + (count * (BAR.margin + bar.bWidth)));
+                v.setNextFocusRightId(l[count + 1].getId());
+                if (count == 0)
+                    v.setNextFocusLeftId(l[l.length - 1].getId());
+            }
             v.setTranslationY(BAR.padding_h);
 
             v.setFocusable(true);
@@ -105,5 +149,52 @@ public class BrowserState extends UtilityState {
 
         LAYERS = new View[1][];
         LAYERS[0] = l;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void launchVolumePicker() {
+        boolean cardPresent = ContextCompat.getExternalFilesDirs(BAR.ctx, "external").length > 1;
+
+        Uri[] volumes = BAR.ctx.getPermittedUris();
+        if (volumes.length > 0 || !cardPresent) {
+            ((Browser)BAR.ctx.getFrag()).launchVolumePicker();
+            return;
+        }
+
+        LaunchSDCardIntent lsd = new LaunchSDCardIntent();
+        lsd.show(BAR.ctx.getSupportFragmentManager(), "SDCardIntentDialog");
+    }
+
+    public static class LaunchSDCardIntent extends DialogFragment {
+        private TEditActivity ctx;
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            this.ctx = (TEditActivity)context;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(getString(R.string.launch_sdpicker_title))
+                    .setMessage((getString(R.string.launch_sdpicker)))
+                    .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dismiss();
+                            ((Browser)ctx.getFrag()).launchVolumePicker();
+                        }
+                    })
+                    .setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dismiss();
+                            ctx.launchSDcardIntent();
+                        }
+                    });
+
+            return builder.create();
+        }
     }
 }

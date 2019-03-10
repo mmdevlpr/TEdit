@@ -7,6 +7,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/greenPrimary</item>
+        <item name="android:textColorAlertDialogListItem">@color/greenPrimary</item>
         <item name="alertDialogTheme">@style/AppTheme.Alert</item>
     </style>
 
@@ -32,6 +33,13 @@
         <item name="android:colorForeground">@color/greenPrimary</item>
         <item name="android:textColorPrimaryInverse">@color/greenDeep</item>
         <item name="android:textColorSecondaryInverse">?android:attr/textColorHintInverse</item>
+        <item name="android:textColorAlertDialogListItem">@color/greenPrimary</item>
+        <!--<item name="android:radioButtonStyle">@style/radioButtonGreen</item>-->
     </style>
+
+    <!--<style name="radioButtonGreen" parent="Base.Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:textColor">@color/greenAccent</item>
+        <item name="android:textSize">24sp</item>
+    </style>-->
 
 </resources>

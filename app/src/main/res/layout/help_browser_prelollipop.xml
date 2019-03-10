@@ -81,20 +81,22 @@
                 android:padding="3dp">
 
                 <ImageView
+                    android:id="@+id/imageViewdirparent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/bulletpoint" />
+                    app:srcCompat="@drawable/dir_parent_focused" />
 
                 <TextView
+                    android:id="@+id/textViewdirparent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_weight="1"
-                    android:text="Browse internal, root and SDcard volumes with the file browser."
+                    android:text="@string/help_parentdir"
                     android:textColor="@color/greenPrimary" />
             </LinearLayout>
 
@@ -105,20 +107,22 @@
                 android:padding="3dp">
 
                 <ImageView
+                    android:id="@+id/imageViewdoc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/bulletpoint" />
+                    app:srcCompat="@drawable/doc_focused" />
 
                 <TextView
+                    android:id="@+id/textViewdoc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_weight="1"
-                    android:text="Search and replace text within your text documents."
+                    android:text="@string/help_newdoc"
                     android:textColor="@color/greenPrimary" />
             </LinearLayout>
 
@@ -129,20 +133,22 @@
                 android:padding="3dp">
 
                 <ImageView
+                    android:id="@+id/imageViewdir"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/bulletpoint" />
+                    app:srcCompat="@drawable/dir_new_focused" />
 
                 <TextView
+                    android:id="@+id/textViewdir"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_weight="1"
-                    android:text="Locate and open files without extenions in the file browser."
+                    android:text="@string/help_newdir"
                     android:textColor="@color/greenPrimary" />
             </LinearLayout>
 
@@ -153,20 +159,22 @@
                 android:padding="3dp">
 
                 <ImageView
+                    android:id="@+id/imageViewdrives"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/bulletpoint" />
+                    app:srcCompat="@drawable/drives_focused" />
 
                 <TextView
+                    android:id="@+id/textViewdrives"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_weight="1"
-                    android:text="Improved support for small screens."
+                    android:text="@string/help_drives"
                     android:textColor="@color/greenPrimary" />
             </LinearLayout>
 
@@ -177,20 +185,22 @@
                 android:padding="3dp">
 
                 <ImageView
+                    android:id="@+id/imageViewtabs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/bulletpoint" />
+                    app:srcCompat="@drawable/tabs_focused" />
 
                 <TextView
+                    android:id="@+id/textViewtabs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_weight="1"
-                    android:text="Improved button animations."
+                    android:text="@string/help_tabs"
                     android:textColor="@color/greenPrimary" />
             </LinearLayout>
 
@@ -201,20 +211,22 @@
                 android:padding="3dp">
 
                 <ImageView
+                    android:id="@+id/imageViewx"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/bulletpoint" />
+                    app:srcCompat="@drawable/back" />
 
                 <TextView
+                    android:id="@+id/textViewx"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_weight="1"
-                    android:text="New dialog theme to match the icon designed by David Mind."
+                    android:text="@string/help_browseclose"
                     android:textColor="@color/greenPrimary" />
             </LinearLayout>
         </LinearLayout>

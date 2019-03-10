@@ -26,13 +26,17 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.atr.tedit.file.descriptor.AndFile;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 
@@ -155,9 +159,9 @@ public class DataAccessUtil {
             path = getPostKitKatPath(uri, context);
 
         if (path == null) {
-            if (uri.getScheme().equalsIgnoreCase("content")) {
+            if ("content".equalsIgnoreCase(uri.getScheme())) {
                 path = getDataColumn(context, uri, null, null);
-            } else if (uri.getScheme().equalsIgnoreCase("file"))
+            } else if ("file".equalsIgnoreCase(uri.getScheme()))
                 path = uri.getPath();
         }
 
@@ -284,6 +288,15 @@ public class DataAccessUtil {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
+    public static String getMimeExt(String ext, String defaultExt) {
+        for (int i = 0; i < EXTENSIONS.length; i++) {
+            if (EXTENSIONS[i].equalsIgnoreCase(ext))
+                return MIME[i];
+        }
+
+        return defaultExt;
+    }
+
     /**
      * Attempts to determine the supported MIME type of a {@link java.io.File}.
      *
@@ -300,11 +313,15 @@ public class DataAccessUtil {
                 return mime;
         }
 
-        int p = file.getName().indexOf('.');
-        if (p < 0 || p > file.getName().length() - 2)
+        return getFileNameMime(file.getName());
+    }
+
+    public static String getFileNameMime(String filename) {
+        int p = filename.indexOf('.');
+        if (p < 0 || p > filename.length() - 2)
             return "";
 
-        String ext = file.getName().substring(p + 1);
+        String ext = filename.substring(p + 1);
         for (int i = 0; i < EXTENSIONS.length; i++) {
             if (EXTENSIONS[i].equalsIgnoreCase(ext))
                 return new String(MIME[i]);
@@ -346,18 +363,18 @@ public class DataAccessUtil {
         return filename.indexOf(".") >= 0;
     }
 
-    public static boolean probablyBinaryFile(File file) {
+    public static boolean probablyBinaryFile(AndFile file, Context ctx) {
         InputStreamReader isr = null;
-        FileInputStream fis = null;
+        InputStream is = null;
         boolean probBin = false;
         try {
-            fis = new FileInputStream(file);
-            isr = new InputStreamReader(fis);
+            is = file.openInputStream(ctx);
+            isr = new InputStreamReader(is);
             int i;
             int count = 0;
 
             while ((i = isr.read()) != -1 && count < 1024) {
-                char c = (char)isr.read();
+                char c = (char)i;
                 count ++;
                 if ((c > (char)0 && c < (char)8) || (c > (char)13 && c < (char)26)) {
                     probBin = true;
@@ -367,16 +384,15 @@ public class DataAccessUtil {
         } catch (Exception e) {
 
         } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException ioe) {
-
-                }
-            }
             if (isr != null) {
                 try {
                     isr.close();
+                } catch (IOException ioe) {
+
+                }
+            } else if (is != null) {
+                try {
+                    is.close();
                 } catch (IOException ioe) {
 
                 }
@@ -394,9 +410,8 @@ public class DataAccessUtil {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static String readFile(File file) throws FileNotFoundException, IOException{
+    public static String readFile(File file) throws FileNotFoundException, IOException {
         InputStreamReader isr = null;
-        IOException exc = null;
         try {
             isr = new InputStreamReader(new FileInputStream(file));
         } catch (FileNotFoundException fnfe) {
@@ -407,31 +422,78 @@ public class DataAccessUtil {
 
                 }
             }
-            exc = fnfe;
             Log.e("Tedit Read Operation", "Error opening input stream " + file.getPath() + ": " + fnfe.getMessage());
-        } finally {
-            if (exc != null)
-                throw exc;
+            throw fnfe;
         }
 
         BufferedReader bReader = new BufferedReader(isr);
         String contents = null;
         try {
            contents = readStream(bReader);
-        } catch (IOException ioe) {
-            exc = ioe;
-            Log.e("Tedit Read Operation", "Error reading file " + file.getPath() + ": " + ioe.getMessage());
-        } finally {
+        } catch (IOException e) {
             try {
                 bReader.close();
             } catch (IOException ioe) {
 
             }
-            if (exc != null)
-                throw exc;
-
-            return contents;
+            Log.e("Tedit Read Operation", "Error reading file " + file.getPath() + ": " + e.getMessage());
+            throw e;
         }
+
+        try {
+            bReader.close();
+        } catch (IOException ioe) {
+
+        }
+
+        return contents;
+    }
+
+    /**
+     * Reads the text contents of a file. Returns null if an error ocurred.
+     *
+     * @param file the {@link com.atr.tedit.file.descriptor.AndFile} to read.
+     * @return The contents of the file as a {@link java.lang.String}.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static String readFile(AndFile file, Context ctx) throws FileNotFoundException, IOException {
+        InputStreamReader isr = null;
+        try {
+            isr = new InputStreamReader(file.openInputStream(ctx));
+        } catch (FileNotFoundException fnfe) {
+            if (isr != null) {
+                try {
+                    isr.close();
+                } catch (IOException ioe) {
+
+                }
+            }
+            Log.e("Tedit Read Operation", "Error opening input stream " + file.toString() + ": " + fnfe.getMessage());
+            throw fnfe;
+        }
+
+        BufferedReader bReader = new BufferedReader(isr);
+        String contents = null;
+        try {
+            contents = readStream(bReader);
+        } catch (IOException e) {
+            try {
+                bReader.close();
+            } catch (IOException ioe) {
+
+            }
+            Log.e("Tedit Read Operation", "Error reading file " + file.getPath() + ": " + e.getMessage());
+            throw e;
+        }
+
+        try {
+            bReader.close();
+        } catch (IOException ioe) {
+
+        }
+
+        return contents;
     }
 
     /**
@@ -468,6 +530,42 @@ public class DataAccessUtil {
         IOException exc = null;
         try{
             fileOut = new FileOutputStream(file);
+            pStream = new PrintStream(fileOut);
+            pStream.print(body);
+        } catch (IOException ioe) {
+            exc = ioe;
+            Log.e("Tedit Write Operation", "Error writing to file: " + ioe.getMessage());
+        } finally {
+            if (pStream != null) {
+                pStream.close();
+            } else if (fileOut != null) {
+                try {
+                    fileOut.close();
+                } catch (Exception e) {
+
+                }
+            }
+
+            if (exc != null)
+                throw exc;
+        }
+    }
+
+    /**
+     * Writes the contents of <code>body</code> to <code>file</code>.
+     *
+     * @param file The {@link com.atr.tedit.file.descriptor.AndFile} to write to.
+     * @param body The {@link java.lang.String} to be written.
+     * @throws IOException
+     */
+    public static void writeFile(AndFile file, Context ctx, String body) throws IOException {
+        Log.i("TEdit Write Operation", "Writing to file: " + file.getPath());
+
+        OutputStream fileOut = null;
+        PrintStream pStream = null;
+        IOException exc = null;
+        try{
+            fileOut = file.openOutputStream(ctx);
             pStream = new PrintStream(fileOut);
             pStream.print(body);
         } catch (IOException ioe) {

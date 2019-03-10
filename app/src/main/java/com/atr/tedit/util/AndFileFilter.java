@@ -12,12 +12,10 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package com.atr.tedit.utilitybar.state;
+package com.atr.tedit.util;
 
-import com.atr.tedit.utilitybar.UtilityBar;
+import com.atr.tedit.file.descriptor.AndFile;
 
-public class InitState extends UtilityState {
-    public InitState(UtilityBar bar) {
-        super(bar, UtilityBar.STATE_INIT);
-    }
+public interface AndFileFilter {
+    public boolean accept(AndFile file);
 }

@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
+import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 
@@ -104,14 +105,20 @@ public class Tabs extends ListFragment {
         int index = 0;
         while (cursor.moveToNext()) {
             String name = null;
-            if (cursor.getColumnIndex(TEditDB.KEY_PATH) != -1)
-                name = new File(cursor.getString(cursor.getColumnIndex(TEditDB.KEY_PATH))).getName();
             long key = -1;
-            if (cursor.getColumnIndex(TEditDB.KEY_ROWID) != -1)
-                key = cursor.getLong(cursor.getColumnIndex(TEditDB.KEY_ROWID));
             String desc = "";
-            if (cursor.getColumnIndex(TEditDB.KEY_BODY) != -1)
+            if (cursor.getColumnIndex(TEditDB.KEY_PATH) != -1) {
+                String strName = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_PATH));
+                if (strName.equalsIgnoreCase(TEditActivity.DEFAULTPATH)) {
+                    name = TEditActivity.DEFAULTPATH;
+                } else {
+                    AndFile file = AndFile.createDescriptor(cursor.getString(cursor.getColumnIndex(TEditDB.KEY_PATH)), ctx);
+                    name = file == null ? null : file.getName();
+                }
+                key = cursor.getLong(cursor.getColumnIndex(TEditDB.KEY_ROWID));
                 desc = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY));
+            }
+
             if (key == -1 || name == null)
                 continue;
 
@@ -175,7 +182,7 @@ public class Tabs extends ListFragment {
     private void closeTabsView() {
         if (!ctx.dbIsOpen()) {
             ctx.setLastTxt(-1);
-            ctx.openBrowser(ctx.getCurrentPath().getPath());
+            ctx.openBrowser(ctx.getCurrentPath());
             return;
         }
 
@@ -192,7 +199,7 @@ public class Tabs extends ListFragment {
             if (cursor != null)
                 cursor.close();
             ctx.setLastTxt(-1);
-            ctx.openBrowser(ctx.getCurrentPath().getPath());
+            ctx.openBrowser(ctx.getCurrentPath());
             return;
         }
 
@@ -200,7 +207,7 @@ public class Tabs extends ListFragment {
         if (cursor.getColumnIndex(TEditDB.KEY_ROWID) == -1) {
             cursor.close();
             ctx.setLastTxt(-1);
-            ctx.openBrowser(ctx.getCurrentPath().getPath());
+            ctx.openBrowser(ctx.getCurrentPath());
             return;
         }
         long id = cursor.getLong(cursor.getColumnIndex(TEditDB.KEY_ROWID));
