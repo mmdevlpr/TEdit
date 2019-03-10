@@ -538,14 +538,12 @@ public class Browser extends ListFragment {
         }
 
         if (!df.getName().equals(filename)) {
-            if (!df.renameTo(filename)) {
-                Log.e("TEdit.Browser", "Android could not save the file "
-                        + "under the requested name, " + filename
-                        + ". The file was saved under the name: " + df.getName());
-                ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
-                        ctx.getString(R.string.alert_androidrenamedfile) + " " + df.getName());
-                em.show(ctx.getSupportFragmentManager(), "dialog");
-            }
+            Log.e("TEdit.Browser", "Android could not save the file "
+                    + "under the requested name, " + filename
+                    + ". The file was saved under the name: " + df.getName());
+            ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
+                    ctx.getString(R.string.alert_androidrenamedfile) + " " + df.getName());
+            em.show(ctx.getSupportFragmentManager(), "dialog");
         }
 
         return df;
