@@ -358,11 +358,19 @@ public class TextSearchState extends UtilityState {
     public void clearFocus() {
         if (searchField.hasFocus()) {
             InputMethodManager imm = (InputMethodManager)BAR.ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(searchField.getWindowToken(), 0);
+            try {
+                imm.hideSoftInputFromWindow(searchField.getWindowToken(), 0);
+            } catch (Exception e) {
+
+            }
             searchField.clearFocus();
         } else if (replaceField.hasFocus()) {
             InputMethodManager imm = (InputMethodManager)BAR.ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(replaceField.getWindowToken(), 0);
+            try {
+                imm.hideSoftInputFromWindow(replaceField.getWindowToken(), 0);
+            } catch (Exception e) {
+
+            }
             replaceField.clearFocus();
         }
     }

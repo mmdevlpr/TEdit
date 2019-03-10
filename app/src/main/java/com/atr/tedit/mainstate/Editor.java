@@ -128,10 +128,12 @@ public class Editor extends Fragment {
 
             if (file == null) {
                 ((TextView) view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+            } else if (file.getName() ==  null || file.getName().isEmpty() || !file.exists()) {
+                ((TextView) view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
             } else
                 ((TextView) view.findViewById(R.id.documentname)).setText(file.getName());
 
-            if (!file.canWrite())
+            if (!file.canWrite() && file.exists())
                 Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();
         }
     }

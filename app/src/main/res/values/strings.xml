@@ -26,6 +26,7 @@
     <string name="error_oom">Unfortunately your device ran out of memory whilst attempting to perform this operation.</string>
     <string name="alert_binaryfile">TEdit might not be able to read this file, are you sure you\'d like to open it?</string>
     <string name="delete">Delete</string>
+    <string name="delete_msg">Are you sure you\'d like to delete</string>
     <string name="overwrite">Overwrite</string>
     <string name="overwrite_message">Do you wish to overwrite %s?</string>
     <string name="readonlymode">READ-ONLY MODE</string>

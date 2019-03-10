@@ -792,6 +792,11 @@ public class TEditActivity extends AppCompatActivity {
         }
 
         AndFile file = AndFile.createDescriptor(path, this);
+        if (!file.canWrite()) {
+            saveAsDocument(skipPermissionCheck);
+            return;
+        }
+        
         String mediaState = Environment.getExternalStorageState();
         if (!(Environment.MEDIA_MOUNTED.equals(mediaState)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState))) {

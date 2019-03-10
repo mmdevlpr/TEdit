@@ -221,29 +221,24 @@ public class Browser extends ListFragment {
         super.onCreateContextMenu(menu, view, menuInfo);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 
-        if (info.position >= numDirs)
-            menu.add(0, 0, 0, R.string.delete);
+        if (info.position >= numDirs) {
+            menu.add(ContextMenu.NONE, 0, ContextMenu.NONE, R.string.delete);
+        }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        AndFile file = (AndFile)getListAdapter()
+                .getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
+
         if (item.getItemId() == 0) {
-            AndFile file = (AndFile)getListAdapter()
-                    .getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
             if (file.isDirectory()) {
                 Log.w("TEdit", "Attempt to delete directory: " + file.getPath());
                 return true;
             }
-            if (!file.delete()) {
-                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                        getString(R.string.error_delete));
-                em.show(ctx.getSupportFragmentManager(), "dialog");
-            } else {
-                Parcelable state = getListView().onSaveInstanceState();
-                populateBrowser();
-                getListView().onRestoreInstanceState(state);
-                Toast.makeText(ctx, getString(R.string.filedeleted), Toast.LENGTH_SHORT).show();
-            }
+
+            DeleteDialog dd = DeleteDialog.newInstance(file.getPathIdentifier());
+            dd.show(ctx.getSupportFragmentManager(), "DeleteDialog");
 
             return true;
         }
@@ -255,8 +250,6 @@ public class Browser extends ListFragment {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
-        /*String filename = ((TextView)view.findViewById(R.id.dirText)).getText().toString();
-        File file = new File(currentDir, filename);*/
         AndFile file = (AndFile)listView.getAdapter().getItem(position);
         if (position < numDirs) {
             if (file.exists()) {
@@ -746,7 +739,12 @@ public class Browser extends ListFragment {
                         if (!writeFile(file, ctx, body))
                             return;
 
+                        if (ctx.getFrag() instanceof Browser)
+                            ctx.setSavePath(((Browser)ctx.getFrag()).getCurrentPath());
+
+                        ctx.getDB().updateText(ctx.getLastTxt(), file.getPathIdentifier(), body);
                         ctx.openDocument(ctx.getLastTxt());
+                        Toast.makeText(ctx, getString(R.string.filesaved), Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton(getActivity().getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -842,57 +840,57 @@ public class Browser extends ListFragment {
                                 dismiss();
                             }
                         }).setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (et.hasFocus()) {
-                            InputMethodManager imm = (InputMethodManager)
-                                    ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
-                        }
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    if (et.hasFocus()) {
+                                        InputMethodManager imm = (InputMethodManager)
+                                                ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                                        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+                                    }
 
-                        dismiss();
-                        String dirName = et.getText().toString();
-                        if (!isValidName(dirName)) {
-                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                    getString(R.string.error_invalidname));
-                            em.show(ctx.getSupportFragmentManager(), "dialog");
+                                    dismiss();
+                                    String dirName = et.getText().toString();
+                                    if (!isValidName(dirName)) {
+                                        ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                                getString(R.string.error_invalidname));
+                                        em.show(ctx.getSupportFragmentManager(), "dialog");
 
-                            return;
-                        }
+                                        return;
+                                    }
 
-                        if (path.getCurrent().getType() == AndFile.TYPE_FILE) {
-                            File dir = new File(path.getPath(), dirName);
-                            if (dir.exists()) {
-                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                        getString(R.string.error_direxists));
-                                em.show(ctx.getSupportFragmentManager(), "dialog");
+                                    if (path.getCurrent().getType() == AndFile.TYPE_FILE) {
+                                        File dir = new File(path.getPath(), dirName);
+                                        if (dir.exists()) {
+                                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                                    getString(R.string.error_direxists));
+                                            em.show(ctx.getSupportFragmentManager(), "dialog");
 
-                                return;
-                            }
+                                            return;
+                                        }
 
-                            if (!dir.mkdirs()) {
-                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                        getString(R.string.error_nonewdir));
-                                em.show(ctx.getSupportFragmentManager(), "dialog");
+                                        if (!dir.mkdirs()) {
+                                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                                    getString(R.string.error_nonewdir));
+                                            em.show(ctx.getSupportFragmentManager(), "dialog");
 
-                                return;
-                            }
-                        } else {
-                            DocumentFile newDir = ((DocumentFile)path.getCurrent().getFile())
-                                    .createDirectory(dirName);
-                            if (newDir == null) {
-                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                        getString(R.string.error_nonewdir));
-                                em.show(ctx.getSupportFragmentManager(), "dialog");
+                                            return;
+                                        }
+                                    } else {
+                                        DocumentFile newDir = ((DocumentFile)path.getCurrent().getFile())
+                                                .createDirectory(dirName);
+                                        if (newDir == null) {
+                                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                                    getString(R.string.error_nonewdir));
+                                            em.show(ctx.getSupportFragmentManager(), "dialog");
 
-                                return;
-                            }
-                        }
+                                            return;
+                                        }
+                                    }
 
-                        Toast.makeText(ctx, getString(R.string.dircreated), Toast.LENGTH_SHORT).show();
-                        ((Browser) ctx.getFrag()).populateBrowser();
-                    }
-                });
+                                    Toast.makeText(ctx, getString(R.string.dircreated), Toast.LENGTH_SHORT).show();
+                                    ((Browser) ctx.getFrag()).populateBrowser();
+                                }
+                            });
             } else {
                 builder.setTitle(R.string.error).setMessage(error);
                 builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
@@ -915,6 +913,88 @@ public class Browser extends ListFragment {
                 outState.putString("TEdit.newDirectory.error", error);
             if (et != null)
                 outState.putString("TEdit.newDirectory.name", et.getText().toString());
+        }
+    }
+
+    public static class DeleteDialog extends DialogFragment {
+        private TEditActivity ctx;
+        private AndFile file;
+
+        public static DeleteDialog newInstance(String filePath) {
+            DeleteDialog dd = new DeleteDialog();
+            Bundle bundle = new Bundle();
+            bundle.putString("TEdit.deleteDialog.filePath", filePath);
+            dd.setArguments(bundle);
+            return dd;
+        }
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            this.ctx = (TEditActivity)context;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String filePath;
+            String error = "";
+            if (savedInstanceState == null) {
+                filePath = getArguments().getString("TEdit.deleteDialog.filePath", "");
+            } else
+                filePath = savedInstanceState.getString("TEdit.deleteDialog.filePath", "");
+
+            if (filePath.isEmpty())
+                error = getString(R.string.error_nofilepath);
+
+            if (error.isEmpty()) {
+                file = AndFile.createDescriptor(filePath, ctx);
+            } else
+                file = null;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            if (file != null) {
+                builder.setTitle(getString(R.string.delete));
+                builder.setMessage(getString(R.string.delete_msg) + " " + file.getName())
+                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dismiss();
+                            }
+                        }).setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dismiss();
+                                if (!file.delete()) {
+                                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                            getString(R.string.error_delete));
+                                    em.show(ctx.getSupportFragmentManager(), "dialog");
+                                } else {
+                                    Browser browser = (Browser)ctx.getFrag();
+                                    Parcelable state = browser.getListView().onSaveInstanceState();
+                                    browser.populateBrowser();
+                                    browser.getListView().onRestoreInstanceState(state);
+                                    Toast.makeText(ctx, getString(R.string.filedeleted), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            } else {
+                builder.setTitle(R.string.error).setMessage(error);
+                builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dismiss();
+                    }
+                });
+            }
+
+            return builder.create();
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+
+            outState.putString("TEdit.deleteDialog.filePath", file.getPathIdentifier());
         }
     }
 }
