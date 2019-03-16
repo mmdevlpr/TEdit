@@ -117,6 +117,7 @@ public class VolumePicker extends TDialog {
         });
         radioGroup.check(choice);
 
+        setIcon(R.drawable.tedit_logo_brown);
         setTitle(R.string.volumePicker);
         setView(radioGroup);
         setNegativeButton(R.string.cancel, new View.OnClickListener() {

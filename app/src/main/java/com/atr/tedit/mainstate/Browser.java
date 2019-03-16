@@ -361,11 +361,9 @@ public class Browser extends ListFragment {
             }
         }
 
-        TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
+        final TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
                 : (TextView)getView().findViewById(R.id.savebrowsepath);
         pathView.setText(currentPath.getPath());
-        if (pathView.getParent() instanceof ScrollView)
-            ((ScrollView)pathView.getParent()).fullScroll(ScrollView.FOCUS_RIGHT);
 
         AndFile[] dirList = currentPath.listFiles(new DirFilter());
         AndFile[] fileList = currentPath.listFiles(new TxtFilter());

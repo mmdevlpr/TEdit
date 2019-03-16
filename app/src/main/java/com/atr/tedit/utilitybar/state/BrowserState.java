@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
@@ -165,7 +166,7 @@ public class BrowserState extends UtilityState {
         lsd.show(BAR.ctx.getSupportFragmentManager(), "SDCardIntentDialog");
     }
 
-    public static class LaunchSDCardIntent extends DialogFragment {
+    public static class LaunchSDCardIntent extends TDialog {
         private TEditActivity ctx;
 
         @Override
@@ -176,25 +177,25 @@ public class BrowserState extends UtilityState {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(getString(R.string.launch_sdpicker_title))
-                    .setMessage((getString(R.string.launch_sdpicker)))
-                    .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dismiss();
-                            ((Browser)ctx.getFrag()).launchVolumePicker();
-                        }
-                    })
-                    .setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dismiss();
-                            ctx.launchSDcardIntent();
-                        }
-                    });
+            setTitle(R.string.launch_sdpicker_title);
+            setIcon(R.drawable.tedit_logo_brown);
+            setMessage(R.string.launch_sdpicker);
+            setNegativeButton(getString(R.string.cancel), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    ((Browser)ctx.getFrag()).launchVolumePicker();
+                }
+            });
+            setPositiveButton(getString(R.string.okay), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    ctx.launchSDcardIntent();
+                }
+            });
 
-            return builder.create();
+            return super.onCreateDialog(savedInstanceState);
         }
     }
 }

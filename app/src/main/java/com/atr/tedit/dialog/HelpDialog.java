@@ -63,7 +63,7 @@ public class HelpDialog extends TDialog {
         if (titleView != null)
             titleView.setTypeface(FontUtil.getTitleTypeface());
 
-        setIcon(R.drawable.help_focused);
+        setIcon(R.drawable.tedit_logo_brown);
         setTitle(title);
         setView(viewLayout);
 

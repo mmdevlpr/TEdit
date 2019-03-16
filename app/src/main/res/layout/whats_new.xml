@@ -31,18 +31,6 @@
             android:text="@string/version" />
 
         <TextView
-            android:id="@+id/website"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_weight="1"
-            android:autoLink="web"
-            android:clickable="true"
-            android:text="http://1337atr.weebly.com" />
-
-        <TextView
             android:id="@+id/author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,15 +41,17 @@
             android:text="@string/author" />
 
         <TextView
-            android:id="@+id/iconAuthor"
+            android:id="@+id/website"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
-            android:layout_marginBottom="21dp"
             android:layout_weight="1"
-            android:text="@string/icon_author" />
+            android:autoLink="web"
+            android:clickable="true"
+            android:layout_marginBottom="21dp"
+            android:text="http://1337atr.weebly.com" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -198,7 +188,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|left"
                 android:layout_weight="1"
-                android:text="New look." />
+                android:text="New look, logo and icon." />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
