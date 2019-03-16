@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">TEdit</string>
-    <string name="version">v2.2.0</string>
+    <string name="version">v2.2.1</string>
     <string name="empty_dir">No Contents</string>
     <string name="save_filename">Untitled.txt</string>
     <string name="alert">Alert</string>
@@ -65,8 +65,8 @@
     <string name="help_tabs">View the list of currently open documents.</string>
     <string name="help_browseclose">Use your device\'s back button to close the browser. If you have one or more open documents this will switch to the last open document otherwise, this will quit the TEdit application.</string>
     <string name="help_opendoc">Open a document.</string>
-    <string name="help_savedoc">Save the current document.</string>
-    <string name="help_saveas">Save a copy of the current document.</string>
+    <string name="help_savedoc">Save the current document. (ctrl+s)</string>
+    <string name="help_saveas">Save a copy of the current document. (ctrl+shift+s)</string>
     <string name="help_searchtext">Search and replace text within the text document.</string>
     <string name="help_textlayer2">Switch to the second button layer.</string>
     <string name="help_textlayer1">Switch to the first button layer.</string>

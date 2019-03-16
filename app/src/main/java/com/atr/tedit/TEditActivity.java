@@ -136,7 +136,7 @@ public class TEditActivity extends AppCompatActivity {
             } else {
                 File sRoot = Environment.getExternalStorageDirectory();
                 storageRoot = sRoot == null || !sRoot.exists() ? root
-                        : AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                        : AndFile.createDescriptor(sRoot);
                 currentPath = new FilePath(storageRoot);
             }
 
@@ -193,7 +193,8 @@ public class TEditActivity extends AppCompatActivity {
         } else {
             File sRoot = Environment.getExternalStorageDirectory();
             storageRoot = sRoot == null || !sRoot.exists() ? root
-                    : AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                    : AndFile.createDescriptor(sRoot);
+            currentPath = new FilePath(storageRoot);
         }
 
         super.onCreate(savedInstanceState);
@@ -655,7 +656,7 @@ public class TEditActivity extends AppCompatActivity {
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_S && state == STATE_TEXT) {
             if (event.isCtrlPressed()) {
-                if (event.isAltPressed()) {
+                if (event.isShiftPressed()) {
                     saveAsDocument(false);
                     return true;
                 }
