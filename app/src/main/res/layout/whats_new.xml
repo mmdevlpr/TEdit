@@ -54,7 +54,7 @@
             android:text="http://1337atr.weebly.com" />
 
         <TextView
-            android:id="@+id/221"
+            android:id="@+id/v221"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|left"
@@ -133,7 +133,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/220"
+            android:id="@+id/v220"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|left"

@@ -25,3 +25,23 @@ You can find various APK installers for TEdit at http://1337atr.weebly.com/tedit
 src="http://i.creativecommons.org/p/zero/1.0/88x31.png"
  alt="CC0" width="88" height="31">](http://creativecommons.org/publicdomain/zero/1.0/)
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen01.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen01.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen02.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen02.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen03.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen03.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen04.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen04.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen05.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen05.png)
