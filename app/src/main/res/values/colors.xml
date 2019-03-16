@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>-->
+    <color name="darkRoast">#362012</color>
+    <color name="coffee">#4d2e19</color>
+    <color name="coffeeNcream">#9f7c65</color>
+    <color name="darkCream">#e3cdad</color>
+    <color name="cream">#f1e5d1</color>
+    <color name="lightRust">#b7703e</color>
     <color name="colorPrimary">#494949</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#0062FF</color>

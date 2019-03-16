@@ -26,6 +26,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
@@ -41,18 +42,21 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.PossibleBinary;
+import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.util.AndFileFilter;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
+import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 import org.json.JSONException;
@@ -201,9 +205,17 @@ public class Browser extends ListFragment {
             ctx.getUtilityBar().setToBrowser();
 
         getListView().setEnabled(true);
+
+        TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
+                : (TextView)getView().findViewById(R.id.savebrowsepath);
+        pathView.setTypeface(FontUtil.getDefault());
+
         populateBrowser();
-        if (type == TYPE_SAVE)
-            getView().findViewById(R.id.filename).setEnabled(true);
+        if (type == TYPE_SAVE) {
+            TextView filename = getView().findViewById(R.id.filename);
+            filename.setEnabled(true);
+            filename.setTypeface(FontUtil.getEditorTypeface());
+        }
     }
 
     @Override
@@ -352,6 +364,8 @@ public class Browser extends ListFragment {
         TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
                 : (TextView)getView().findViewById(R.id.savebrowsepath);
         pathView.setText(currentPath.getPath());
+        if (pathView.getParent() instanceof ScrollView)
+            ((ScrollView)pathView.getParent()).fullScroll(ScrollView.FOCUS_RIGHT);
 
         AndFile[] dirList = currentPath.listFiles(new DirFilter());
         AndFile[] fileList = currentPath.listFiles(new TxtFilter());
@@ -383,14 +397,22 @@ public class Browser extends ListFragment {
             @Override
             public View getView(int position, View view, ViewGroup parent) {
                 View row = view;
-                if (row == null)
-                    row = ((Activity)getContext()).getLayoutInflater().inflate(R.layout.browser_row,
+                ImageView iv;
+                TextView tv;
+                if (row == null) {
+                    row = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.browser_row,
                             parent, false);
-                ImageView iv = row.findViewById(R.id.dirIcon);
-                TextView tv = row.findViewById(R.id.dirText);
+                    iv = row.findViewById(R.id.dirIcon);
+                    tv = row.findViewById(R.id.dirText);
+
+                    tv.setTypeface(FontUtil.getDefault());
+                } else {
+                    iv = row.findViewById(R.id.dirIcon);
+                    tv = row.findViewById(R.id.dirText);
+                }
                 AndFile item = getItem(position);
 
-                iv.setImageResource(item.isDirectory() ? R.drawable.dir : R.drawable.doc);
+                iv.setImageResource(item.isDirectory() ? R.drawable.dir_focused : R.drawable.doc_focused);
                 tv.setText(item.getName());
 
                 return row;
@@ -634,7 +656,7 @@ public class Browser extends ListFragment {
         }
     }
 
-    public static class OverwriteDialog extends DialogFragment {
+    public static class OverwriteDialog extends TDialog {
         private AndPath path = null;
         private String error = "";
         private String name;
@@ -649,8 +671,6 @@ public class Browser extends ListFragment {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
             if (savedInstanceState == null) {
                 Bundle bundle = getArguments();
                 String filePath = bundle.getString("Overwrite.filePath", "");
@@ -701,12 +721,12 @@ public class Browser extends ListFragment {
             String message = error.isEmpty() ? getString(R.string.overwrite_message).replace("%s", name)
                     : error;
 
-            builder.setTitle(title);
-            builder.setMessage(message);
+            setTitle(title);
+            setMessage(message);
             if (error.isEmpty()) {
-                builder.setPositiveButton(getActivity().getString(R.string.okay), new DialogInterface.OnClickListener() {
+                setPositiveButton(getActivity().getString(R.string.okay), new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(View v) {
                         dismiss();
 
                         AndFile file;
@@ -744,23 +764,23 @@ public class Browser extends ListFragment {
                         ctx.openDocument(ctx.getLastTxt());
                         Toast.makeText(ctx, getString(R.string.filesaved), Toast.LENGTH_SHORT).show();
                     }
-                })
-                .setNegativeButton(getActivity().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                });
+                setNegativeButton(getActivity().getString(R.string.cancel), new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(View v) {
                         dismiss();
                     }
                 });
             } else {
-                builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
+                setNeutralButton(R.string.okay, new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+                    public void onClick(View v) {
                         dismiss();
                     }
                 });
             }
 
-            return builder.create();
+            return super.onCreateDialog(savedInstanceState);
         }
 
         @Override
@@ -774,7 +794,7 @@ public class Browser extends ListFragment {
         }
     }
 
-    public static class NewDirectory extends DialogFragment {
+    public static class NewDirectory extends TDialog {
         private TEditActivity ctx;
         private AndPath path;
         private EditText et;
@@ -819,87 +839,90 @@ public class Browser extends ListFragment {
             } else
                 path = null;
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             if (path != null) {
-                et = new EditText(new ContextThemeWrapper(ctx, R.style.drkGreen));
+                et = new EditText(new ContextThemeWrapper(ctx, R.style.Coffee_Cream));
                 if (!name.isEmpty())
                     et.setText(name);
+                et.setTypeface(FontUtil.getEditorTypeface());
 
-                builder.setTitle(getString(R.string.newdirectory));
-                builder.setMessage(getString(R.string.newdirmessage)).setView(et)
-                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                if (et.hasFocus()) {
-                                    InputMethodManager imm = (InputMethodManager)
-                                            ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
-                                }
-                                dismiss();
-                            }
-                        }).setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    if (et.hasFocus()) {
-                                        InputMethodManager imm = (InputMethodManager)
-                                                ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                                        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
-                                    }
-
-                                    dismiss();
-                                    String dirName = et.getText().toString();
-                                    if (!isValidName(dirName)) {
-                                        ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                                getString(R.string.error_invalidname));
-                                        em.show(ctx.getSupportFragmentManager(), "dialog");
-
-                                        return;
-                                    }
-
-                                    if (path.getCurrent().getType() == AndFile.TYPE_FILE) {
-                                        File dir = new File(path.getPath(), dirName);
-                                        if (dir.exists()) {
-                                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                                    getString(R.string.error_direxists));
-                                            em.show(ctx.getSupportFragmentManager(), "dialog");
-
-                                            return;
-                                        }
-
-                                        if (!dir.mkdirs()) {
-                                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                                    getString(R.string.error_nonewdir));
-                                            em.show(ctx.getSupportFragmentManager(), "dialog");
-
-                                            return;
-                                        }
-                                    } else {
-                                        DocumentFile newDir = ((DocumentFile)path.getCurrent().getFile())
-                                                .createDirectory(dirName);
-                                        if (newDir == null) {
-                                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                                    getString(R.string.error_nonewdir));
-                                            em.show(ctx.getSupportFragmentManager(), "dialog");
-
-                                            return;
-                                        }
-                                    }
-
-                                    Toast.makeText(ctx, getString(R.string.dircreated), Toast.LENGTH_SHORT).show();
-                                    ((Browser) ctx.getFrag()).populateBrowser();
-                                }
-                            });
-            } else {
-                builder.setTitle(R.string.error).setMessage(error);
-                builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
+                setTitle(R.string.newdirectory);
+                setMessage(R.string.newdirmessage);
+                setView(et);
+                setNegativeButton(R.string.cancel, new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+                    public void onClick(View v) {
+                        if (et.hasFocus()) {
+                            InputMethodManager imm = (InputMethodManager)
+                                    ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+                        }
+                        dismiss();
+                    }
+                });
+                setPositiveButton(getString(R.string.okay), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (et.hasFocus()) {
+                            InputMethodManager imm = (InputMethodManager)
+                                    ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+                        }
+
+                        dismiss();
+                        String dirName = et.getText().toString();
+                        if (!isValidName(dirName)) {
+                            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                    getString(R.string.error_invalidname));
+                            em.show(ctx.getSupportFragmentManager(), "dialog");
+
+                            return;
+                        }
+
+                        if (path.getCurrent().getType() == AndFile.TYPE_FILE) {
+                            File dir = new File(path.getPath(), dirName);
+                            if (dir.exists()) {
+                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                        getString(R.string.error_direxists));
+                                em.show(ctx.getSupportFragmentManager(), "dialog");
+
+                                return;
+                            }
+
+                            if (!dir.mkdirs()) {
+                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                        getString(R.string.error_nonewdir));
+                                em.show(ctx.getSupportFragmentManager(), "dialog");
+
+                                return;
+                            }
+                        } else {
+                            DocumentFile newDir = ((DocumentFile)path.getCurrent().getFile())
+                                    .createDirectory(dirName);
+                            if (newDir == null) {
+                                ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                        getString(R.string.error_nonewdir));
+                                em.show(ctx.getSupportFragmentManager(), "dialog");
+
+                                return;
+                            }
+                        }
+
+                        Toast.makeText(ctx, getString(R.string.dircreated), Toast.LENGTH_SHORT).show();
+                        ((Browser) ctx.getFrag()).populateBrowser();
+                    }
+                });
+            } else {
+                setTitle(R.string.error);
+                setMessage(error);
+                setNeutralButton(R.string.okay, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                         dismiss();
                     }
                 });
             }
 
-            return builder.create();
+            return super.onCreateDialog(savedInstanceState);
         }
 
         @Override
@@ -914,7 +937,7 @@ public class Browser extends ListFragment {
         }
     }
 
-    public static class DeleteDialog extends DialogFragment {
+    public static class DeleteDialog extends TDialog {
         private TEditActivity ctx;
         private AndFile file;
 
@@ -949,43 +972,33 @@ public class Browser extends ListFragment {
             } else
                 file = null;
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            if (file != null) {
-                builder.setTitle(getString(R.string.delete));
-                builder.setMessage(getString(R.string.delete_msg) + " " + file.getName())
-                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                dismiss();
-                            }
-                        }).setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                dismiss();
-                                if (!file.delete()) {
-                                    ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                                            getString(R.string.error_delete));
-                                    em.show(ctx.getSupportFragmentManager(), "dialog");
-                                } else {
-                                    Browser browser = (Browser)ctx.getFrag();
-                                    Parcelable state = browser.getListView().onSaveInstanceState();
-                                    browser.populateBrowser();
-                                    browser.getListView().onRestoreInstanceState(state);
-                                    Toast.makeText(ctx, getString(R.string.filedeleted), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-            } else {
-                builder.setTitle(R.string.error).setMessage(error);
-                builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dismiss();
+            setTitle(R.string.delete);
+            setMessage(getString(R.string.delete_msg) + " " + file.getName());
+            setNegativeButton(R.string.cancel, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+            setPositiveButton(R.string.okay, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    if (!file.delete()) {
+                        ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                                getString(R.string.error_delete));
+                        em.show(ctx.getSupportFragmentManager(), "dialog");
+                    } else {
+                        Browser browser = (Browser)ctx.getFrag();
+                        Parcelable state = browser.getListView().onSaveInstanceState();
+                        browser.populateBrowser();
+                        browser.getListView().onRestoreInstanceState(state);
+                        Toast.makeText(ctx, getString(R.string.filedeleted), Toast.LENGTH_SHORT).show();
                     }
-                });
-            }
+                }
+            });
 
-            return builder.create();
+            return super.onCreateDialog(savedInstanceState);
         }
 
         @Override

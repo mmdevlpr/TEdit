@@ -49,6 +49,7 @@ import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.mainstate.Tabs;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
+import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 
@@ -101,6 +102,8 @@ public class TEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_tedit);
+
+        FontUtil.init(this);
 
         dMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dMetrics);

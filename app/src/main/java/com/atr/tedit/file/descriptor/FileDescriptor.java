@@ -84,11 +84,7 @@ public class FileDescriptor extends AndFile<File> {
 
     @Override
     public boolean rename(String name) {
-        File newFile = new File(name);
-        if (newFile.getPath().equals(file.getPath()))
-            return file.renameTo(new File(name));
-
-        return file.renameTo(new File(file.getPath(), name));
+        return file.renameTo(new File(name));
     }
 
     @Override

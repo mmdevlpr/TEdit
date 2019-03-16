@@ -22,7 +22,6 @@
         android:gravity="left|center_vertical"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="@color/browseText"
         android:paddingRight="3dp"
         android:paddingTop="3dp"
         android:paddingBottom="3dp"

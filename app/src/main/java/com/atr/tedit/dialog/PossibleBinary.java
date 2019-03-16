@@ -19,6 +19,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
@@ -27,7 +28,7 @@ import com.atr.tedit.mainstate.Browser;
 
 import java.io.File;
 
-public class PossibleBinary extends DialogFragment {
+public class PossibleBinary extends TDialog {
     String filePath;
 
     public static PossibleBinary getInstance(String filePath) {
@@ -48,25 +49,25 @@ public class PossibleBinary extends DialogFragment {
             filePath = savedInstanceState.getString("pBinary.filePath", "");
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.alert).setMessage(R.string.alert_binaryfile)
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dismiss();
-                    }
-                })
-                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dismiss();
-                        AndFile file = AndFile.createDescriptor(filePath, getActivity());
-                        ((Browser)((TEditActivity)getActivity()).getFrag())
-                                .openFile(file, true);
-                    }
-                });;
+        setTitle(R.string.alert);
+        setMessage(R.string.alert_binaryfile);
+        setNegativeButton(R.string.cancel, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+        setPositiveButton(R.string.confirm, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                AndFile file = AndFile.createDescriptor(filePath, getActivity());
+                ((Browser)((TEditActivity)getActivity()).getFrag())
+                        .openFile(file, true);
+            }
+        });
 
-        return builder.create();
+        return super.onCreateDialog(savedInstanceState);
     }
 
     @Override

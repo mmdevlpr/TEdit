@@ -12,4 +12,14 @@
     <item name="nine" type="id"/>
     <item name="ten" type="id"/>
     <item name="eleven" type="id"/>
+    <item name="dialog_layout" type="id"/>
+    <item name="dialog_layout_title" type="id"/>
+    <item name="dialog_icon" type="id"/>
+    <item name="dialog_title" type="id"/>
+    <item name="dialog_message" type="id"/>
+    <item name="dialog_view" type="id"/>
+    <item name="dialog_layout_button" type="id"/>
+    <item name="dialog_negative_button" type="id"/>
+    <item name="dialog_neutral_button" type="id"/>
+    <item name="dialog_positive_button" type="id"/>
 </resources>

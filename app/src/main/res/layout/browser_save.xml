@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/colorPrimary">
+    android:background="@color/cream">
 
     <LinearLayout
         android:id="@+id/savelayout"
@@ -22,12 +22,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|left"
             android:layout_weight="1"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/coffeeNcream"
             android:inputType="textNoSuggestions"
             android:lines="1"
             android:maxLines="1"
+            android:padding="3dp"
             android:text="@string/save_filename"
-            android:textColor="@color/browseText"
+            android:textColor="@color/cream"
             android:textSize="18sp" />
 
         <ImageButton
@@ -38,7 +39,7 @@
             android:layout_marginLeft="10dp"
             android:background="@android:color/transparent"
             android:onClick="saveFile"
-            app:srcCompat="@drawable/button_check" />
+            app:srcCompat="@drawable/button_drk_check" />
 
     </LinearLayout>
 
@@ -64,7 +65,6 @@
             android:lines="1"
             android:maxLines="1"
             android:scrollbars="none"
-            android:textColor="@color/browseText"
             android:textSize="18sp" />
         </HorizontalScrollView>
 
@@ -72,13 +72,11 @@
     
     <ListView android:id="@+id/android:list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/browseText"/>
+            android:layout_height="wrap_content"/>
     <TextView android:id="@+id/android:empty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="@string/empty_dir"
-            android:textColor="@color/browseText"/>
+            android:text="@string/empty_dir"/>
 
 </LinearLayout>

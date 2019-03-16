@@ -38,6 +38,7 @@ import android.widget.TextView;
 import com.atr.tedit.R;
 import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.dialog.HelpDialog;
+import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 public class TextSearchState extends UtilityState {
@@ -52,7 +53,7 @@ public class TextSearchState extends UtilityState {
         super(bar, UtilityBar.STATE_TEXT_SEARCH);
         int fontSize = 16;
 
-        searchField = new EditText(new ContextThemeWrapper(bar.ctx, R.style.AppTheme_Dark));
+        searchField = new EditText(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         searchField.setSingleLine(true);
         searchField.setInputType(EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         searchField.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
@@ -60,18 +61,20 @@ public class TextSearchState extends UtilityState {
         searchField.setNextFocusRightId(R.id.seven);
         searchField.setNextFocusLeftId(R.id.five);
         searchField.setFocusable(true);
+        searchField.setTypeface(FontUtil.getEditorTypeface());
         searchField.measure(bar.barWidth - bar.padding_w, LayoutParams.WRAP_CONTENT);
         int searchHeight = searchField.getMeasuredHeight() + bar.padding_h * 2;
 
-        TextView searchtv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.AppTheme_Dark));
+        TextView searchtv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         searchtv.setText(R.string.search);
         searchtv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         searchtv.setId(R.id.ten);
         searchtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+        searchtv.setTypeface(FontUtil.getDefault());
         searchtv.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         int tvSearchWidth = searchtv.getMeasuredWidth();
 
-        replaceField = new EditText(new ContextThemeWrapper(bar.ctx, R.style.AppTheme_Dark));
+        replaceField = new EditText(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         replaceField.setSingleLine(true);
         replaceField.setInputType(EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         replaceField.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
@@ -79,14 +82,16 @@ public class TextSearchState extends UtilityState {
         replaceField.setNextFocusRightId(R.id.eight);
         replaceField.setNextFocusLeftId(R.id.six);
         replaceField.setFocusable(true);
+        replaceField.setTypeface(FontUtil.getEditorTypeface());
         replaceField.measure(bar.barWidth - bar.padding_w, LayoutParams.WRAP_CONTENT);
         int replaceHeight = replaceField.getMeasuredHeight() + bar.padding_h * 2;
 
-        TextView replacetv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.AppTheme_Dark));
+        TextView replacetv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         replacetv.setText(R.string.replace);
         replacetv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         replacetv.setId(R.id.eleven);
         replacetv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+        replacetv.setTypeface(FontUtil.getDefault());
         replacetv.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         int tvReplaceWidth = replacetv.getMeasuredWidth();
 
@@ -134,7 +139,7 @@ public class TextSearchState extends UtilityState {
         cset.connect(replaceField.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
         cset.applyTo(replaceLayout);
 
-        wholeWord = new CheckBox(new ContextThemeWrapper(bar.ctx, R.style.AppTheme_Dark));
+        wholeWord = new CheckBox(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         wholeWord.setText(R.string.whole_word);
         wholeWord.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         wholeWord.setId(R.id.eight);
@@ -151,7 +156,7 @@ public class TextSearchState extends UtilityState {
             }
         });
 
-        matchCase = new CheckBox(new ContextThemeWrapper(bar.ctx, R.style.AppTheme_Dark));
+        matchCase = new CheckBox(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         matchCase.setText(R.string.match_case);
         matchCase.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         matchCase.setId(R.id.nine);
@@ -175,6 +180,7 @@ public class TextSearchState extends UtilityState {
         checkLayout.setLayoutParams(lllp);
         checkLayout.addView(wholeWord);
         checkLayout.addView(matchCase);
+        FontUtil.applyFont(FontUtil.getDefault(), checkLayout);
         checkLayout.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         checkLayout.setTranslationX(Math.round(bar.barWidth * 0.5) - Math.round(checkLayout.getMeasuredWidth() * 0.5));
         checkLayout.setTranslationY(bar.barHeight + searchHeight + replaceHeight + bar.padding_h);

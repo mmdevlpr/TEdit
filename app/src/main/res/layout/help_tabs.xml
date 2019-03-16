@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -23,7 +18,6 @@
                 android:layout_marginRight="3dp"
                 android:layout_weight="1"
                 android:text="@string/app_name"
-                android:textColor="@color/greenPrimary"
                 android:textSize="25sp" />
 
             <TextView
@@ -34,8 +28,7 @@
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:layout_weight="1"
-                android:text="@string/version"
-                android:textColor="@color/greenPrimary" />
+                android:text="@string/version" />
 
             <TextView
                 android:id="@+id/website"
@@ -47,8 +40,7 @@
                 android:layout_weight="1"
                 android:autoLink="web"
                 android:clickable="true"
-                android:text="http://1337atr.weebly.com"
-                android:textColorLink="@color/greenAccent" />
+                android:text="http://1337atr.weebly.com" />
 
             <TextView
                 android:id="@+id/author"
@@ -58,8 +50,7 @@
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:layout_weight="1"
-                android:text="@string/author"
-                android:textColor="@color/greenPrimary" />
+                android:text="@string/author" />
 
             <TextView
                 android:id="@+id/iconAuthor"
@@ -70,8 +61,7 @@
                 android:layout_marginRight="3dp"
                 android:layout_marginBottom="21dp"
                 android:layout_weight="1"
-                android:text="@string/icon_author"
-                android:textColor="@color/greenPrimary" />
+                android:text="@string/icon_author" />
 
             <TextView
                 android:id="@+id/textViewSwipe"
@@ -81,8 +71,7 @@
                 android:layout_marginBottom="21dp"
                 android:layout_weight="1"
                 android:padding="3dp"
-                android:text="@string/help_tabswipe"
-                android:textColor="@color/greenPrimary" />
+                android:text="@string/help_tabswipe" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -106,9 +95,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|left"
                     android:layout_weight="1"
-                    android:text="@string/help_tabclose"
-                    android:textColor="@color/greenPrimary" />
+                    android:text="@string/help_tabclose" />
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+</ScrollView>

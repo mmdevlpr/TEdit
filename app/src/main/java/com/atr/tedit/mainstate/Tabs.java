@@ -38,6 +38,7 @@ import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.file.descriptor.AndFile;
+import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 
@@ -260,7 +261,9 @@ public class Tabs extends ListFragment {
 
                 holder.ll = (LinearLayout)row.findViewById(R.id.tablayout);
                 holder.filename = (TextView)row.findViewById(R.id.tabfilename);
+                holder.filename.setTypeface(FontUtil.getDefault());
                 holder.description = (TextView)row.findViewById(R.id.tabdescription);
+                holder.description.setTypeface(FontUtil.getEditorTypeface());
                 row.setTag(holder);
                 row.setOnTouchListener(touch);
             } else {

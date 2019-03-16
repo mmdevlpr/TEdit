@@ -17,20 +17,20 @@ package com.atr.tedit.dialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.TextView;
 
 import com.atr.tedit.BuildConfig;
 import com.atr.tedit.R;
+import com.atr.tedit.util.FontUtil;
 
 /**
  * @author Adam T. Ryder
  * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
  */
 
-public class HelpDialog extends DialogFragment {
+public class HelpDialog extends TDialog {
     private int layout;
     private String title;
 
@@ -46,8 +46,6 @@ public class HelpDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        super.onCreateDialog(savedInstanceState);
-
         if (savedInstanceState == null) {
             layout = getArguments().getInt("TEdit.help.layout", R.layout.help_browser);
             title = getArguments().getString("TEdit.help.title", "Help");
@@ -56,21 +54,27 @@ public class HelpDialog extends DialogFragment {
             title = savedInstanceState.getString("TEdit.help.title", getString(R.string.help));
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View viewLayout = getActivity().getLayoutInflater().inflate(layout, null);
         TextView versionView = (TextView)viewLayout.findViewById(R.id.version);
         if (versionView != null)
             versionView.setText("v" + BuildConfig.VERSION_NAME);
-        builder.setTitle(title).setView(viewLayout)
-                .setIcon(R.drawable.help_focused)
-                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dismiss();
-                    }
-                });
+        FontUtil.applyFont(FontUtil.getDefault(), viewLayout);
+        TextView titleView = (TextView)viewLayout.findViewById(R.id.apptitle);
+        if (titleView != null)
+            titleView.setTypeface(FontUtil.getTitleTypeface());
 
-        return builder.create();
+        setIcon(R.drawable.help_focused);
+        setTitle(title);
+        setView(viewLayout);
+
+        setNeutralButton(R.string.okay, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
+
+        return super.onCreateDialog(savedInstanceState);
     }
 
     @Override

@@ -33,6 +33,7 @@ import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.file.descriptor.AndFile;
+import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.util.TextSearch;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
@@ -100,21 +101,25 @@ public class Editor extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         editText = (EditText)getView().findViewById(R.id.editorText);
+        editText.setTypeface(FontUtil.getEditorTypeface());
         searchString = new TextSearch();
 
+        TextView docName = view.findViewById(R.id.documentname);
+        docName.setTypeface(FontUtil.getDefault());
+
         if (!ctx.dbIsOpen()) {
-            ((TextView)view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+            docName.setText(TEditActivity.DEFAULTPATH);
             return;
         }
 
         Cursor cursor = ctx.getDB().fetchText(key);
         if (cursor == null) {
-            ((TextView)view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+            docName.setText(TEditActivity.DEFAULTPATH);
             return;
         }
 
         if (cursor.getColumnIndex(TEditDB.KEY_PATH) == -1) {
-            ((TextView)view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+            docName.setText(TEditActivity.DEFAULTPATH);
             cursor.close();
             return;
         }
@@ -122,16 +127,16 @@ public class Editor extends Fragment {
         String path = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_PATH));
         cursor.close();
         if (path.equals(TEditActivity.DEFAULTPATH)) {
-            ((TextView)view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+            docName.setText(TEditActivity.DEFAULTPATH);
         } else {
             file = AndFile.createDescriptor(path, ctx);
 
             if (file == null) {
-                ((TextView) view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+                docName.setText(TEditActivity.DEFAULTPATH);
             } else if (file.getName() ==  null || file.getName().isEmpty() || !file.exists()) {
-                ((TextView) view.findViewById(R.id.documentname)).setText(TEditActivity.DEFAULTPATH);
+                docName.setText(TEditActivity.DEFAULTPATH);
             } else
-                ((TextView) view.findViewById(R.id.documentname)).setText(file.getName());
+                docName.setText(file.getName());
 
             if (!file.canWrite() && file.exists())
                 Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();

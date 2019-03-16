@@ -15,20 +15,22 @@
 package com.atr.tedit.dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.provider.DocumentFile;
-import android.support.v7.app.AlertDialog;
-import android.text.Html;
+import android.support.v7.view.ContextThemeWrapper;
+import android.util.TypedValue;
+import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.mainstate.Browser;
+import com.atr.tedit.util.FontUtil;
 
-public class VolumePicker extends DialogFragment {
+public class VolumePicker extends TDialog {
     private AndFile[] volumes;
     private AndFile currentChoice;
 
@@ -44,9 +46,9 @@ public class VolumePicker extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        super.onCreateDialog(savedInstanceState);
-
         final TEditActivity ctx = (TEditActivity)getActivity();
+        float density = ctx.getUtilityBar().dMetrics.density;
+
         int choice = -1;
         if (savedInstanceState == null) {
             String strChoice = getArguments().getString("TEdit.volumePicker.currentChoice", "");
@@ -70,15 +72,15 @@ public class VolumePicker extends DialogFragment {
         volumes[volumes.length - 2] = ctx.getStorageRoot();
         volumes[volumes.length - 1] = ctx.getRoot();
 
-        CharSequence[] options = new CharSequence[volumes.length];
-        for (int i = 0; i < volumes.length - 2; i++) {
+        String[] options = new String[volumes.length];
+        for (int i = 0; i < options.length - 2; i++) {
             AndFile f = volumes[i];
-            options[i] = Html.fromHtml("<font color='#97bf80'>" + f.getName() + "</font>");
+            options[i] = f.getName();
             if (currentChoice.getPathIdentifier().equals(f.getPathIdentifier()))
                 choice = i;
         }
-        options[volumes.length - 2] = Html.fromHtml("<font color='#97bf80'>" + getString(R.string.internal) + "</font>");
-        options[volumes.length - 1] = Html.fromHtml("<font color='#97bf80'>" + getString(R.string.root) + "</font>");
+        options[volumes.length - 2] = getString(R.string.internal);
+        options[volumes.length - 1] = getString(R.string.root);
 
         if (choice < 0) {
             if (currentChoice.getPathIdentifier().equals(ctx.getRoot().getPathIdentifier())) {
@@ -87,30 +89,51 @@ public class VolumePicker extends DialogFragment {
                 choice = volumes.length - 2;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.volumePicker).setSingleChoiceItems(options, choice,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (i < volumes.length) {
-                            currentChoice = volumes[i];
-                        } else
-                            currentChoice = volumes[volumes.length - 2];
+        RadioGroup radioGroup = new RadioGroup(new ContextThemeWrapper(getActivity(), theme));
+        radioGroup.setPadding(Math.round(24 * density), 0, Math.round(24 * density), 0);
+        final int[] ids = new int[options.length];
+        for (int i = 0; i < options.length; i++) {
+            RadioButton rb = new RadioButton(new ContextThemeWrapper(getActivity(), theme));
+            rb.setId(i);
+            ids[i] = rb.getId();
+            rb.setText(options[i]);
+            rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            rb.setTypeface(FontUtil.getDefault());
+            RadioGroup.LayoutParams lp = new RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT,
+                    RadioGroup.LayoutParams.WRAP_CONTENT);
+            if (i < options.length - 1)
+                lp.setMargins(0, 0, 0, Math.round(10 * density));
+            radioGroup.addView(rb, lp);
+        }
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int id) {
+                for (int i = 0; i < ids.length; i++) {
+                    if (ids[i] == id) {
+                        currentChoice = volumes[i];
                     }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dismiss();
-                    }
-                }).setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        ((Browser)ctx.getFrag()).setVolume(currentChoice);
-                        dismiss();
-                    }
-                });
+                }
+            }
+        });
+        radioGroup.check(choice);
 
-        return builder.create();
+        setTitle(R.string.volumePicker);
+        setView(radioGroup);
+        setNegativeButton(R.string.cancel, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+        setPositiveButton(R.string.okay, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((Browser)ctx.getFrag()).setVolume(currentChoice);
+                dismiss();
+            }
+        });
+
+        return super.onCreateDialog(savedInstanceState);
     }
 
     @Override
