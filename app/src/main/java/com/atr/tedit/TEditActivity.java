@@ -36,6 +36,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -617,7 +618,7 @@ public class TEditActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            switch(state) {
+            switch (state) {
                 case STATE_BROWSE:
                     closeBrowser();
                     break;
@@ -635,8 +636,19 @@ public class TEditActivity extends AppCompatActivity {
                     finish();
             }
             return true;
-        } else
-            return super.onKeyUp(keyCode, event);
+        } else if (keyCode == KeyEvent.KEYCODE_S && state == STATE_TEXT) {
+            if (event.isCtrlPressed()) {
+                if (event.isAltPressed()) {
+                    saveAsDocument(false);
+                    return true;
+                }
+
+                saveDocument(false);
+                return true;
+            }
+        }
+
+        return super.onKeyDown(keyCode, event);
     }
 
     protected void closeBrowser() {

@@ -53,7 +53,7 @@
     <string name="editor">Editor</string>
     <string name="tabs">Tabs</string>
     <string name="launch_sdpicker_title">Select SDCard</string>
-    <string name="launch_sdpicker">If you wish to browse your SDCard you must grant TEdit permission to do so by selecting the root folder of your SDCard in the following file manager.</string>
+    <string name="launch_sdpicker">If you wish to browse your SDCard you must grant TEdit permission to do so by selecting the root folder of your SDCard in the following file manager.\n\nNote this feature is not available on all phone models.</string>
     <string name="volumePicker">Choose Volume</string>
     <string name="whatsnew">What\'s New</string>
     <string name="author">Developed by Adam T. Ryder</string>
