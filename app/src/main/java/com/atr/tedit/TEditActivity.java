@@ -137,6 +137,7 @@ public class TEditActivity extends AppCompatActivity {
                 File sRoot = Environment.getExternalStorageDirectory();
                 storageRoot = sRoot == null || !sRoot.exists() ? root
                         : AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                currentPath = new FilePath(storageRoot);
             }
 
             if (!dbOpen) {
@@ -260,6 +261,22 @@ public class TEditActivity extends AppCompatActivity {
             if (!checkWritePermission()) {
                 requestPermission(INIT_BROWSER_PERMISSION);
                 return;
+            }
+        }
+
+        if (currentPath == null) {
+            File rFile = Environment.getRootDirectory();
+            root = AndFile.createDescriptor(rFile == null ? new File("/") : rFile);
+            String mediaState = Environment.getExternalStorageState();
+            if (Environment.MEDIA_MOUNTED.equals(mediaState)
+                    || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
+                storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                currentPath = new FilePath(storageRoot);
+            } else {
+                File sRoot = Environment.getExternalStorageDirectory();
+                storageRoot = sRoot == null || !sRoot.exists() ? root
+                        : AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                currentPath = new FilePath(storageRoot);
             }
         }
 
@@ -938,7 +955,22 @@ public class TEditActivity extends AppCompatActivity {
             case OPEN_BROWSER_PERMISSION:
                 if (results.length > 0
                         && results[0] == PackageManager.PERMISSION_GRANTED) {
-                    openBrowser(getCurrentPath());
+                    if (currentPath == null) {
+                        File rFile = Environment.getRootDirectory();
+                        root = AndFile.createDescriptor(rFile == null ? new File("/") : rFile);
+                        String mediaState = Environment.getExternalStorageState();
+                        if (Environment.MEDIA_MOUNTED.equals(mediaState)
+                                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
+                            storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                            currentPath = new FilePath(storageRoot);
+                        } else {
+                            File sRoot = Environment.getExternalStorageDirectory();
+                            storageRoot = sRoot == null || !sRoot.exists() ? root
+                                    : AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                            currentPath = new FilePath(storageRoot);
+                        }
+                    }
+                    openBrowser(currentPath);
                 } else {
                     ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                             getString(R.string.error_nowritepermission));
