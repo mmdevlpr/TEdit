@@ -278,6 +278,9 @@ public class Editor extends Fragment {
     }
 
     public void findNext(String phrase) {
+        if (phrase.isEmpty())
+            return;
+
         searchString.setSearchPhrase(phrase);
         TextSearch.SearchResult sr;
 
@@ -303,6 +306,9 @@ public class Editor extends Fragment {
     }
 
     public void findPrevious(String phrase) {
+        if (phrase.isEmpty())
+            return;
+
         searchString.setSearchPhrase(phrase);
         TextSearch.SearchResult sr;
         try {
@@ -327,6 +333,9 @@ public class Editor extends Fragment {
     }
 
     public void replace(String phrase, String replaceWith) {
+        if (phrase.isEmpty())
+            return;
+
         searchString.setSearchPhrase(phrase);
         int start = editText.getSelectionStart();
         int end = editText.getSelectionEnd();
@@ -380,6 +389,9 @@ public class Editor extends Fragment {
     }
 
     public void replaceAll(String phrase, String replaceWith) {
+        if (phrase.isEmpty())
+            return;
+
         searchString.setSearchPhrase(phrase);
         Editable text = editText.getText();
         int total = searchString.getCache(text).length;
