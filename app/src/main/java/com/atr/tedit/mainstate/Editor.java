@@ -49,6 +49,7 @@ public class Editor extends Fragment {
     private long key;
 
     private EditText editText;
+    private TextView docName;
     private TextWatcher editorChangeListener;
 
     private TextSearch searchString;
@@ -104,43 +105,8 @@ public class Editor extends Fragment {
         editText.setTypeface(FontUtil.getEditorTypeface());
         searchString = new TextSearch();
 
-        TextView docName = view.findViewById(R.id.documentname);
+        docName = view.findViewById(R.id.documentname);
         docName.setTypeface(FontUtil.getDefault());
-
-        if (!ctx.dbIsOpen()) {
-            docName.setText(TEditActivity.DEFAULTPATH);
-            return;
-        }
-
-        Cursor cursor = ctx.getDB().fetchText(key);
-        if (cursor == null) {
-            docName.setText(TEditActivity.DEFAULTPATH);
-            return;
-        }
-
-        if (cursor.getColumnIndex(TEditDB.KEY_PATH) == -1) {
-            docName.setText(TEditActivity.DEFAULTPATH);
-            cursor.close();
-            return;
-        }
-
-        String path = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_PATH));
-        cursor.close();
-        if (path.equals(TEditActivity.DEFAULTPATH)) {
-            docName.setText(TEditActivity.DEFAULTPATH);
-        } else {
-            file = AndFile.createDescriptor(path, ctx);
-
-            if (file == null) {
-                docName.setText(TEditActivity.DEFAULTPATH);
-            } else if (file.getName() ==  null || file.getName().isEmpty() || !file.exists()) {
-                docName.setText(TEditActivity.DEFAULTPATH);
-            } else
-                docName.setText(file.getName());
-
-            if (!file.canWrite() && file.exists())
-                Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
@@ -164,62 +130,104 @@ public class Editor extends Fragment {
             }
         });
 
-        if (!ctx.dbIsOpen() || key < 0)
-            return;
-
-        Cursor cursor = ctx.getDB().fetchText(key);
-        if (cursor == null)
-            return;
-
-        if (cursor.getColumnIndex(TEditDB.KEY_BODY) == -1) {
-            editText.setText("");
-            cursor.close();
-            return;
+        boolean clear = !ctx.dbIsOpen() || key < 0;
+        Cursor cursor = null;
+        if (!clear) {
+            cursor = ctx.getDB().fetchText(key);
+            if (cursor == null) {
+                cursor = ctx.getDB().fetchAllTexts();
+                if (cursor == null) {
+                    clear = true;
+                } else if (cursor.getCount() <= 0) {
+                    cursor.close();
+                    clear = true;
+                } else {
+                    cursor.moveToFirst();
+                    if (cursor.getColumnIndex(TEditDB.KEY_ROWID) == -1) {
+                        cursor.close();
+                        clear = true;
+                    } else {
+                        key = cursor.getLong(cursor.getColumnIndex(TEditDB.KEY_ROWID));
+                        ctx.setLastTxt(key);
+                    }
+                }
+            }
         }
 
-        editText.setText(cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY)));
-        
-        final int scrollPos = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SCROLLPOS));
-        final int selStart = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_START));
-        final int selEnd = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_END));
-        editText.post(new Runnable() {
-            @Override
-            public void run() {
-                editText.setPressed(true);
-                editText.scrollTo(0, scrollPos);
-                editText.setSelection(selStart, selEnd);
-            }
-        });
-
-        int utilityBarLayer = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_BAR_LAYER));
-        boolean searchActive = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_ACTIVE)) != 0;
-        String searchPhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_PHRASE));
-        String replacePhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_REPLACE));
-        boolean searchWholeWord = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_WHOLEWORD)) != 0;
-        boolean searchMatchCase = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_MATCHCASE)) != 0;
-
-        if (!searchActive) {
-            if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT
-                    && ctx.getUtilityBar().getState().getLayer() == utilityBarLayer) {
-                ctx.getUtilityBar().getState().setEnabled(false);
-                ctx.getUtilityBar().handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        ctx.getUtilityBar().getState().setEnabled(true);
-                    }
-                }, TEditActivity.SWAP_ANIM_LENGTH);
+        if (!clear) {
+            if (cursor.getColumnIndex(TEditDB.KEY_BODY) == -1) {
+                editText.setText("");
             } else
-                ctx.getUtilityBar().setState(ctx.getUtilityBar().UTILITY_STATE_TEXT, utilityBarLayer);
+                editText.setText(cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY)));
+            if (cursor.getColumnIndex(TEditDB.KEY_PATH) == -1) {
+                docName.setText(TEditActivity.DEFAULTPATH);
+            } else {
+                String path = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_PATH));
+                if (path.equals(TEditActivity.DEFAULTPATH)) {
+                    docName.setText(TEditActivity.DEFAULTPATH);
+                } else {
+                    file = AndFile.createDescriptor(path, ctx);
 
-            barSearch = new TextSearchState(ctx.getUtilityBar(), searchPhrase, replacePhrase, searchWholeWord,
-                    searchMatchCase);
-        } else if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT_SEARCH){
-            barSearch = (TextSearchState)ctx.getUtilityBar().getState();
-            barSearch.setFields(searchPhrase, replacePhrase, searchWholeWord, searchMatchCase);
+                    if (file == null || file.getName() ==  null || file.getName().isEmpty() || !file.exists()) {
+                        docName.setText(TEditActivity.DEFAULTPATH);
+                    } else
+                        docName.setText(file.getName());
+
+                    if (!file.canWrite() && file.exists())
+                        Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            final int scrollPos = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SCROLLPOS));
+            final int selStart = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_START));
+            final int selEnd = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_END));
+            editText.post(new Runnable() {
+                @Override
+                public void run() {
+                    editText.setPressed(true);
+                    editText.scrollTo(0, scrollPos);
+                    editText.setSelection(selStart, selEnd);
+                }
+            });
+
+            int utilityBarLayer = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_BAR_LAYER));
+            boolean searchActive = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_ACTIVE)) != 0;
+            String searchPhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_PHRASE));
+            String replacePhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_REPLACE));
+            boolean searchWholeWord = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_WHOLEWORD)) != 0;
+            boolean searchMatchCase = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_MATCHCASE)) != 0;
+
+            if (!searchActive) {
+                if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT
+                        && ctx.getUtilityBar().getState().getLayer() == utilityBarLayer) {
+                    ctx.getUtilityBar().getState().setEnabled(false);
+                    ctx.getUtilityBar().handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ctx.getUtilityBar().getState().setEnabled(true);
+                        }
+                    }, TEditActivity.SWAP_ANIM_LENGTH);
+                } else
+                    ctx.getUtilityBar().setState(ctx.getUtilityBar().UTILITY_STATE_TEXT, utilityBarLayer);
+
+                barSearch = new TextSearchState(ctx.getUtilityBar(), searchPhrase, replacePhrase, searchWholeWord,
+                        searchMatchCase);
+            } else if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT_SEARCH){
+                barSearch = (TextSearchState)ctx.getUtilityBar().getState();
+                barSearch.setFields(searchPhrase, replacePhrase, searchWholeWord, searchMatchCase);
+            } else {
+                barSearch = new TextSearchState(ctx.getUtilityBar(), searchPhrase, replacePhrase, searchWholeWord,
+                        searchMatchCase);
+                activateSearch();
+            }
+            cursor.close();
         } else {
-            barSearch = new TextSearchState(ctx.getUtilityBar(), searchPhrase, replacePhrase, searchWholeWord,
-                    searchMatchCase);
-            activateSearch();
+            editText.setText("");
+            docName.setText(TEditActivity.DEFAULTPATH);
+            if (ctx.dbIsOpen()) {
+                key = ctx.getDB().createText(TEditActivity.DEFAULTPATH, "");
+                ctx.setLastTxt(key);
+            }
         }
 
         editorChangeListener = new TextWatcher() {
@@ -239,8 +247,6 @@ public class Editor extends Fragment {
             }
         };
         editText.addTextChangedListener(editorChangeListener);
-
-        cursor.close();
     }
 
     @Override

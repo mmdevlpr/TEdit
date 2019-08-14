@@ -99,6 +99,7 @@ public class Tabs extends ListFragment {
         if (cursor == null || cursor.getCount() == 0) {
             if (cursor != null)
                 cursor.close();
+            closeTabsView();
             return;
         }
 

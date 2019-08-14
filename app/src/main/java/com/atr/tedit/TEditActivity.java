@@ -58,6 +58,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Adam T. Ryder
@@ -80,6 +81,8 @@ public class TEditActivity extends AppCompatActivity {
     private static final int STATE_TEXT = 1;
     private static final int STATE_TAB = 2;
     private static final int STATE_VOLUME_PICKER = 3;
+
+    public static AtomicInteger instances = new AtomicInteger(0);
 
     private int state = STATE_BROWSE;
 
@@ -120,13 +123,15 @@ public class TEditActivity extends AppCompatActivity {
             dbOpen = false;
             Log.e("TEdit", "Unable to open database: " + e.getMessage());
         }
-        if (dbOpen && savedInstanceState == null)
-            db.deleteAll();
+        //if (dbOpen && savedInstanceState == null)
+            //db.deleteAll();
 
         String mediaState = Environment.getExternalStorageState();
         File rFile = Environment.getRootDirectory();
         root = AndFile.createDescriptor(rFile == null ? new File("/") : rFile);
         if (savedInstanceState == null) {
+            if (instances.incrementAndGet() == 1 && dbOpen)
+                db.deleteAll();
             super.onCreate(savedInstanceState);
 
             if (Environment.MEDIA_MOUNTED.equals(mediaState)
@@ -200,6 +205,13 @@ public class TEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         lastTxt = (!dbOpen) ? -1 : savedInstanceState.getLong("TEdit.lastTxt", -1);
+        if (lastTxt > -1) {
+            Cursor cursor = db.fetchText(lastTxt);
+            if (cursor == null) {
+                lastTxt = -1;
+            } else
+                cursor.close();
+        }
         int lastState = savedInstanceState.getInt("TEdit.state", -1);
         frag = getSupportFragmentManager().findFragmentById(R.id.activitycontent);
 
@@ -219,12 +231,12 @@ public class TEditActivity extends AppCompatActivity {
                     break;
                 }
 
+                state = STATE_BROWSE;
                 FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
                 ft1.remove(frag);
                 frag = Browser.newInstance(currentPath.toJson());
                 ft1.add(R.id.activitycontent, frag);
                 ft1.commit();
-                state = STATE_BROWSE;
                 break;
             case STATE_TAB:
                 state = STATE_TAB;
@@ -619,7 +631,7 @@ public class TEditActivity extends AppCompatActivity {
         super.onDestroy();
 
         if (dbOpen) {
-            if (isFinishing())
+            if (isFinishing() && instances.decrementAndGet() <= 0)
                 db.deleteAll();
             db.close();
         }
@@ -691,7 +703,10 @@ public class TEditActivity extends AppCompatActivity {
         if (cursor == null || cursor.getCount() <= 0) {
             if (cursor != null)
                 cursor.close();
-            finish();
+            if (((Browser)frag).getType() == Browser.TYPE_SAVE) {
+                openBrowser(getCurrentPath());
+            } else
+                finish();
             return;
         }
 

@@ -119,8 +119,11 @@ public class TEditDB {
     }
 
     public Cursor fetchAllTexts() {
-        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_PATH,
-                KEY_BODY, KEY_SCROLLPOS}, null, null,
+        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID,
+                        KEY_PATH, KEY_BODY, KEY_SCROLLPOS, KEY_SELECTION_START,
+                        KEY_SELECTION_END, KEY_TEXT_BAR_LAYER, KEY_TEXT_SEARCH_ACTIVE,
+                        KEY_TEXT_SEARCH_PHRASE, KEY_TEXT_SEARCH_REPLACE,
+                        KEY_TEXT_SEARCH_WHOLEWORD, KEY_TEXT_SEARCH_MATCHCASE}, null, null,
                 null, null, null);
     }
 

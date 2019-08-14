@@ -112,6 +112,10 @@ public class Browser extends ListFragment {
         return browser;
     }
 
+    public int getType() {
+        return type;
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
