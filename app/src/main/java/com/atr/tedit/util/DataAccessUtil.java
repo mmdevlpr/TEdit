@@ -54,7 +54,13 @@ public class DataAccessUtil {
             "h",
             "py",
             "ini",
-            "cfg"};
+            "cfg",
+            "config",
+            "bat",
+            "map",
+            "conf",
+            "opt",
+            "rmp"};
 
     private static final String[] MIME = new String[] {
             "text/plain",
@@ -68,6 +74,12 @@ public class DataAccessUtil {
             "text/x-c",
             "text/x-h",
             "text/x-script.python",
+            "text/plain",
+            "text/plain",
+            "text/plain",
+            "text/plain",
+            "text/plain",
+            "text/plain",
             "text/plain",
             "text/plain"};
 
@@ -324,7 +336,9 @@ public class DataAccessUtil {
         String ext = filename.substring(p + 1);
         for (int i = 0; i < EXTENSIONS.length; i++) {
             if (EXTENSIONS[i].equalsIgnoreCase(ext))
-                return new String(MIME[i]);
+                if (i >= MIME.length)
+                    return "text/plain";
+                return MIME[i];
         }
 
         return "";
