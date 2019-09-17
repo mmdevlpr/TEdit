@@ -529,12 +529,13 @@ public class Browser extends ListFragment implements SettingsApplicable {
             StringBuilder newName = new StringBuilder(filename);
             int pidx = filename.lastIndexOf(".");
             if (pidx >= 0 && pidx < filename.length() - 1) {
-                newName.append(".");
+                newName.delete(pidx + 1, newName.length());
                 newName.append(DataAccessUtil.getMimeExt(filename.substring(pidx + 1), "txt"));
             } else if (pidx == filename.length() - 1) {
                 newName.append("txt");
             } else
                 newName.append(".txt");
+            pidx = newName.lastIndexOf(".");
 
             AndFile[] files = currentPath.listFiles();
             boolean exists;
@@ -544,13 +545,19 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 for (AndFile f : files) {
                     if (f.getName().equals(newName.toString())) {
                         exists = true;
-                        newName.insert(0, Integer.toString((int)Math.floor(Math.random() * 10)));
+                        if (count > 0)
+                            newName.delete(pidx - 3, pidx);
+                        newName.insert(pidx - 1,
+                                "(" + Integer.toString(count) + ")");
+                        if (count == 0)
+                            pidx += 3;
+                        break;
                     }
                 }
                 count++;
-            } while (exists && count < 5);
+            } while (exists && count < 10);
 
-            if (count == 5) {
+            if (count == 10) {
                 Log.e("TEdit.Browser", "Unable to save file " + currentPath.getPath() + "/" + filename
                         + ". The Android distribution renamed the file to an unknown existing filename.");
                 ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.error),
@@ -559,7 +566,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 return null;
             }
 
-            newName.delete(newName.length() - 4, newName.length());
+            newName.delete(pidx, newName.length());
             df = ((DocumentFile)currentPath.getCurrent().getFile()).createFile(mime, newName.toString());
             if (df == null) {
                 Log.e("TEdit.Browser", "Unable to save file " + currentPath.getPath() + "/" + filename
