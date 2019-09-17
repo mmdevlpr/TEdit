@@ -165,15 +165,16 @@ public class Editor extends Fragment implements SettingsApplicable {
         }
 
         if (!clear) {
+            if (cursor.getColumnIndex(TEditDB.KEY_BODY) == -1) {
+                editText.setText("");
+            } else
+                editText.setText(cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY)));
+
             if (cursor.getColumnIndex(TEditDB.KEY_DATA) == -1) {
                 settings = new TxtSettings();
             } else
                 settings = new TxtSettings(cursor.getBlob(cursor.getColumnIndex(TEditDB.KEY_DATA)));
 
-            if (cursor.getColumnIndex(TEditDB.KEY_BODY) == -1) {
-                editText.setText("");
-            } else
-                editText.setText(cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY)));
             if (cursor.getColumnIndex(TEditDB.KEY_PATH) == -1) {
                 docName.setText(TEditActivity.DEFAULTPATH);
             } else {
@@ -233,8 +234,8 @@ public class Editor extends Fragment implements SettingsApplicable {
             }
             cursor.close();
         } else {
-            settings = new TxtSettings();
             editText.setText("");
+            settings = new TxtSettings();
             docName.setText(TEditActivity.DEFAULTPATH);
             if (ctx.dbIsOpen()) {
                 key = ctx.getDB().createText(TEditActivity.DEFAULTPATH, "");
