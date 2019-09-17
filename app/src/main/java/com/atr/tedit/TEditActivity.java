@@ -217,7 +217,7 @@ public class TEditActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         Settings.loadSettings(this);
-        currentPath = Settings.getStartupPath();
+        //currentPath = Settings.getStartupPath();
         settingsWindow = new SettingsWindow(this);
 
         lastTxt = (!dbOpen) ? -1 : savedInstanceState.getLong("TEdit.lastTxt", -1);

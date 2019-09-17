@@ -276,6 +276,16 @@ public class TextSearchState extends UtilityState {
         LAYERS[0] = l;
 
         barHeight = searchHeight + replaceHeight + checkHeight + bar.barHeight;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            searchField.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            searchField.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+
+            replaceField.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            replaceField.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+        }
     }
 
     public TextSearchState(UtilityBar bar, String searchTerm, String replaceTerm,
