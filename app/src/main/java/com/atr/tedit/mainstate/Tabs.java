@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
+import com.atr.tedit.dialog.ConfirmCloseText;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.settings.Settings;
@@ -171,8 +172,20 @@ public class Tabs extends ListFragment implements SettingsApplicable {
         if (!ctx.dbIsOpen())
             return;
 
+        Cursor cursor = ctx.getDB().fetchText(key);
+        if (cursor.getColumnIndex(TEditDB.KEY_DATA) != -1) {
+            TxtSettings settings = new TxtSettings(cursor.getBlob(cursor.getColumnIndex(TEditDB.KEY_DATA)));
+            cursor.close();
+            if (!settings.saved) {
+                ConfirmCloseText cct = ConfirmCloseText.getInstance(key);
+                cct.show(ctx.getSupportFragmentManager(), "Confirm Close Text");
+                return;
+            }
+        } else
+            cursor.close();
+
         ctx.getDB().deleteText(key);
-        Cursor cursor = ctx.getDB().fetchAllTexts();
+        cursor = ctx.getDB().fetchAllTexts();
         if (cursor == null) {
             closeTabsView();
             return;
@@ -220,6 +233,21 @@ public class Tabs extends ListFragment implements SettingsApplicable {
         long id = cursor.getLong(cursor.getColumnIndex(TEditDB.KEY_ROWID));
         cursor.close();
         ctx.openDocument(id);
+    }
+
+    public void reset() {
+        Cursor cursor = ctx.getDB().fetchAllTexts();
+        if (cursor == null) {
+            closeTabsView();
+            return;
+        }
+        if (cursor.getCount() <= 0) {
+            cursor.close();
+            closeTabsView();
+            return;
+        }
+        cursor.close();
+        populateTabs();
     }
 
     public void applySettings() {

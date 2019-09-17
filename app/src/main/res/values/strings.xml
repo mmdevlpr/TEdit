@@ -47,6 +47,8 @@
     <string name="dircreated">Directory Created</string>
     <string name="filesaved">File Saved</string>
     <string name="filedeleted">File Deleted</string>
+    <string name="confirmclose">Confirm Close</string>
+    <string name="confirmclose_message">This file has not been saved, are you sure you\'d like to close it?</string>
     <string name="noopendocuments">No Open Documents</string>
     <string name="items_replaced">Item(s) Replaced</string>
     <string name="help">Help</string>

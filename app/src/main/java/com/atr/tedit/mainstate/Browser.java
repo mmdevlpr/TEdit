@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.os.Build;
 import android.os.Bundle;
@@ -63,6 +64,7 @@ import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.util.SettingsApplicable;
+import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 import org.json.JSONException;
@@ -811,6 +813,15 @@ public class Browser extends ListFragment implements SettingsApplicable {
                             ctx.setSavePath(((Browser)ctx.getFrag()).getCurrentPath());
 
                         ctx.getDB().updateText(ctx.getLastTxt(), file.getPathIdentifier(), body);
+
+                        Cursor cursor = ctx.getDB().fetchText(ctx.getLastTxt());
+                        if (cursor.getColumnIndex(TEditDB.KEY_DATA) != -1) {
+                            TxtSettings settings = new TxtSettings(cursor.getBlob(cursor.getColumnIndex(TEditDB.KEY_DATA)));
+                            settings.saved = true;
+                            ctx.getDB().updateTextState(ctx.getLastTxt(), settings);
+                        }
+                        cursor.close();
+
                         ctx.openDocument(ctx.getLastTxt());
                         Toast.makeText(ctx, getString(R.string.filesaved), Toast.LENGTH_SHORT).show();
                     }

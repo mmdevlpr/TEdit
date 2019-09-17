@@ -41,6 +41,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.atr.tedit.dialog.ConfirmCloseText;
 import com.atr.tedit.dialog.HelpDialog;
 import com.atr.tedit.file.AndPath;
 import com.atr.tedit.file.FilePath;
@@ -51,6 +52,7 @@ import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.mainstate.Tabs;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.settings.SettingsWindow;
+import com.atr.tedit.settings.TxtSettings;
 import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
@@ -551,9 +553,10 @@ public class TEditActivity extends AppCompatActivity {
         if (cursor.getColumnIndex(TEditDB.KEY_BODY) != -1) {
             body = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY));
         }
-        cursor.close();
+        //cursor.close();
 
         if (body == null) {
+            cursor.close();
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.error_dberror));
             em.show(getSupportFragmentManager(), "dialog");
@@ -562,12 +565,22 @@ public class TEditActivity extends AppCompatActivity {
         }
 
         AndFile writtenFile = browser.saveFile(browser.getEnteredFilename(), body);
-        if (writtenFile == null)
+        if (writtenFile == null) {
+            cursor.close();
             return;
+        }
 
         setSavePath(browserPath);
 
         db.updateText(lastTxt, writtenFile.getPathIdentifier(), body);
+
+        if (cursor.getColumnIndex(TEditDB.KEY_DATA) != -1) {
+            TxtSettings settings = new TxtSettings(cursor.getBlob(cursor.getColumnIndex(TEditDB.KEY_DATA)));
+            settings.saved = true;
+            db.updateTextState(lastTxt, settings);
+        }
+        cursor.close();
+
         openDocument(lastTxt);
         Toast.makeText(this, getString(R.string.filesaved), Toast.LENGTH_SHORT).show();
     }
@@ -696,8 +709,14 @@ public class TEditActivity extends AppCompatActivity {
                     if (utilityBar.getState().STATE == UtilityBar.STATE_TEXT_SEARCH) {
                         if (!utilityBar.isAnimating())
                             utilityBar.setToText();
-                    } else
-                        closeText();
+                    } else {
+                        Editor editor = (Editor)getFrag();
+                        if (!editor.getSettings().saved) {
+                            ConfirmCloseText cct = ConfirmCloseText.getInstance(editor.getKey());
+                            cct.show(getSupportFragmentManager(), "Confirm Close Text");
+                        } else
+                            closeText();
+                    }
                     break;
                 case STATE_TAB:
                     closeTabs();
@@ -767,7 +786,7 @@ public class TEditActivity extends AppCompatActivity {
         openDocument(id);
     }
 
-    protected void closeText() {
+    public void closeText() {
         if (utilityBar.isAnimating())
             return;
 
@@ -858,7 +877,9 @@ public class TEditActivity extends AppCompatActivity {
         if (getLastTxt() == -1)
             return;
 
-        ((Editor)getFrag()).saveToDB();
+        Editor editor = (Editor)getFrag();
+
+        editor.saveToDB();
         Cursor cursor = getDB().fetchText(getLastTxt());
         if (cursor == null || cursor.getColumnIndex(TEditDB.KEY_PATH) == -1
                 || cursor.getColumnIndex(TEditDB.KEY_BODY) ==  -1) {
@@ -894,20 +915,16 @@ public class TEditActivity extends AppCompatActivity {
             em.show(getSupportFragmentManager(), "dialog");
             cursor.close();
             return;
-        } else if (!file.canWrite()) {
-            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                    getString(R.string.error_protectedpath));
-            em.show(getSupportFragmentManager(), "dialog");
-            cursor.close();
-            return;
         }
 
         String body = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY));
         cursor.close();
+        boolean saved = true;
         try {
             DataAccessUtil.writeFile(file, this, body);
             Toast.makeText(this, R.string.filesaved, Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
+            saved = false;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                     && !checkWritePermission()) {
                 Log.e("TEdit.Browser", "Unable to save file " + file.getPath() + ". Permission denied: "
@@ -923,6 +940,9 @@ public class TEditActivity extends AppCompatActivity {
                 em.show(getSupportFragmentManager(), "dialog");
             }
         }
+
+        if (saved)
+            editor.getSettings().saved = true;
     }
 
     public void saveAsDocument(boolean skipPermissionCheck) {
@@ -944,7 +964,9 @@ public class TEditActivity extends AppCompatActivity {
         if (getLastTxt() == -1)
             return;
 
-        ((Editor)getFrag()).saveToDB();
+        Editor editor = (Editor)getFrag();
+
+        editor.saveToDB();
         Cursor cursor = getDB().fetchText(getLastTxt());
         if (cursor == null || cursor.getColumnIndex(TEditDB.KEY_PATH) == -1
                 || cursor.getColumnIndex(TEditDB.KEY_BODY) ==  -1) {

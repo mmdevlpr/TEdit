@@ -11,6 +11,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class TxtSettings implements Cloneable {
+    public boolean saved = true;
+
     public int scrollPosX = 0;
     public int scrollPosY = 0;
     public int selectionStart = 0;
@@ -38,6 +40,7 @@ public class TxtSettings implements Cloneable {
         ByteArrayOutputStream bOut = new ByteArrayOutputStream();
         DataOutputStream dOut = new DataOutputStream(bOut);
         try {
+            dOut.writeBoolean(saved);
             dOut.writeInt(scrollPosX);
             dOut.writeInt(scrollPosY); //Scrollpos
             dOut.writeInt(selectionStart); //selection start
@@ -62,6 +65,7 @@ public class TxtSettings implements Cloneable {
         ByteArrayInputStream bIn = new ByteArrayInputStream(data);
         DataInputStream dIn = new DataInputStream(bIn);
         try {
+            saved = dIn.readBoolean();
             scrollPosX = dIn.readInt();
             scrollPosY = dIn.readInt();
             selectionStart = dIn.readInt();

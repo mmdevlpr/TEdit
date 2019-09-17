@@ -258,6 +258,7 @@ public class Editor extends Fragment implements SettingsApplicable {
             @Override
             public void afterTextChanged(Editable editable) {
                 searchString.clearSearchCache();
+                settings.saved = false;
             }
         };
         editText.addTextChangedListener(editorChangeListener);
