@@ -63,8 +63,8 @@ public class Settings {
         systemTextDirection = prefs.getInt("systemTextDirection", TEXTDIR_LTR);
         editorTextDirection = prefs.getInt("editorTextDirection", TEXTDIR_LTR);
 
-        FontUtil.setSystemTypeface(prefs.getString("systemTypeface", FontUtil.MONTSERRAT_ALT));
-        FontUtil.setEditorTypeface(prefs.getString("editorTypeface", FontUtil.METROPOLIS));
+        FontUtil.setSystemTypeface(prefs.getString("systemTypeface", "montserratalternates_regular"));
+        FontUtil.setEditorTypeface(prefs.getString("editorTypeface", "metropolis_regular"));
     }
 
     public static void saveSettings(final TEditActivity ctx) {

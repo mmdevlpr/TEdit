@@ -625,7 +625,7 @@ public class SettingsWindow {
             startupDir = new FilePath(ctx.getStorageRoot());
         }
         setStartupDirectory(startupDir);
-        setSystemTypeface(savedInstanceState.getString("TEdit.settingsWindow.typeface", FontUtil.MONTSERRAT_ALT));
+        setSystemTypeface(savedInstanceState.getString("TEdit.settingsWindow.typeface", FontUtil.DEFAULT_PATH));
         int textDirection = savedInstanceState.getInt("TEdit.settingsWindow.textDirection", Settings.TEXTDIR_LTR);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             if (textDirection == Settings.TEXTDIR_LTR) {
@@ -633,7 +633,7 @@ public class SettingsWindow {
             } else
                 ((RadioGroup) settingsView.findViewById(R.id.textDirGroup)).check(R.id.textDirRTL);
         }
-        setEditorTypeface(savedInstanceState.getString("TEdit.settingsWindow.editorTypeface", FontUtil.METROPOLIS));
+        setEditorTypeface(savedInstanceState.getString("TEdit.settingsWindow.editorTypeface", FontUtil.DEFAULT_PATH));
         ((CheckBox)settingsView.findViewById(R.id.wordWrap))
                 .setChecked(savedInstanceState.getBoolean("TEdit.settingsWindow.wordWrap", true));
         textDirection = savedInstanceState.getInt("TEdit.settingsWindow.editorTextDirection", Settings.TEXTDIR_LTR);

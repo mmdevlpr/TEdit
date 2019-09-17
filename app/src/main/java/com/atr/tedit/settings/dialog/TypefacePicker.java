@@ -49,11 +49,11 @@ public class TypefacePicker extends TDialog {
         if (savedInstanceState == null) {
             type = getArguments().getInt("TEdit.typefacePicker.type", TYPE_EDITOR);
             currentTypeface = getArguments().getString("TEdit.typefacePicker.currentTypefacePath",
-                    (type == TYPE_LOCAL) ? "" : FontUtil.MONTSERRAT_ALT);
+                    (type == TYPE_LOCAL) ? "" : FontUtil.DEFAULT_PATH);
         } else {
             type = savedInstanceState.getInt("TEdit.typefacePicker.type", TYPE_EDITOR);
             currentTypeface = savedInstanceState.getString("TEdit.typefacePicker.currentTypefacePath",
-                    (type == TYPE_LOCAL) ? "" : FontUtil.MONTSERRAT_ALT);
+                    (type == TYPE_LOCAL) ? "" : FontUtil.DEFAULT_PATH);
         }
 
         String[] systemFonts = FontUtil.getSystemFonts();
@@ -61,11 +61,13 @@ public class TypefacePicker extends TDialog {
         ArrayList<String> fontList;
         if (type == TYPE_LOCAL) {
             fontList = new ArrayList<>(systemFonts.length + 4);
-            fontList.addAll(Arrays.asList(getString(R.string.useglobal), FontUtil.METROPOLIS,
-                        FontUtil.MONTSERRAT_ALT, FontUtil.BEBEDERA));
+            fontList.add(getString(R.string.useglobal));
+            fontList.addAll(FontUtil.getBuiltinPaths());
+            /*fontList.addAll(Arrays.asList(getString(R.string.useglobal), FontUtil.METROPOLIS,
+                        FontUtil.MONTSERRAT_ALT, FontUtil.BEBEDERA));*/
         } else {
             fontList = new ArrayList<>(systemFonts.length + 3);
-            fontList.addAll(Arrays.asList(FontUtil.METROPOLIS, FontUtil.MONTSERRAT_ALT, FontUtil.BEBEDERA));
+            fontList.addAll(FontUtil.getBuiltinPaths());
         }
 
         StringBuilder sb = new StringBuilder();
