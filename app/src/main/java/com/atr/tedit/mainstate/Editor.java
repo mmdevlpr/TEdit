@@ -114,25 +114,9 @@ public class Editor extends Fragment implements SettingsApplicable {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         editText = (EditText)getView().findViewById(R.id.editorText);
-        //editText.setTypeface(FontUtil.getEditorTypeface());
         searchString = new TextSearch();
 
         docName = view.findViewById(R.id.documentname);
-        //docName.setTypeface(FontUtil.getDefault());
-
-        /*editText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return ctx.getGestureDetector().onTouchEvent(event);
-            }
-        });
-
-        docName.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return ctx.getGestureDetector().onTouchEvent(event);
-            }
-        });*/
     }
 
     @Override
@@ -209,24 +193,19 @@ public class Editor extends Fragment implements SettingsApplicable {
                 }
             }
 
-            //final int scrollPos = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SCROLLPOS));
-            //final int selStart = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_START));
-            //final int selEnd = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_END));
             editText.post(new Runnable() {
                 @Override
                 public void run() {
                     editText.setPressed(true);
-                    editText.scrollTo(0, settings.scrollPos);
+                    int scrollX = 0;
+                    if (settings.wordWrap < 0) {
+                        scrollX = (Settings.isWordWrap()) ? 0 : settings.scrollPosX;
+                    } else if (settings.wordWrap == 0)
+                        scrollX = settings.scrollPosX;
+                    editText.scrollTo(scrollX, settings.scrollPosY);
                     editText.setSelection(settings.selectionStart, settings.selectionEnd);
                 }
             });
-
-            //int utilityBarLayer = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_BAR_LAYER));
-            //boolean searchActive = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_ACTIVE)) != 0;
-            //String searchPhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_PHRASE));
-            //String replacePhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_REPLACE));
-            //boolean searchWholeWord = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_WHOLEWORD)) != 0;
-            //boolean searchMatchCase = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_MATCHCASE)) != 0;
 
             if (!settings.searchActive) {
                 if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT
@@ -307,14 +286,10 @@ public class Editor extends Fragment implements SettingsApplicable {
         cursor.close();
 
         ctx.getDB().updateText(key, path, editText.getText().toString());
-        /*ctx.getDB().updateTextState(key, editText.getScrollY(), editText.getSelectionStart(),
-                editText.getSelectionEnd(), ctx.getUtilityBar().getState().getLayer(),
-                ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT_SEARCH ? 1 : 0,
-                barSearch.getSearchPhrase(), barSearch.getReplacePhrase(),
-                barSearch.isWholeWord() ? 1 : 0, barSearch.isMatchCase() ? 1 : 0);*/
         if (settings == null)
             settings = new TxtSettings();
-        settings.scrollPos = editText.getScrollY();
+        settings.scrollPosX = editText.getScrollX();
+        settings.scrollPosY = editText.getScrollY();
         settings.selectionStart = editText.getSelectionStart();
         settings.selectionEnd = editText.getSelectionEnd();
         settings.utilityBarLayer = ctx.getUtilityBar().getState().getLayer();
