@@ -492,6 +492,8 @@ public class Editor extends Fragment implements SettingsApplicable {
 
     @Override
     public void applySettings() {
+        barSearch.applySettings();
+
         editText.setTypeface(FontUtil.getTypefaceFromPath(settings.typeface, FontUtil.getEditorTypeface()));
 
         boolean wrap = (settings.wordWrap < 0) ? Settings.isWordWrap() : settings.wordWrap == 1;

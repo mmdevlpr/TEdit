@@ -201,4 +201,7 @@ public abstract class UtilityState {
             }
         }, ANIMLENGTH + (animDelay * (LAYERS[layer].length - 1)));
     }
+
+    public void applySettings() {
+    }
 }

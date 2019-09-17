@@ -38,6 +38,7 @@ import android.widget.TextView;
 import com.atr.tedit.R;
 import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.dialog.HelpDialog;
+import com.atr.tedit.settings.Settings;
 import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.utilitybar.UtilityBar;
 
@@ -61,7 +62,7 @@ public class TextSearchState extends UtilityState {
         searchField.setNextFocusRightId(R.id.seven);
         searchField.setNextFocusLeftId(R.id.five);
         searchField.setFocusable(true);
-        searchField.setTypeface(FontUtil.getEditorTypeface());
+        searchField.setTypeface(FontUtil.getSystemTypeface());
         searchField.measure(bar.barWidth - bar.padding_w, LayoutParams.WRAP_CONTENT);
         int searchHeight = searchField.getMeasuredHeight() + bar.padding_h * 2;
 
@@ -70,7 +71,7 @@ public class TextSearchState extends UtilityState {
         searchtv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         searchtv.setId(R.id.ten);
         searchtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-        searchtv.setTypeface(FontUtil.getDefault());
+        searchtv.setTypeface(FontUtil.getSystemTypeface());
         searchtv.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         int tvSearchWidth = searchtv.getMeasuredWidth();
 
@@ -82,7 +83,7 @@ public class TextSearchState extends UtilityState {
         replaceField.setNextFocusRightId(R.id.eight);
         replaceField.setNextFocusLeftId(R.id.six);
         replaceField.setFocusable(true);
-        replaceField.setTypeface(FontUtil.getEditorTypeface());
+        replaceField.setTypeface(FontUtil.getSystemTypeface());
         replaceField.measure(bar.barWidth - bar.padding_w, LayoutParams.WRAP_CONTENT);
         int replaceHeight = replaceField.getMeasuredHeight() + bar.padding_h * 2;
 
@@ -91,7 +92,7 @@ public class TextSearchState extends UtilityState {
         replacetv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         replacetv.setId(R.id.eleven);
         replacetv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-        replacetv.setTypeface(FontUtil.getDefault());
+        replacetv.setTypeface(FontUtil.getSystemTypeface());
         replacetv.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         int tvReplaceWidth = replacetv.getMeasuredWidth();
 
@@ -180,7 +181,7 @@ public class TextSearchState extends UtilityState {
         checkLayout.setLayoutParams(lllp);
         checkLayout.addView(wholeWord);
         checkLayout.addView(matchCase);
-        FontUtil.applyFont(FontUtil.getDefault(), checkLayout);
+        FontUtil.applyFont(FontUtil.getSystemTypeface(), checkLayout);
         checkLayout.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         checkLayout.setTranslationX(Math.round(bar.barWidth * 0.5) - Math.round(checkLayout.getMeasuredWidth() * 0.5));
         checkLayout.setTranslationY(bar.barHeight + searchHeight + replaceHeight + bar.padding_h);
@@ -384,5 +385,23 @@ public class TextSearchState extends UtilityState {
     public void hideCursor(boolean hide) {
         searchField.setCursorVisible(!hide);
         replaceField.setCursorVisible(!hide);
+    }
+
+    @Override
+    public void applySettings() {
+        for (int i = 0; i < LAYERS.length; i++) {
+            for (View v : LAYERS[i])
+                FontUtil.applyFont(FontUtil.getSystemTypeface(), v);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            searchField.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            searchField.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+
+            replaceField.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            replaceField.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+        }
     }
 }
