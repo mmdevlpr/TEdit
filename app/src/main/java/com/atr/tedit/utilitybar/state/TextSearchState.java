@@ -43,12 +43,14 @@ import com.atr.tedit.util.FontUtil;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 public class TextSearchState extends UtilityState {
+    private final TextView searchtv;
+    private final TextView replacetv;
     private final EditText searchField;
     private final EditText replaceField;
     private final CheckBox wholeWord;
     private final CheckBox matchCase;
 
-    private final int barHeight;
+    private int barHeight;
 
     public TextSearchState(UtilityBar bar) {
         super(bar, UtilityBar.STATE_TEXT_SEARCH);
@@ -66,7 +68,7 @@ public class TextSearchState extends UtilityState {
         searchField.measure(bar.barWidth - bar.padding_w, LayoutParams.WRAP_CONTENT);
         int searchHeight = searchField.getMeasuredHeight() + bar.padding_h * 2;
 
-        TextView searchtv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
+        searchtv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         searchtv.setText(R.string.search);
         searchtv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         searchtv.setId(R.id.ten);
@@ -87,7 +89,7 @@ public class TextSearchState extends UtilityState {
         replaceField.measure(bar.barWidth - bar.padding_w, LayoutParams.WRAP_CONTENT);
         int replaceHeight = replaceField.getMeasuredHeight() + bar.padding_h * 2;
 
-        TextView replacetv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
+        replacetv = new TextView(new ContextThemeWrapper(bar.ctx, R.style.Dark_Roast));
         replacetv.setText(R.string.replace);
         replacetv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         replacetv.setId(R.id.eleven);
@@ -176,7 +178,8 @@ public class TextSearchState extends UtilityState {
 
         LinearLayout checkLayout = new LinearLayout(bar.ctx);
         checkLayout.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams lllp = new LinearLayout.LayoutParams(bar.barWidth - bar.padding_w, bar.barHeight - bar.padding_h);
+        LinearLayout.LayoutParams lllp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT);
         lllp.gravity = Gravity.CENTER;
         checkLayout.setLayoutParams(lllp);
         checkLayout.addView(wholeWord);
@@ -402,6 +405,39 @@ public class TextSearchState extends UtilityState {
         for (int i = 0; i < LAYERS.length; i++) {
             for (View v : LAYERS[i])
                 FontUtil.applyFont(FontUtil.getSystemTypeface(), v);
+        }
+
+        searchtv.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        replacetv.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        int tvSearchWidth = searchtv.getMeasuredWidth();
+        int searchHeight = searchField.getMeasuredHeight() + BAR.padding_h * 2;
+        int tvReplaceWidth = replacetv.getMeasuredWidth();
+        int replaceHeight = replaceField.getMeasuredHeight() + BAR.padding_h * 2;
+
+        ConstraintLayout cLayout = (ConstraintLayout)searchtv.getParent();
+        ConstraintSet cset = new ConstraintSet();
+        cset.clone(cLayout);
+        cset.constrainWidth(searchtv.getId(), tvSearchWidth > tvReplaceWidth ? tvSearchWidth : tvReplaceWidth);
+        cset.applyTo(cLayout);
+
+        cLayout = (ConstraintLayout)replacetv.getParent();
+        cLayout.setTranslationY(BAR.barHeight + searchHeight + BAR.padding_h);
+        cset.clone(cLayout);
+        cset.constrainWidth(replacetv.getId(), tvSearchWidth > tvReplaceWidth ? tvSearchWidth : tvReplaceWidth);
+        cset.applyTo(cLayout);
+
+        LinearLayout checkLayout = (LinearLayout)matchCase.getParent();
+        checkLayout.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        checkLayout.setTranslationX(Math.round(BAR.barWidth * 0.5) - Math.round(checkLayout.getMeasuredWidth() * 0.5));
+        checkLayout.setTranslationY(BAR.barHeight + searchHeight + replaceHeight + BAR.padding_h);
+        int checkHeight = checkLayout.getMeasuredHeight() + BAR.padding_h * 2;
+
+        barHeight = searchHeight + replaceHeight + checkHeight + BAR.barHeight;
+
+        if (BAR.getState().STATE == UtilityBar.STATE_TEXT_SEARCH) {
+            ViewGroup.LayoutParams lp = BAR.bar.getLayoutParams();
+            lp.height = barHeight;
+            BAR.bar.setLayoutParams(lp);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
