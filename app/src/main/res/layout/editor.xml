@@ -37,6 +37,7 @@
             android:padding="5dp"
             android:scrollHorizontally="false"
             android:scrollbarAlwaysDrawHorizontalTrack="false"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
             android:selectAllOnFocus="false"
             android:textColor="@color/editorText"
             android:textSize="15sp"

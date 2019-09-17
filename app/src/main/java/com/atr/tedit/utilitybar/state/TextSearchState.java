@@ -380,4 +380,9 @@ public class TextSearchState extends UtilityState {
             replaceField.clearFocus();
         }
     }
+
+    public void hideCursor(boolean hide) {
+        searchField.setCursorVisible(!hide);
+        replaceField.setCursorVisible(!hide);
+    }
 }

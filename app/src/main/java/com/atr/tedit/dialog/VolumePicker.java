@@ -28,15 +28,23 @@ import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.mainstate.Browser;
+import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.util.FontUtil;
 
 public class VolumePicker extends TDialog {
     private AndFile[] volumes;
     private AndFile currentChoice;
+    private String fragmentTag;
 
     public static VolumePicker newInstance(String currentVolume) {
+        return newInstance(currentVolume, null);
+    }
+
+    public static VolumePicker newInstance(String currentVolume, String fragmentTag) {
         Bundle bundle = new Bundle();
         bundle.putString("TEdit.volumePicker.currentChoice", currentVolume);
+        if (fragmentTag != null)
+            bundle.putString("TEdit.volumePicker.fragmentTag", fragmentTag);
 
         VolumePicker vp = new VolumePicker();
         vp.setArguments(bundle);
@@ -56,12 +64,14 @@ public class VolumePicker extends TDialog {
                 currentChoice = ctx.getStorageRoot();
             } else
                 currentChoice = AndFile.createDescriptorFromTree(strChoice, ctx);
+            fragmentTag = getArguments().getString("TEdit.volumePicker.fragmentTag", null);
         } else {
             String strChoice = savedInstanceState.getString("TEdit.volumePicker.currentChoice", "");
             if (strChoice.isEmpty()) {
                 currentChoice = ctx.getStorageRoot();
             } else
                 currentChoice = AndFile.createDescriptorFromTree(strChoice, ctx);
+            fragmentTag = savedInstanceState.getString("TEdit.volumePicker.fragmentTag", null);
         }
 
         Uri[] vols = ctx.getPermittedUris();
@@ -129,7 +139,12 @@ public class VolumePicker extends TDialog {
         setPositiveButton(R.string.okay, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((Browser)ctx.getFrag()).setVolume(currentChoice);
+                if (fragmentTag == null) {
+                    ((Browser)ctx.getFrag()).setVolume(currentChoice);
+                } else {
+                    DirectoryPicker dp = (DirectoryPicker)ctx.getSupportFragmentManager().findFragmentByTag(fragmentTag);
+                    dp.setVolume(currentChoice);
+                }
                 dismiss();
             }
         });
@@ -142,5 +157,7 @@ public class VolumePicker extends TDialog {
         super.onSaveInstanceState(outState);
 
         outState.putString("TEdit.volumePicker.currentChoice", currentChoice.getPathIdentifier());
+        if (fragmentTag != null)
+            outState.putString("TEdit.volumePicker.fragmentTag", fragmentTag);
     }
 }

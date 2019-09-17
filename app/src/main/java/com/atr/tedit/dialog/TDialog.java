@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.atr.tedit.R;
@@ -37,7 +38,7 @@ import com.atr.tedit.util.FontUtil;
 
 public abstract class TDialog extends DialogFragment {
     public int theme = R.style.Coffee_Cream;
-    public Typeface typeFace = FontUtil.getDefault();
+    public Typeface typeFace = FontUtil.getSystemTypeface();
     public int padding = 7;
     public int contentMargin = 16;
 
@@ -52,14 +53,14 @@ public abstract class TDialog extends DialogFragment {
     private Button neutralButton;
     private Button positiveButton;
 
+    protected boolean fillParent = false;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
         float density = ((TEditActivity)getActivity()).getUtilityBar().dMetrics.density;
 
         layout = new ConstraintLayout(new ContextThemeWrapper(getActivity(), theme));
-        layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
         layout.setPadding(Math.round(padding * density), Math.round(padding * density),
                 Math.round(padding * density), Math.round(padding * density));
         layout.setId(R.id.dialog_layout);
@@ -204,7 +205,8 @@ public abstract class TDialog extends DialogFragment {
             layout.addView(view);
             mainSet.constrainWidth(view.getId(), ConstraintSet.MATCH_CONSTRAINT);
             mainSet.constrainHeight(view.getId(), ConstraintSet.MATCH_CONSTRAINT);
-            mainSet.constrainDefaultHeight(view.getId(), ConstraintSet.MATCH_CONSTRAINT_WRAP);
+            mainSet.constrainDefaultHeight(view.getId(),
+                    fillParent ? ConstraintSet.MATCH_CONSTRAINT_SPREAD : ConstraintSet.MATCH_CONSTRAINT_WRAP);
 
             if (message == null) {
                 if (titleLayout == null) {
@@ -310,7 +312,22 @@ public abstract class TDialog extends DialogFragment {
         mainSet.applyTo(layout);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(layout);
+        if (fillParent) {
+            layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+
+            RelativeLayout rl = new RelativeLayout(new ContextThemeWrapper(getActivity(), theme));
+            rl.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            rl.addView(layout);
+
+            builder.setView(rl);
+        } else {
+            layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            builder.setView(layout);
+        }
 
         return builder.create();
     }

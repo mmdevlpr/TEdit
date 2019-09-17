@@ -14,8 +14,10 @@
  */
 package com.atr.tedit.mainstate;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -25,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +36,10 @@ import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.file.descriptor.AndFile;
+import com.atr.tedit.settings.Settings;
+import com.atr.tedit.settings.TxtSettings;
 import com.atr.tedit.util.FontUtil;
+import com.atr.tedit.util.SettingsApplicable;
 import com.atr.tedit.util.TextSearch;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
@@ -44,7 +50,7 @@ import com.atr.tedit.utilitybar.state.TextSearchState;
  * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
  */
 
-public class Editor extends Fragment {
+public class Editor extends Fragment implements SettingsApplicable {
     private TEditActivity ctx;
     private long key;
 
@@ -54,6 +60,8 @@ public class Editor extends Fragment {
 
     private TextSearch searchString;
     private TextSearchState barSearch;
+
+    private TxtSettings settings;
 
     private AndFile file;
 
@@ -73,6 +81,10 @@ public class Editor extends Fragment {
 
     public Editable getText() {
         return editText.getText();
+    }
+
+    public TxtSettings getSettings() {
+        return settings;
     }
 
     @Override
@@ -102,11 +114,25 @@ public class Editor extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         editText = (EditText)getView().findViewById(R.id.editorText);
-        editText.setTypeface(FontUtil.getEditorTypeface());
+        //editText.setTypeface(FontUtil.getEditorTypeface());
         searchString = new TextSearch();
 
         docName = view.findViewById(R.id.documentname);
-        docName.setTypeface(FontUtil.getDefault());
+        //docName.setTypeface(FontUtil.getDefault());
+
+        /*editText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return ctx.getGestureDetector().onTouchEvent(event);
+            }
+        });
+
+        docName.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return ctx.getGestureDetector().onTouchEvent(event);
+            }
+        });*/
     }
 
     @Override
@@ -155,6 +181,11 @@ public class Editor extends Fragment {
         }
 
         if (!clear) {
+            if (cursor.getColumnIndex(TEditDB.KEY_DATA) == -1) {
+                settings = new TxtSettings();
+            } else
+                settings = new TxtSettings(cursor.getBlob(cursor.getColumnIndex(TEditDB.KEY_DATA)));
+
             if (cursor.getColumnIndex(TEditDB.KEY_BODY) == -1) {
                 editText.setText("");
             } else
@@ -178,28 +209,28 @@ public class Editor extends Fragment {
                 }
             }
 
-            final int scrollPos = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SCROLLPOS));
-            final int selStart = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_START));
-            final int selEnd = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_END));
+            //final int scrollPos = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SCROLLPOS));
+            //final int selStart = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_START));
+            //final int selEnd = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_SELECTION_END));
             editText.post(new Runnable() {
                 @Override
                 public void run() {
                     editText.setPressed(true);
-                    editText.scrollTo(0, scrollPos);
-                    editText.setSelection(selStart, selEnd);
+                    editText.scrollTo(0, settings.scrollPos);
+                    editText.setSelection(settings.selectionStart, settings.selectionEnd);
                 }
             });
 
-            int utilityBarLayer = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_BAR_LAYER));
-            boolean searchActive = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_ACTIVE)) != 0;
-            String searchPhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_PHRASE));
-            String replacePhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_REPLACE));
-            boolean searchWholeWord = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_WHOLEWORD)) != 0;
-            boolean searchMatchCase = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_MATCHCASE)) != 0;
+            //int utilityBarLayer = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_BAR_LAYER));
+            //boolean searchActive = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_ACTIVE)) != 0;
+            //String searchPhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_PHRASE));
+            //String replacePhrase = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_REPLACE));
+            //boolean searchWholeWord = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_WHOLEWORD)) != 0;
+            //boolean searchMatchCase = cursor.getInt(cursor.getColumnIndex(TEditDB.KEY_TEXT_SEARCH_MATCHCASE)) != 0;
 
-            if (!searchActive) {
+            if (!settings.searchActive) {
                 if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT
-                        && ctx.getUtilityBar().getState().getLayer() == utilityBarLayer) {
+                        && ctx.getUtilityBar().getState().getLayer() == settings.utilityBarLayer) {
                     ctx.getUtilityBar().getState().setEnabled(false);
                     ctx.getUtilityBar().handler.postDelayed(new Runnable() {
                         @Override
@@ -208,20 +239,22 @@ public class Editor extends Fragment {
                         }
                     }, TEditActivity.SWAP_ANIM_LENGTH);
                 } else
-                    ctx.getUtilityBar().setState(ctx.getUtilityBar().UTILITY_STATE_TEXT, utilityBarLayer);
+                    ctx.getUtilityBar().setState(ctx.getUtilityBar().UTILITY_STATE_TEXT, settings.utilityBarLayer);
 
-                barSearch = new TextSearchState(ctx.getUtilityBar(), searchPhrase, replacePhrase, searchWholeWord,
-                        searchMatchCase);
+                barSearch = new TextSearchState(ctx.getUtilityBar(), settings.searchPhrase,
+                        settings.searchReplacePhrase, settings.searchWholeWord, settings.searchMatchCase);
             } else if (ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT_SEARCH){
                 barSearch = (TextSearchState)ctx.getUtilityBar().getState();
-                barSearch.setFields(searchPhrase, replacePhrase, searchWholeWord, searchMatchCase);
+                barSearch.setFields(settings.searchPhrase, settings.searchReplacePhrase, settings.searchWholeWord,
+                        settings.searchMatchCase);
             } else {
-                barSearch = new TextSearchState(ctx.getUtilityBar(), searchPhrase, replacePhrase, searchWholeWord,
-                        searchMatchCase);
+                barSearch = new TextSearchState(ctx.getUtilityBar(), settings.searchPhrase,
+                        settings.searchReplacePhrase, settings.searchWholeWord, settings.searchMatchCase);
                 activateSearch();
             }
             cursor.close();
         } else {
+            settings = new TxtSettings();
             editText.setText("");
             docName.setText(TEditActivity.DEFAULTPATH);
             if (ctx.dbIsOpen()) {
@@ -229,6 +262,8 @@ public class Editor extends Fragment {
                 ctx.setLastTxt(key);
             }
         }
+
+        applySettings();
 
         editorChangeListener = new TextWatcher() {
             @Override
@@ -272,11 +307,23 @@ public class Editor extends Fragment {
         cursor.close();
 
         ctx.getDB().updateText(key, path, editText.getText().toString());
-        ctx.getDB().updateTextState(key, editText.getScrollY(), editText.getSelectionStart(),
+        /*ctx.getDB().updateTextState(key, editText.getScrollY(), editText.getSelectionStart(),
                 editText.getSelectionEnd(), ctx.getUtilityBar().getState().getLayer(),
                 ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT_SEARCH ? 1 : 0,
                 barSearch.getSearchPhrase(), barSearch.getReplacePhrase(),
-                barSearch.isWholeWord() ? 1 : 0, barSearch.isMatchCase() ? 1 : 0);
+                barSearch.isWholeWord() ? 1 : 0, barSearch.isMatchCase() ? 1 : 0);*/
+        if (settings == null)
+            settings = new TxtSettings();
+        settings.scrollPos = editText.getScrollY();
+        settings.selectionStart = editText.getSelectionStart();
+        settings.selectionEnd = editText.getSelectionEnd();
+        settings.utilityBarLayer = ctx.getUtilityBar().getState().getLayer();
+        settings.searchActive = ctx.getUtilityBar().getState().STATE == UtilityBar.STATE_TEXT_SEARCH;
+        settings.searchPhrase = barSearch.getSearchPhrase();
+        settings.searchReplacePhrase = barSearch.getReplacePhrase();
+        settings.searchWholeWord = barSearch.isWholeWord();
+        settings.searchMatchCase = barSearch.isMatchCase();
+        ctx.getDB().updateTextState(key, settings);
     }
 
     public void activateSearch() {
@@ -444,5 +491,50 @@ public class Editor extends Fragment {
 
     public TextSearch getSearchString() {
         return searchString;
+    }
+
+    public void clearFocus() {
+        if (editText.hasFocus()) {
+            InputMethodManager imm = (InputMethodManager)ctx.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            try {
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+            } catch (Exception e) {
+
+            }
+            editText.clearFocus();
+
+            return;
+        }
+
+        barSearch.clearFocus();
+    }
+
+    public void hideCursor(boolean hide) {
+        editText.setCursorVisible(!hide);
+        barSearch.hideCursor(hide);
+    }
+
+    @Override
+    public void applySettings() {
+        editText.setTypeface(FontUtil.getTypefaceFromPath(settings.typeface, FontUtil.getEditorTypeface()));
+
+        boolean wrap = (settings.wordWrap < 0) ? Settings.isWordWrap() : settings.wordWrap == 1;
+        editText.setHorizontallyScrolling(!wrap);
+        if (wrap && editText.getScrollX() > 0)
+            editText.scrollTo(0, editText.getScrollY());
+
+        docName.setTypeface(FontUtil.getSystemTypeface());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            editText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            int textDirection = settings.textDirection < 0 ? Settings.getEditorTextDirection() : settings.textDirection;
+            editText.setTextDirection((textDirection == Settings.TEXTDIR_LTR) ?
+                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+
+            docName.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            textDirection = Settings.getSystemTextDirection();
+            docName.setTextDirection((textDirection == Settings.TEXTDIR_LTR) ?
+                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+        }
     }
 }

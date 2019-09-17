@@ -17,6 +17,7 @@ package com.atr.tedit.mainstate;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -38,7 +39,10 @@ import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.file.descriptor.AndFile;
+import com.atr.tedit.settings.Settings;
+import com.atr.tedit.settings.TxtSettings;
 import com.atr.tedit.util.FontUtil;
+import com.atr.tedit.util.SettingsApplicable;
 import com.atr.tedit.util.TEditDB;
 import com.atr.tedit.utilitybar.UtilityBar;
 
@@ -49,7 +53,7 @@ import java.io.File;
  * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
  */
 
-public class Tabs extends ListFragment {
+public class Tabs extends ListFragment implements SettingsApplicable {
     private TEditActivity ctx;
 
     @Override
@@ -128,7 +132,8 @@ public class Tabs extends ListFragment {
         }
         cursor.close();
 
-        DBAdapter adapter = new DBAdapter(ctx, R.layout.tab_row, items, this);
+        DBAdapter adapter = new DBAdapter(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                R.layout.tab_row : R.layout.tab_row_rtl, items, this);
         if (getListView().getAdapter() == null) {
             setListAdapter(adapter);
         } else {
@@ -217,6 +222,10 @@ public class Tabs extends ListFragment {
         ctx.openDocument(id);
     }
 
+    public void applySettings() {
+        populateTabs();
+    }
+
     private class DBItem {
         public final String name;
         public final long key;
@@ -265,6 +274,16 @@ public class Tabs extends ListFragment {
                 holder.filename.setTypeface(FontUtil.getDefault());
                 holder.description = (TextView)row.findViewById(R.id.tabdescription);
                 holder.description.setTypeface(FontUtil.getEditorTypeface());
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    holder.filename.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                    holder.filename.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                            View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                    holder.description.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                    holder.description.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                            View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                }
+
                 row.setTag(holder);
                 row.setOnTouchListener(touch);
             } else {

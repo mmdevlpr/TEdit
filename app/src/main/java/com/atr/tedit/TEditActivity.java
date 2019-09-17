@@ -17,7 +17,6 @@ package com.atr.tedit;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.UriPermission;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -30,13 +29,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -48,6 +49,9 @@ import com.atr.tedit.file.descriptor.FileDescriptor;
 import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.mainstate.Tabs;
+import com.atr.tedit.settings.Settings;
+import com.atr.tedit.settings.SettingsWindow;
+import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.FontUtil;
@@ -77,17 +81,21 @@ public class TEditActivity extends AppCompatActivity {
 
     public static final int SDCARD_PICKER_RESULT = 0;
 
-    private static final int STATE_BROWSE = 0;
-    private static final int STATE_TEXT = 1;
-    private static final int STATE_TAB = 2;
-    private static final int STATE_VOLUME_PICKER = 3;
+    public static final int STATE_BROWSE = 0;
+    public static final int STATE_TEXT = 1;
+    public static final int STATE_TAB = 2;
 
     public static AtomicInteger instances = new AtomicInteger(0);
 
     private int state = STATE_BROWSE;
 
+    private boolean activateVolumePicker = false;
+
     private DisplayMetrics dMetrics;
     private UtilityBar utilityBar;
+
+    private SettingsWindow settingsWindow;
+    private GestureDetectorCompat gDetector;
 
     private TEditDB db;
     private boolean dbOpen = true;
@@ -114,6 +122,7 @@ public class TEditActivity extends AppCompatActivity {
 
         utilityBar = new UtilityBar((FrameLayout)findViewById(R.id.buttonbar), dMetrics,
                 getResources(), this);
+        gDetector = new GestureDetectorCompat(this, new Gestures(dMetrics));
 
         db = new TEditDB(this);
         dbOpen = true;
@@ -123,8 +132,6 @@ public class TEditActivity extends AppCompatActivity {
             dbOpen = false;
             Log.e("TEdit", "Unable to open database: " + e.getMessage());
         }
-        //if (dbOpen && savedInstanceState == null)
-            //db.deleteAll();
 
         String mediaState = Environment.getExternalStorageState();
         File rFile = Environment.getRootDirectory();
@@ -144,6 +151,10 @@ public class TEditActivity extends AppCompatActivity {
                         : AndFile.createDescriptor(sRoot);
                 currentPath = new FilePath(storageRoot);
             }
+
+            Settings.loadSettings(this);
+            currentPath = Settings.getStartupPath();
+            settingsWindow = new SettingsWindow(this);
 
             if (!dbOpen) {
                 initializeToBrowser();
@@ -203,6 +214,9 @@ public class TEditActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
+        Settings.loadSettings(this);
+        currentPath = Settings.getStartupPath();
+        settingsWindow = new SettingsWindow(this);
 
         lastTxt = (!dbOpen) ? -1 : savedInstanceState.getLong("TEdit.lastTxt", -1);
         if (lastTxt > -1) {
@@ -241,10 +255,6 @@ public class TEditActivity extends AppCompatActivity {
             case STATE_TAB:
                 state = STATE_TAB;
                 break;
-            case STATE_VOLUME_PICKER:
-                state = STATE_BROWSE;
-                ((Browser)getFrag()).launchVolumePicker();
-                break;
             default:
                 state = STATE_BROWSE;
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -252,8 +262,10 @@ public class TEditActivity extends AppCompatActivity {
                 frag = Browser.newInstance(currentPath.toJson());
                 ft.add(R.id.activitycontent, frag);
                 ft.commit();
-
         }
+
+        if (savedInstanceState.getBoolean("TEdit.settingsOpen", false))
+            settingsWindow.setState(savedInstanceState);
     }
 
     public DisplayMetrics getMetrics() {
@@ -262,6 +274,14 @@ public class TEditActivity extends AppCompatActivity {
 
     public UtilityBar getUtilityBar() {
         return utilityBar;
+    }
+
+    public SettingsWindow getSettingsWindow() {
+        return settingsWindow;
+    }
+
+    public GestureDetectorCompat getGestureDetector() {
+        return gDetector;
     }
 
     private void initializeToBrowser() {
@@ -300,8 +320,8 @@ public class TEditActivity extends AppCompatActivity {
         ft.add(R.id.activitycontent, frag);
         ft.commit();
 
-        if (isFirstRun()) {
-            saveVersion();
+        if (Settings.isFirstRun(this)) {
+            Settings.saveVer(this);
             displayWhatsNew();
         }
     }
@@ -326,8 +346,8 @@ public class TEditActivity extends AppCompatActivity {
             ft.add(R.id.activitycontent, frag);
             ft.commit();
 
-            if (isFirstRun()) {
-                saveVersion();
+            if (Settings.isFirstRun(this)) {
+                Settings.saveVer(this);
                 displayWhatsNew();
             }
         }
@@ -368,8 +388,8 @@ public class TEditActivity extends AppCompatActivity {
         ft.commit();
         tmpUriToOpen = null;
 
-        if (isFirstRun()) {
-            saveVersion();
+        if (Settings.isFirstRun(this)) {
+            Settings.saveVer(this);
             displayWhatsNew();
         }
     }
@@ -387,8 +407,8 @@ public class TEditActivity extends AppCompatActivity {
         ft.add(R.id.activitycontent, frag);
         ft.commit();
 
-        if (isFirstRun()) {
-            saveVersion();
+        if (Settings.isFirstRun(this)) {
+            Settings.saveVer(this);
             displayWhatsNew();
         }
     }
@@ -406,8 +426,8 @@ public class TEditActivity extends AppCompatActivity {
                 ft.add(R.id.activitycontent, frag);
                 ft.commit();
 
-                if (isFirstRun()) {
-                    saveVersion();
+                if (Settings.isFirstRun(this)) {
+                    Settings.saveVer(this);
                     displayWhatsNew();
                 }
                 return;
@@ -438,22 +458,10 @@ public class TEditActivity extends AppCompatActivity {
         ft.add(R.id.activitycontent, frag);
         ft.commit();
 
-        if (isFirstRun()) {
-            saveVersion();
+        if (Settings.isFirstRun(this)) {
+            Settings.saveVer(this);
             displayWhatsNew();
         }
-    }
-
-    private boolean isFirstRun() {
-        SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-        int lastVer = prefs.getInt("version", 0);
-        return lastVer < BuildConfig.VERSION_CODE;
-    }
-
-    private void saveVersion() {
-        SharedPreferences.Editor prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE).edit();
-        prefs.putInt("version", BuildConfig.VERSION_CODE);
-        prefs.commit();
     }
 
     private void displayWhatsNew() {
@@ -575,6 +583,10 @@ public class TEditActivity extends AppCompatActivity {
         ft.commit();
     }
 
+    public int getState() {
+        return state;
+    }
+
     public Fragment getFrag() {
         return frag;
     }
@@ -606,10 +618,20 @@ public class TEditActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (state == STATE_VOLUME_PICKER) {
-            state = STATE_BROWSE;
-            ((Browser)getFrag()).launchVolumePicker();
+        if (activateVolumePicker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            activateVolumePicker = false;
+            Fragment dp = getSupportFragmentManager().findFragmentByTag("DirectoryPicker");
+            if (dp == null) {
+                ((Browser)getFrag()).launchVolumePicker();
+            } else
+                ((DirectoryPicker)dp).launchVolumePicker();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Settings.saveSettings(this);
     }
 
     @Override
@@ -621,6 +643,11 @@ public class TEditActivity extends AppCompatActivity {
             outState.putString("TEdit.savePath", savePath.toJson());
         outState.putLong("TEdit.lastTxt", lastTxt);
         outState.putInt("TEdit.state", state);
+
+        if (settingsWindow.isOpen()) {
+            outState.putBoolean("TEdit.settingsOpen", settingsWindow.isOpen());
+            settingsWindow.saveState(outState);
+        }
 
         if (tmpUriToOpen != null)
             outState.putString("TEdit.uriToOpen", tmpUriToOpen.toString());
@@ -646,8 +673,21 @@ public class TEditActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (gDetector.onTouchEvent(event))
+            return true;
+
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (settingsWindow.canClose()) {
+                settingsWindow.close(true);
+                return true;
+            }
+
             switch (state) {
                 case STATE_BROWSE:
                     closeBrowser();
@@ -665,6 +705,7 @@ public class TEditActivity extends AppCompatActivity {
                 default:
                     finish();
             }
+
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_S && state == STATE_TEXT) {
             if (event.isCtrlPressed()) {
@@ -1041,7 +1082,8 @@ public class TEditActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == SDCARD_PICKER_RESULT) {
-            state = STATE_VOLUME_PICKER;
+            //state = STATE_VOLUME_PICKER;
+            activateVolumePicker = true;
             if (resultCode != RESULT_OK)
                 return;
 
@@ -1055,5 +1097,37 @@ public class TEditActivity extends AppCompatActivity {
         getContentResolver().takePersistableUriPermission(treeUri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION |
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    }
+
+    private class Gestures extends GestureDetector.SimpleOnGestureListener {
+        private final float sensitivity;
+        private final float minVelocity;
+
+        private Gestures(DisplayMetrics displayMetrics) {
+            sensitivity = displayMetrics.density * 32;
+            minVelocity = displayMetrics.density * 1500;
+            Log.i("Tedit Gesture Density", Float.toString(displayMetrics.density));
+        }
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+            float displacement = event1.getX() - event2.getX();
+            float rate = Math.abs(velocityX);
+
+            if (state == STATE_TAB || Math.abs(velocityY) > rate || rate < minVelocity)
+                return false;
+
+            if (displacement < sensitivity && settingsWindow.canOpen()) {
+                settingsWindow.open(true);
+                return true;
+            }
+
+            if (displacement > sensitivity && settingsWindow.canClose()) {
+                settingsWindow.close(true);
+                return true;
+            }
+
+            return false;
+        }
     }
 }

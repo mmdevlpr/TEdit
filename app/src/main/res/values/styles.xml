@@ -27,7 +27,7 @@
         <item name="android:textColorPrimary">@color/cream</item>
         <item name="android:textColorSecondary">@color/darkCream</item>
         <item name="android:colorBackground">@color/darkCream</item>
-        <item name="colorButtonNormal">@color/cream</item>
+        <item name="colorButtonNormal">@color/coffeeNcream</item>
         <item name="colorControlHighlight">@color/coffee</item>
         <item name="android:radioButtonStyle">@style/radioButtonLight</item>
         <item name="android:checkboxStyle">@style/checkBoxLight</item>
@@ -67,6 +67,12 @@
 
     <style name="checkBoxDark" parent="Base.Widget.AppCompat.CompoundButton.CheckBox">
         <item name="android:textColor">@color/coffee</item>
+    </style>
+
+    <style name="buttonFlatDarkRust" parent="Dark.Roast">
+        <item name="android:textColor">@color/lightRust</item>
+        <item name="colorControlHighlight">@color/coffeeNcream</item>
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
     </style>
 
 </resources>

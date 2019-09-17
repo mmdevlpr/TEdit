@@ -9,7 +9,7 @@
     <color name="colorPrimary">#494949</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#0062FF</color>
-    <color name="browseText">#F6F6F6</color>
+    <color name="browseText">#f6f6f6</color>
     <color name="browseTextAccent">#999999</color>
     <color name="editor">#FFFFFF</color>
     <color name="editorText">#555555</color>
@@ -17,4 +17,5 @@
     <color name="greenDark">#2b3e21</color>
     <color name="greenPrimary">#97bf80</color>
     <color name="greenAccent">#cbffab</color>
+    <color name="translucentBlack">#b0000000</color>
 </resources>

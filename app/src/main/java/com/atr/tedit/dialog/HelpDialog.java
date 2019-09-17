@@ -18,11 +18,15 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.atr.tedit.BuildConfig;
 import com.atr.tedit.R;
+import com.atr.tedit.TEditActivity;
 import com.atr.tedit.util.FontUtil;
 
 /**
@@ -54,7 +58,11 @@ public class HelpDialog extends TDialog {
             title = savedInstanceState.getString("TEdit.help.title", getString(R.string.help));
         }
 
-        View viewLayout = getActivity().getLayoutInflater().inflate(layout, null);
+        LayoutInflater inflater = ((TEditActivity)getContext()).getLayoutInflater()
+                .cloneInContext(new ContextThemeWrapper(getContext(), theme));
+        View viewLayout = inflater.inflate(R.layout.help_header, null);
+        inflater.inflate(layout, (LinearLayout)viewLayout.findViewById(R.id.helpDisplay), true);
+
         TextView versionView = (TextView)viewLayout.findViewById(R.id.version);
         if (versionView != null)
             versionView.setText("v" + BuildConfig.VERSION_NAME);

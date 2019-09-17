@@ -22,6 +22,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.atr.tedit.settings.Settings;
+import com.atr.tedit.settings.TxtSettings;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 /**
  * @author Adam T. Ryder
  * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
@@ -30,7 +37,8 @@ import android.util.Log;
 public class TEditDB {
     public static final String KEY_PATH = "path";
     public static final String KEY_BODY = "body";
-    public static final String KEY_SCROLLPOS = "scrollpos";
+    public static final String KEY_DATA = "data";
+    /*public static final String KEY_SCROLLPOS = "scrollpos";
     public static final String KEY_SELECTION_START = "selstart";
     public static final String KEY_SELECTION_END = "selend";
     public static final String KEY_TEXT_BAR_LAYER = "editorbarlayer";
@@ -38,24 +46,27 @@ public class TEditDB {
     public static final String KEY_TEXT_SEARCH_PHRASE = "textsearchphrase";
     public static final String KEY_TEXT_SEARCH_REPLACE = "textsearchreplacephrase";
     public static final String KEY_TEXT_SEARCH_WHOLEWORD = "textsearchwholeword";
-    public static final String KEY_TEXT_SEARCH_MATCHCASE = "textsearchmatchcase";
+    public static final String KEY_TEXT_SEARCH_MATCHCASE = "textsearchmatchcase";*/
     public static final String KEY_ROWID = "_id";
 
     private static final String TAG = "TEditDB";
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
 
-    private static final String DATABASE_CREATE =
+    /*private static final String DATABASE_CREATE =
             "create table texts (_id integer primary key autoincrement, "
                     + "path text not null, body text not null, "
                     + "scrollpos int not null, selstart int not null, selend int not null, "
                     + "editorbarlayer int not null, textsearchactive text not null, "
                     + "textsearchphrase text not null, textsearchreplacephrase text not null,"
-                    + "textsearchwholeword int not null, textsearchmatchcase int not null);";
+                    + "textsearchwholeword int not null, textsearchmatchcase int not null);";*/
+    private static final String DATABASE_CREATE =
+            "create table texts (_id integer primary key autoincrement, "
+                    + "path text not null, body text not null, data blob not null);";
 
     private static final String DATABASE_NAME = "tedit_data";
     private static final String DATABASE_TABLE = "texts";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private final Context ctx;
 
@@ -97,7 +108,8 @@ public class TEditDB {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_PATH, title);
         initialValues.put(KEY_BODY, body);
-        initialValues.put(KEY_SCROLLPOS, 0);
+        initialValues.put(KEY_DATA, new TxtSettings().toByteArray());
+        /*initialValues.put(KEY_SCROLLPOS, 0);
         initialValues.put(KEY_SELECTION_START, 0);
         initialValues.put(KEY_SELECTION_END, 0);
         initialValues.put(KEY_TEXT_BAR_LAYER, 0);
@@ -105,7 +117,7 @@ public class TEditDB {
         initialValues.put(KEY_TEXT_SEARCH_PHRASE, "");
         initialValues.put(KEY_TEXT_SEARCH_REPLACE, "");
         initialValues.put(KEY_TEXT_SEARCH_WHOLEWORD, 0);
-        initialValues.put(KEY_TEXT_SEARCH_MATCHCASE, 0);
+        initialValues.put(KEY_TEXT_SEARCH_MATCHCASE, 0);*/
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
@@ -119,17 +131,20 @@ public class TEditDB {
     }
 
     public Cursor fetchAllTexts() {
-        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID,
+        /*return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID,
                         KEY_PATH, KEY_BODY, KEY_SCROLLPOS, KEY_SELECTION_START,
                         KEY_SELECTION_END, KEY_TEXT_BAR_LAYER, KEY_TEXT_SEARCH_ACTIVE,
                         KEY_TEXT_SEARCH_PHRASE, KEY_TEXT_SEARCH_REPLACE,
                         KEY_TEXT_SEARCH_WHOLEWORD, KEY_TEXT_SEARCH_MATCHCASE}, null, null,
-                null, null, null);
+                null, null, null);*/
+        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID,
+                        KEY_PATH, KEY_BODY, KEY_DATA}, null, null,
+                        null, null, null);
     }
 
     public long hasFile(String path) {
         Cursor cursor = mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
-                        KEY_PATH, KEY_BODY, KEY_SCROLLPOS},
+                        KEY_PATH, KEY_BODY},
                 KEY_PATH + "=" + path, null,
                 null, null, null, null);
         if (cursor == null || cursor.getColumnIndex(KEY_ROWID) ==  -1)
@@ -139,13 +154,17 @@ public class TEditDB {
     }
 
     public Cursor fetchText(long rowId) throws SQLException {
-        Cursor mCursor = mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
+        /*Cursor mCursor = mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
                                 KEY_PATH, KEY_BODY, KEY_SCROLLPOS, KEY_SELECTION_START,
                                 KEY_SELECTION_END, KEY_TEXT_BAR_LAYER, KEY_TEXT_SEARCH_ACTIVE,
                                 KEY_TEXT_SEARCH_PHRASE, KEY_TEXT_SEARCH_REPLACE,
                                 KEY_TEXT_SEARCH_WHOLEWORD, KEY_TEXT_SEARCH_MATCHCASE},
                                 KEY_ROWID + "=" + rowId, null,
-                                null, null, null, null);
+                                null, null, null, null);*/
+        Cursor mCursor = mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
+                        KEY_PATH, KEY_BODY, KEY_DATA},
+                        KEY_ROWID + "=" + rowId, null,
+                        null, null, null, null);
         if (mCursor.getCount() == 0) {
             mCursor.close();
             return null;
@@ -165,11 +184,10 @@ public class TEditDB {
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
     
-    public boolean updateTextState(long rowId, int scrollpos, int selectionStart, int selectionEnd,
-                                   int utilityBarLayer, int searchActive, String searchPhrase,
-                                   String searchReplacePhrase, int searchWholeWord, int searchMatchCase) {
+    public boolean updateTextState(long rowId, TxtSettings settings) {
         ContentValues args = new ContentValues();
-        args.put(KEY_SCROLLPOS, scrollpos);
+        args.put(KEY_DATA, settings.toByteArray());
+        /*args.put(KEY_SCROLLPOS, scrollpos);
         args.put(KEY_SELECTION_START, selectionStart);
         args.put(KEY_SELECTION_END, selectionEnd);
         args.put(KEY_TEXT_BAR_LAYER, utilityBarLayer);
@@ -177,7 +195,7 @@ public class TEditDB {
         args.put(KEY_TEXT_SEARCH_PHRASE, searchPhrase);
         args.put(KEY_TEXT_SEARCH_REPLACE, searchReplacePhrase);
         args.put(KEY_TEXT_SEARCH_WHOLEWORD, searchWholeWord);
-        args.put(KEY_TEXT_SEARCH_MATCHCASE, searchMatchCase);
+        args.put(KEY_TEXT_SEARCH_MATCHCASE, searchMatchCase);*/
 
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }

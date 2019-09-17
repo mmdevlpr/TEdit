@@ -32,14 +32,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -53,10 +56,13 @@ import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
 import com.atr.tedit.file.descriptor.AndFile;
+import com.atr.tedit.settings.Settings;
+import com.atr.tedit.settings.TxtSettings;
 import com.atr.tedit.util.AndFileFilter;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.FontUtil;
+import com.atr.tedit.util.SettingsApplicable;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 import org.json.JSONException;
@@ -73,7 +79,7 @@ import java.util.Comparator;
  * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
  */
 
-public class Browser extends ListFragment {
+public class Browser extends ListFragment implements SettingsApplicable {
     private static final String invalidChars = "\'/\\*?:|\"<>%\n";
 
     public static final int TYPE_OPEN = 0;
@@ -209,17 +215,7 @@ public class Browser extends ListFragment {
             ctx.getUtilityBar().setToBrowser();
 
         getListView().setEnabled(true);
-
-        TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
-                : (TextView)getView().findViewById(R.id.savebrowsepath);
-        pathView.setTypeface(FontUtil.getDefault());
-
-        populateBrowser();
-        if (type == TYPE_SAVE) {
-            TextView filename = getView().findViewById(R.id.filename);
-            filename.setEnabled(true);
-            filename.setTypeface(FontUtil.getEditorTypeface());
-        }
+        applySettings();
     }
 
     @Override
@@ -235,6 +231,9 @@ public class Browser extends ListFragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
+        if (ctx.getSettingsWindow().isOpen())
+            return;
+
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 
         if (info.position >= numDirs) {
@@ -368,6 +367,10 @@ public class Browser extends ListFragment {
         final TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
                 : (TextView)getView().findViewById(R.id.savebrowsepath);
         pathView.setText(currentPath.getPath());
+        if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
+            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
+        } else
+            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
 
         AndFile[] dirList = currentPath.listFiles(new DirFilter());
         AndFile[] fileList = currentPath.listFiles(new TxtFilter());
@@ -391,7 +394,8 @@ public class Browser extends ListFragment {
             items.add(f);
         }
 
-        setListAdapter(new ArrayAdapter<AndFile>(ctx, R.layout.browser_row, items) {
+        setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                R.layout.browser_row : R.layout.browser_row_rtl, items) {
 
             @Override
             public int getCount() { return super.getCount(); }
@@ -402,12 +406,18 @@ public class Browser extends ListFragment {
                 ImageView iv;
                 TextView tv;
                 if (row == null) {
-                    row = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.browser_row,
-                            parent, false);
+                    row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
+                                    == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
+                                    parent, false);
                     iv = row.findViewById(R.id.dirIcon);
                     tv = row.findViewById(R.id.dirText);
 
-                    tv.setTypeface(FontUtil.getDefault());
+                    tv.setTypeface(FontUtil.getSystemTypeface());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                        tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                                View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                    }
                 } else {
                     iv = row.findViewById(R.id.dirIcon);
                     tv = row.findViewById(R.id.dirText);
@@ -655,6 +665,37 @@ public class Browser extends ListFragment {
                 return false;
 
             return !DataAccessUtil.hasExtension(file.getName()) || file.getMIME().startsWith("text/");
+        }
+    }
+
+    public void applySettings() {
+        populateBrowser();
+
+        final TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
+                : (TextView)getView().findViewById(R.id.savebrowsepath);
+        pathView.setTypeface(FontUtil.getSystemTypeface());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            pathView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            HorizontalScrollView.LayoutParams lp = (HorizontalScrollView.LayoutParams)pathView.getLayoutParams();
+            if (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) {
+                pathView.setTextDirection(View.TEXT_DIRECTION_LTR);
+                lp.gravity = Gravity.CENTER_VERTICAL|Gravity.LEFT;
+            } else {
+                pathView.setTextDirection(View.TEXT_DIRECTION_RTL);
+                lp.gravity = Gravity.CENTER_VERTICAL|Gravity.RIGHT;
+            }
+            pathView.setLayoutParams(lp);
+        }
+
+        if (type == TYPE_SAVE) {
+            TextView filename = getView().findViewById(R.id.filename);
+            filename.setEnabled(true);
+            filename.setTypeface(FontUtil.getEditorTypeface());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                filename.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                filename.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                        View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+            }
         }
     }
 
