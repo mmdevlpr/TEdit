@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.view.ContextThemeWrapper;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -56,6 +57,8 @@ public class SettingsWindow {
     public SettingsWindow(TEditActivity context) {
         ctx = context;
 
+        final int fontSize = 16;
+
         ViewGroup rootVG = ctx.findViewById(R.id.activity_tedit);
         LayoutInflater inflater = ctx.getLayoutInflater().cloneInContext(new ContextThemeWrapper(ctx, R.style.Dark_Roast));
         settingsView = inflater.inflate(R.layout.settings_global, rootVG, true).findViewById(R.id.settingsRoot);
@@ -83,12 +86,14 @@ public class SettingsWindow {
         csLayout.removeView(saveButton);
         saveButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         saveButton.setId(R.id.saveButton);
+        saveButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         saveButton.setText(ctx.getText(R.string.save));
         csLayout.addView(saveButton);
 
         csLayout.removeView(cancelButton);
         cancelButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         cancelButton.setId(R.id.cancelButton);
+        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         cancelButton.setText(ctx.getText(R.string.cancel));
         csLayout.addView(cancelButton);
 
@@ -118,12 +123,14 @@ public class SettingsWindow {
         csLayout.removeView(saveButton);
         saveButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         saveButton.setId(R.id.localSaveButton);
+        saveButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         saveButton.setText(ctx.getText(R.string.save));
         csLayout.addView(saveButton);
 
         csLayout.removeView(cancelButton);
         cancelButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         cancelButton.setId(R.id.localCancelButton);
+        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         cancelButton.setText(ctx.getText(R.string.cancel));
         csLayout.addView(cancelButton);
 
@@ -153,12 +160,14 @@ public class SettingsWindow {
         csLayout.removeView(localButton);
         localButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         localButton.setId(R.id.localButton);
+        localButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         localButton.setText(ctx.getText(R.string.settings_local_button));
         csLayout.addView(localButton);
 
         csLayout.removeView(globalHelpButton);
         globalHelpButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         globalHelpButton.setId(R.id.helpButton);
+        globalHelpButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         globalHelpButton.setText(ctx.getText(R.string.help));
         csLayout.addView(globalHelpButton);
 
@@ -174,12 +183,14 @@ public class SettingsWindow {
         csLayout.removeView(globalButton);
         globalButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         globalButton.setId(R.id.globalButton);
+        globalButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         globalButton.setText(ctx.getText(R.string.settings_global_button));
         csLayout.addView(globalButton);
 
         csLayout.removeView(localHelpButton);
         localHelpButton = new Button(new ContextThemeWrapper(ctx, R.style.buttonFlatDarkRust));
         localHelpButton.setId(R.id.localHelpButton);
+        localHelpButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         localHelpButton.setText(ctx.getText(R.string.help));
         csLayout.addView(localHelpButton);
 
