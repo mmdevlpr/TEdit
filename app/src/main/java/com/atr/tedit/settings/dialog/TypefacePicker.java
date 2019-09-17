@@ -63,8 +63,6 @@ public class TypefacePicker extends TDialog {
             fontList = new ArrayList<>(systemFonts.length + 4);
             fontList.add(getString(R.string.useglobal));
             fontList.addAll(FontUtil.getBuiltinPaths());
-            /*fontList.addAll(Arrays.asList(getString(R.string.useglobal), FontUtil.METROPOLIS,
-                        FontUtil.MONTSERRAT_ALT, FontUtil.BEBEDERA));*/
         } else {
             fontList = new ArrayList<>(systemFonts.length + 3);
             fontList.addAll(FontUtil.getBuiltinPaths());

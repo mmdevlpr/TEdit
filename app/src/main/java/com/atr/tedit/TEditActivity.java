@@ -217,7 +217,6 @@ public class TEditActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         Settings.loadSettings(this);
-        //currentPath = Settings.getStartupPath();
         settingsWindow = new SettingsWindow(this);
 
         lastTxt = (!dbOpen) ? -1 : savedInstanceState.getLong("TEdit.lastTxt", -1);
@@ -553,7 +552,6 @@ public class TEditActivity extends AppCompatActivity {
         if (cursor.getColumnIndex(TEditDB.KEY_BODY) != -1) {
             body = cursor.getString(cursor.getColumnIndex(TEditDB.KEY_BODY));
         }
-        //cursor.close();
 
         if (body == null) {
             cursor.close();
@@ -1104,7 +1102,6 @@ public class TEditActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == SDCARD_PICKER_RESULT) {
-            //state = STATE_VOLUME_PICKER;
             activateVolumePicker = true;
             if (resultCode != RESULT_OK)
                 return;
