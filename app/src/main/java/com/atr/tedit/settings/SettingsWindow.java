@@ -1,6 +1,7 @@
 package com.atr.tedit.settings;
 
 import android.annotation.TargetApi;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
@@ -21,6 +22,7 @@ import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
@@ -306,6 +308,19 @@ public class SettingsWindow {
             settingsView.findViewById(R.id.localTextDirLabel).setVisibility(View.GONE);
             settingsView.findViewById(R.id.localTextDirGroup).setVisibility(View.GONE);
         }
+
+        String forceTextColor = "#f1e5d1";
+        ((CheckBox)settingsView.findViewById(R.id.wordWrap)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.textDirLTR)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.textDirRTL)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.editorTextDirLTR)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.editorTextDirRTL)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.localWordWrapGlobal)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOn)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOff)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.localTextDirGlobal)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.localTextDirLTR)).setTextColor(Color.parseColor(forceTextColor));
+        ((RadioButton)settingsView.findViewById(R.id.localTextDirRTL)).setTextColor(Color.parseColor(forceTextColor));
 
         settingsView.setOnTouchListener(new View.OnTouchListener() {
             @Override
