@@ -11,6 +11,10 @@ TEdit Features:
 
 - Use the built-in file browser or an external file manager to open files.
 
+- Select text directionality, wrap modes and change fonts through the settings menu.
+
+- Use the local settings menu to make changes to wrap modes, text directinality and fonts for individual text views.
+
 [<img src="https://f-droid.org/badge/get-it-on.png"
       alt="Get it on F-Droid"
       height="80">](https://f-droid.org/packages/com.atr.tedit/)
@@ -45,3 +49,19 @@ src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen04.png"
 [<img 
 src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen05.png"
  alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen05.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen06.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen06.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen07.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen07.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen08.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen08.png)
+
+[<img 
+src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen09.png"
+ alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen09.png)
