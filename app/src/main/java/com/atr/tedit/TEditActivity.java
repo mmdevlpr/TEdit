@@ -724,7 +724,7 @@ public class TEditActivity extends AppCompatActivity {
             }
 
             return true;
-        } else if (keyCode == KeyEvent.KEYCODE_S && state == STATE_TEXT) {
+        } else if (keyCode == KeyEvent.KEYCODE_S && state == STATE_TEXT && !settingsWindow.isOpen()) {
             if (event.isCtrlPressed()) {
                 if (event.isShiftPressed()) {
                     saveAsDocument(false);
