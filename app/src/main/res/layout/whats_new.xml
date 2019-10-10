@@ -1,307 +1,453 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/v230"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_marginBottom="6dp"
+        android:layout_weight="1"
+        android:padding="3dp"
+        android:text="Version 2.3.0:" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:padding="3dp">
 
-        <TextView
-            android:id="@+id/apptitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_weight="1"
-            android:text="@string/app_name"
-            android:textSize="25sp" />
-
-        <TextView
-            android:id="@+id/version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_weight="1"
-            android:text="@string/version" />
-
-        <TextView
-            android:id="@+id/author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_weight="1"
-            android:text="@string/author" />
-
-        <TextView
-            android:id="@+id/website"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_weight="1"
-            android:autoLink="web"
-            android:clickable="true"
-            android:layout_marginBottom="21dp"
-            android:text="http://1337atr.weebly.com" />
-
-        <TextView
-            android:id="@+id/v221"
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|left"
-            android:layout_marginBottom="6dp"
-            android:layout_weight="1"
-            android:padding="3dp"
-            android:text="Version 2.2.1:" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Fixed a crash for devices in which the 'external' storage medium is not mounted." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Changed the save as hotkey from ctrl+alt+s to ctrl+shift+s." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Updated the Editor help dialog to reflect save and save as hotkeys." />
-        </LinearLayout>
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
 
         <TextView
-            android:id="@+id/v220"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|left"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="6dp"
             android:layout_weight="1"
-            android:padding="3dp"
-            android:text="Version 2.2.0:" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Browse internal, root and SDcard volumes with the file browser." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Search and replace text within your text documents." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Locate and open files without extenions in the file browser." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Hotkeys ctrl+s and ctrl+alt+s to save and save as respectively." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Improved support for small screens." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="Improved button animations." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="3dp">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginRight="8dp"
-                android:layout_weight="0"
-                android:adjustViewBounds="true"
-                app:srcCompat="@drawable/bulletpoint" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_weight="1"
-                android:text="New look, logo and icon." />
-        </LinearLayout>
+            android:text="A new settings menu can be accessed by swiping to the right from the browser or text editor views. Settings local to individual text documents can be accessed by swiping to the right from the text editor view." />
     </LinearLayout>
-</ScrollView>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Default startup directory can be set through the settings menu." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Additional fonts have been added and can be selected through the local and global settings menus." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Word wrap can be toggled on or off through the local and global settings menus." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Text directionality/alignment can be selected through the local and global settings menus." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="TEdit now prompts to confirm closing a text document when attempting to close a file that has not been saved since last edited." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Support for additional file extensions: .config, .bat, .map, .conf, .opt, .rmp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Various bug fixes." />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/v221"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_marginBottom="6dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:padding="3dp"
+        android:text="Version 2.2.1:" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Fixed a crash for devices in which the 'external' storage medium is not mounted." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Changed the save as hotkey from ctrl+alt+s to ctrl+shift+s." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Updated the Editor help dialog to reflect save and save as hotkeys." />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/v220"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_marginBottom="6dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:padding="3dp"
+        android:text="Version 2.2.0:" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Browse internal, root and SDcard volumes with the file browser." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Search and replace text within your text documents." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Locate and open files without extenions in the file browser." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Hotkeys ctrl+s and ctrl+alt+s to save and save as respectively." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Improved support for small screens." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Improved button animations." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="New look, logo and icon." />
+    </LinearLayout>
+</LinearLayout>
