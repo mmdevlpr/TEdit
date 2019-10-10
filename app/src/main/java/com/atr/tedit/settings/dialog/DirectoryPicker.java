@@ -256,11 +256,20 @@ public class DirectoryPicker extends TDialog {
         });
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void launchVolumePicker() {
-        boolean cardPresent = ContextCompat.getExternalFilesDirs(getContext(), "external").length > 1;
-        TEditActivity ctx = (TEditActivity)getContext();
+        launchVolumePicker(true);
+    }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void launchVolumePicker(boolean promptSD) {
+        TEditActivity ctx = (TEditActivity)getContext();
+        if (!promptSD) {
+            VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier(), TAG);
+            vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
+            return;
+        }
+
+        boolean cardPresent = ContextCompat.getExternalFilesDirs(getContext(), "external").length > 1;
         Uri[] volumes = ctx.getPermittedUris();
         if (volumes.length > 0 || !cardPresent) {
             VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier(), TAG);

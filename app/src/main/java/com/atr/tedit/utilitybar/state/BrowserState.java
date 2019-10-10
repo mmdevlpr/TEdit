@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.HelpDialog;
+import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 public class BrowserState extends UtilityState {
@@ -184,7 +186,11 @@ public class BrowserState extends UtilityState {
                 @Override
                 public void onClick(View v) {
                     dismiss();
-                    ((Browser)ctx.getFrag()).launchVolumePicker();
+                    Fragment dp = ctx.getSupportFragmentManager().findFragmentByTag("DirectoryPicker");
+                    if (dp == null) {
+                        ((Browser) ctx.getFrag()).launchVolumePicker();
+                    } else
+                        ((DirectoryPicker)dp).launchVolumePicker(false);
                 }
             });
             setPositiveButton(getString(R.string.okay), new View.OnClickListener() {
