@@ -78,6 +78,8 @@ public class SettingsWindow {
         lp.width = Math.round(width * 0.8f);
         settingsAnimator.setLayoutParams(lp);
 
+        int colorLightRust = ctx.getColor(R.color.lightRust);
+
         Button saveButton = settingsView.findViewById(R.id.saveButton);
         Button cancelButton = settingsView.findViewById(R.id.cancelButton);
 
@@ -90,6 +92,7 @@ public class SettingsWindow {
         saveButton.setId(R.id.saveButton);
         saveButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         saveButton.setText(ctx.getText(R.string.save));
+        saveButton.setTextColor(colorLightRust);
         csLayout.addView(saveButton);
 
         csLayout.removeView(cancelButton);
@@ -97,6 +100,7 @@ public class SettingsWindow {
         cancelButton.setId(R.id.cancelButton);
         cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         cancelButton.setText(ctx.getText(R.string.cancel));
+        cancelButton.setTextColor(colorLightRust);
         csLayout.addView(cancelButton);
 
         cset.applyTo(csLayout);
@@ -127,6 +131,7 @@ public class SettingsWindow {
         saveButton.setId(R.id.localSaveButton);
         saveButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         saveButton.setText(ctx.getText(R.string.save));
+        saveButton.setTextColor(colorLightRust);
         csLayout.addView(saveButton);
 
         csLayout.removeView(cancelButton);
@@ -134,6 +139,7 @@ public class SettingsWindow {
         cancelButton.setId(R.id.localCancelButton);
         cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         cancelButton.setText(ctx.getText(R.string.cancel));
+        cancelButton.setTextColor(colorLightRust);
         csLayout.addView(cancelButton);
 
         cset.applyTo(csLayout);
@@ -164,6 +170,7 @@ public class SettingsWindow {
         localButton.setId(R.id.localButton);
         localButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         localButton.setText(ctx.getText(R.string.settings_local_button));
+        localButton.setTextColor(colorLightRust);
         csLayout.addView(localButton);
 
         csLayout.removeView(globalHelpButton);
@@ -171,6 +178,7 @@ public class SettingsWindow {
         globalHelpButton.setId(R.id.helpButton);
         globalHelpButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         globalHelpButton.setText(ctx.getText(R.string.help));
+        globalHelpButton.setTextColor(colorLightRust);
         csLayout.addView(globalHelpButton);
 
         cset.applyTo(csLayout);
@@ -187,6 +195,7 @@ public class SettingsWindow {
         globalButton.setId(R.id.globalButton);
         globalButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         globalButton.setText(ctx.getText(R.string.settings_global_button));
+        globalButton.setTextColor(colorLightRust);
         csLayout.addView(globalButton);
 
         csLayout.removeView(localHelpButton);
@@ -194,6 +203,7 @@ public class SettingsWindow {
         localHelpButton.setId(R.id.localHelpButton);
         localHelpButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         localHelpButton.setText(ctx.getText(R.string.help));
+        localHelpButton.setTextColor(colorLightRust);
         csLayout.addView(localHelpButton);
 
         cset.applyTo(csLayout);
@@ -309,18 +319,18 @@ public class SettingsWindow {
             settingsView.findViewById(R.id.localTextDirGroup).setVisibility(View.GONE);
         }
 
-        String forceTextColor = "#f1e5d1";
-        ((CheckBox)settingsView.findViewById(R.id.wordWrap)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.textDirLTR)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.textDirRTL)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.editorTextDirLTR)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.editorTextDirRTL)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.localWordWrapGlobal)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOn)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOff)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.localTextDirGlobal)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.localTextDirLTR)).setTextColor(Color.parseColor(forceTextColor));
-        ((RadioButton)settingsView.findViewById(R.id.localTextDirRTL)).setTextColor(Color.parseColor(forceTextColor));
+        int colorCream = ctx.getColor(R.color.cream);
+        ((CheckBox)settingsView.findViewById(R.id.wordWrap)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.textDirLTR)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.textDirRTL)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.editorTextDirLTR)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.editorTextDirRTL)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.localWordWrapGlobal)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOn)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOff)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.localTextDirGlobal)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.localTextDirLTR)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.localTextDirRTL)).setTextColor(colorCream);
 
         settingsView.setOnTouchListener(new View.OnTouchListener() {
             @Override

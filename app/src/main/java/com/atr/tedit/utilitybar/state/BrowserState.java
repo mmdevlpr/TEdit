@@ -186,7 +186,7 @@ public class BrowserState extends UtilityState {
                 @Override
                 public void onClick(View v) {
                     dismiss();
-                    Fragment dp = ctx.getSupportFragmentManager().findFragmentByTag("DirectoryPicker");
+                    Fragment dp = ctx.getSupportFragmentManager().findFragmentByTag(DirectoryPicker.TAG);
                     if (dp == null) {
                         ((Browser) ctx.getFrag()).launchVolumePicker();
                     } else

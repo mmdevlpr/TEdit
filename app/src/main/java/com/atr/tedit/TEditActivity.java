@@ -631,7 +631,7 @@ public class TEditActivity extends AppCompatActivity {
         super.onResume();
         if (activateVolumePicker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             activateVolumePicker = false;
-            Fragment dp = getSupportFragmentManager().findFragmentByTag("DirectoryPicker");
+            Fragment dp = getSupportFragmentManager().findFragmentByTag(DirectoryPicker.TAG);
             if (dp == null) {
                 ((Browser)getFrag()).launchVolumePicker();
             } else
