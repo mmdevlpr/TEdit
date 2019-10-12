@@ -60,7 +60,8 @@ public class DataAccessUtil {
             "map",
             "conf",
             "opt",
-            "rmp"};
+            "rmp",
+            "nfo"};
 
     private static final String[] MIME = new String[] {
             "text/plain",
@@ -74,6 +75,7 @@ public class DataAccessUtil {
             "text/x-c",
             "text/x-h",
             "text/x-script.python",
+            "text/plain",
             "text/plain",
             "text/plain",
             "text/plain",
@@ -300,10 +302,10 @@ public class DataAccessUtil {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    public static String getMimeExt(String ext, String defaultExt) {
+    public static String checkExt(String ext, String defaultExt) {
         for (int i = 0; i < EXTENSIONS.length; i++) {
             if (EXTENSIONS[i].equalsIgnoreCase(ext))
-                return MIME[i];
+                return ext;
         }
 
         return defaultExt;

@@ -532,7 +532,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             int pidx = filename.lastIndexOf(".");
             if (pidx >= 0 && pidx < filename.length() - 1) {
                 newName.delete(pidx + 1, newName.length());
-                newName.append(DataAccessUtil.getMimeExt(filename.substring(pidx + 1), "txt"));
+                newName.append(DataAccessUtil.checkExt(filename.substring(pidx + 1), "txt"));
             } else if (pidx == filename.length() - 1) {
                 newName.append("txt");
             } else
