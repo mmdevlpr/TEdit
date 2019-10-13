@@ -110,6 +110,7 @@ public class TEditActivity extends AppCompatActivity {
     private long lastTxt = -1;
 
     private Fragment frag;
+    private boolean initFrag = false;
 
     private Uri tmpUriToOpen;
 
@@ -229,7 +230,7 @@ public class TEditActivity extends AppCompatActivity {
             } else
                 cursor.close();
         }
-        //int lastState = savedInstanceState.getInt("TEdit.state", -1);
+
         state = savedInstanceState.getInt("TEdit.state", -1);
         frag = getSupportFragmentManager().findFragmentById(R.id.activitycontent);
 
@@ -239,34 +240,31 @@ public class TEditActivity extends AppCompatActivity {
             return;
         }
 
-        /*switch (lastState) {
+        switch (state) {
             case STATE_BROWSE:
-                state = STATE_BROWSE;
                 break;
             case STATE_TEXT:
-                if (lastTxt != -1) {
-                    state = STATE_TEXT;
+                if (lastTxt != -1)
                     break;
-                }
 
                 state = STATE_BROWSE;
-                FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
-                ft1.remove(frag);
-                frag = Browser.newInstance(currentPath.toJson());
-                ft1.add(R.id.activitycontent, frag);
-                ft1.commit();
+                initFrag = true;
                 break;
             case STATE_TAB:
-                state = STATE_TAB;
+                Cursor cursor = getDB().fetchAllTexts();
+                if (cursor == null || cursor.getCount() <= 0) {
+                    if (cursor != null)
+                        cursor.close();
+                    state = STATE_BROWSE;
+                    initFrag = true;
+                    break;
+                }
+                cursor.close();
                 break;
             default:
                 state = STATE_BROWSE;
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.remove(frag);
-                frag = Browser.newInstance(currentPath.toJson());
-                ft.add(R.id.activitycontent, frag);
-                ft.commit();
-        }*/
+                initFrag = true;
+        }
 
         if (savedInstanceState.getBoolean("TEdit.settingsOpen", false))
             settingsWindow.setState(savedInstanceState);
@@ -633,37 +631,69 @@ public class TEditActivity extends AppCompatActivity {
     public void onPostResume() {
         super.onPostResume();
 
-        switch (state) {
-            case STATE_BROWSE:
-                break;
-            case STATE_TEXT:
-                if (lastTxt != -1) {
-                    state = STATE_TEXT;
-                    break;
-                }
+        if (initFrag) {
+            initFrag = false;
+            FragmentTransaction ft1;
+            switch (state) {
+                case STATE_BROWSE:
+                    if (getFrag() instanceof Browser)
+                        break;
 
-                state = STATE_BROWSE;
-                if (getFrag() instanceof Browser)
+                    ft1 = getSupportFragmentManager().beginTransaction();
+                    if (getFrag() != null)
+                        ft1.remove(getFrag());
+                    frag = Browser.newInstance(currentPath.toJson());
+                    ft1.add(R.id.activitycontent, frag);
+                    ft1.commit();
                     break;
+                case STATE_TEXT:
+                    if (getFrag() instanceof Editor)
+                        break;
 
-                FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
-                ft1.remove(frag);
-                frag = Browser.newInstance(currentPath.toJson());
-                ft1.add(R.id.activitycontent, frag);
-                ft1.commit();
-                break;
-            case STATE_TAB:
-                break;
-            default:
-                state = STATE_BROWSE;
-                if (getFrag() instanceof Browser)
+                    ft1 = getSupportFragmentManager().beginTransaction();
+                    if (getFrag() != null)
+                        ft1.remove(getFrag());
+                    ft1.commit();
+
+                    initializeToDBText();
                     break;
+                case STATE_TAB:
+                    if (getFrag() instanceof Tabs)
+                        break;
 
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.remove(frag);
-                frag = Browser.newInstance(currentPath.toJson());
-                ft.add(R.id.activitycontent, frag);
-                ft.commit();
+                    Cursor cursor = getDB().fetchAllTexts();
+                    if (cursor == null || cursor.getCount() <= 0) {
+                        if (cursor != null)
+                            cursor.close();
+                        state = STATE_BROWSE;
+                        ft1 = getSupportFragmentManager().beginTransaction();
+                        if (getFrag() != null)
+                            ft1.remove(getFrag());
+                        frag = Browser.newInstance(currentPath.toJson());
+                        ft1.add(R.id.activitycontent, frag);
+                        ft1.commit();
+                        break;
+                    }
+                    cursor.close();
+
+                    ft1 = getSupportFragmentManager().beginTransaction();
+                    if (getFrag() != null)
+                        ft1.remove(getFrag());
+                    frag = new Tabs();
+                    ft1.add(R.id.activitycontent, frag);
+                    ft1.commit();
+                    break;
+                default:
+                    if (getFrag() instanceof Browser)
+                        break;
+
+                    ft1 = getSupportFragmentManager().beginTransaction();
+                    if (getFrag() != null)
+                        ft1.remove(getFrag());
+                    frag = Browser.newInstance(currentPath.toJson());
+                    ft1.add(R.id.activitycontent, frag);
+                    ft1.commit();
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
