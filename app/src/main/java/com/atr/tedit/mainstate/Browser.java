@@ -311,8 +311,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             return;
         }
 
-        if (!skipBinaryCheck && !DataAccessUtil.hasExtension(file.getName())
-                && DataAccessUtil.probablyBinaryFile(file, ctx)) {
+        if (!skipBinaryCheck && DataAccessUtil.probablyBinaryFile(file, ctx)) {
             PossibleBinary pBin = PossibleBinary.getInstance(file.getPathIdentifier());
             pBin.show(ctx.getSupportFragmentManager(), "alert");
             return;
