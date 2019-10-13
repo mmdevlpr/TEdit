@@ -419,6 +419,24 @@ public class DataAccessUtil {
         return filename.indexOf(".") >= 0;
     }
 
+    /**
+     * Checks if a supplied mime type is supported.
+     *
+     * @param mime The MIME type to check such as text/plain.
+     * @return True if the type is supported otherwise false.
+     */
+    public static boolean mimeSupported(String mime) {
+        if (mime.startsWith("text/"))
+            return true;
+
+        for (String m : MIME) {
+            if (mime.equalsIgnoreCase(m))
+                return true;
+        }
+
+        return false;
+    }
+
     public static boolean probablyBinaryFile(AndFile file, Context ctx) {
         InputStreamReader isr = null;
         InputStream is = null;

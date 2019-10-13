@@ -672,7 +672,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             if (file.isDirectory())
                 return false;
 
-            return !DataAccessUtil.hasExtension(file.getName()) || file.getMIME().startsWith("text/");
+            return !DataAccessUtil.hasExtension(file.getName()) || DataAccessUtil.mimeSupported(file.getMIME());
         }
     }
 
