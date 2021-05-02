@@ -423,7 +423,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         setDisplayedPath(currentPath.getPath());
 
-        AndFile[] dirList = currentPath.listFiles(new DirFilter());
+        /*AndFile[] dirList = currentPath.listFiles(new DirFilter());
         AndFile[] fileList = currentPath.listFiles(new TxtFilter());
         numDirs = dirList.length;
         numFiles = fileList.length;
@@ -442,6 +442,27 @@ public class Browser extends ListFragment implements SettingsApplicable {
             items.add(f);
         }
         for (AndFile f : fileList) {
+            items.add(f);
+        }*/
+
+        AndFile[][] files = currentPath.listFilesAndDirs();
+        Comparator<AndFile> comparator = new Comparator<AndFile>() {
+            @Override
+            public int compare(final AndFile o1, final AndFile o2) {
+                return o1.getPath().compareToIgnoreCase(o2.getPath());
+            }
+        };
+
+        Arrays.sort(files[0], comparator);
+        Arrays.sort(files[1], comparator);
+        numDirs = files[0].length;
+        numFiles = files[1].length;
+
+        ArrayList<AndFile> items = new ArrayList<>(numDirs + numFiles);
+        for (AndFile f : files[0]) {
+            items.add(f);
+        }
+        for (AndFile f : files[1]) {
             items.add(f);
         }
 
@@ -782,7 +803,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
         vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
     }*/
 
-    private class DirFilter implements AndFileFilter {
+    /*private class DirFilter implements AndFileFilter {
         public boolean accept(AndFile file) {
             return file.isDirectory();
         }
@@ -795,7 +816,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
             return !DataAccessUtil.hasExtension(file.getName()) || DataAccessUtil.mimeSupported(file.getMIME());
         }
-    }
+    }*/
 
     public void applySettings() {
         if (isBrowsingPermittedDirs()) {

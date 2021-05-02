@@ -221,7 +221,7 @@ public class DirectoryPicker extends TDialog {
         Arrays.sort(contents, new Comparator<AndFile>() {
             @Override
             public int compare(final AndFile o1, final AndFile o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
+                return o1.getPath().compareToIgnoreCase(o2.getPath());
             }
         });
 

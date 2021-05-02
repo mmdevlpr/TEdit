@@ -134,6 +134,23 @@ public abstract class AndPath<T extends AndFile> implements Cloneable {
     }
 
     /**
+     * Returns a matrix of {@link com.atr.tedit.file.descriptor.AndFile}
+     * where index [0] is and array of directories and index [1] an array of files.
+     *
+     * @return A matrix of {@link com.atr.tedit.file.descriptor.AndFile}
+     * where index [0] is an array of directories and index [1] an array of files.
+     *
+     * @see java.io.File#listFiles()
+     * @see android.support.v4.provider.DocumentFile#listFiles()
+     */
+    public AndFile[][] listFilesAndDirs() {
+        if (current.isFile())
+            return new AndFile[0][0];
+
+        return current.listFilesAndDirs();
+    }
+
+    /**
      * Convenience method to list the files from the current
      * directory.
      *

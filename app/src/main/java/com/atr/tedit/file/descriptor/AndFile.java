@@ -20,12 +20,14 @@ import android.support.v4.provider.DocumentFile;
 
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.util.AndFileFilter;
+import com.atr.tedit.util.DataAccessUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
@@ -303,6 +305,37 @@ public abstract class AndFile<T> {
         }
 
         return list.toArray(new AndFile[list.size()]);
+    }
+
+    /**
+     * Returns a matrix of AndFiles where index [0] is and array of
+     * directories and index [1] an array of files.
+     *
+     * @return A matrix of AndFiles where index [0] is an array of
+     * directories and index [1] an array of files.
+     *
+     * @see java.io.File#listFiles()
+     * @see android.support.v4.provider.DocumentFile#listFiles()
+     */
+    public AndFile[][] listFilesAndDirs() {
+        int numDirs = 0;
+        int numFiles = 0;
+        AndFile[] files = listFiles();
+        AndFile[][] fad = new AndFile[2][files.length];
+        for (AndFile file : files) {
+            if (file.isDirectory()) {
+                fad[0][numDirs] = file;
+                numDirs++;
+            } else if (DataAccessUtil.hasExtension(file.getName()) || DataAccessUtil.mimeSupported(file.getMIME())) {
+                fad[1][numFiles] = file;
+                numFiles++;
+            }
+        }
+
+        fad[0] = Arrays.copyOf(fad[0], numDirs);
+        fad[1] = Arrays.copyOf(fad[1], numFiles);
+
+        return fad;
     }
 
     /**
