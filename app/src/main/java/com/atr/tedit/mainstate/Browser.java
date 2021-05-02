@@ -19,8 +19,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -57,6 +59,7 @@ import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
 import com.atr.tedit.file.descriptor.AndFile;
+import com.atr.tedit.file.descriptor.DocumentDescriptor;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.settings.TxtSettings;
 import com.atr.tedit.util.AndFileFilter;
@@ -97,10 +100,11 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
     private long keyToSave;
 
-    public static Browser newInstance(String path, long key) {
+    public static Browser newInstance(AndPath path, long key) {
         Bundle bundle = new Bundle();
         bundle.putInt("TEditBrowser.type", TYPE_SAVE);
-        bundle.putString("TEditBrowser.currentPath", path);
+        if (path != null)
+            bundle.putString("TEditBrowser.currentPath", path.toJson());
         bundle.putLong("TEditBrowser.keyToSave", key);
 
         Browser browser = new Browser();
@@ -109,10 +113,11 @@ public class Browser extends ListFragment implements SettingsApplicable {
         return browser;
     }
 
-    public static Browser newInstance(String path) {
+    public static Browser newInstance(AndPath path) {
         Bundle bundle = new Bundle();
         bundle.putInt("TEditBrowser.type", TYPE_OPEN);
-        bundle.putString("TEditBrowser.currentPath", path);
+        if (path != null)
+            bundle.putString("TEditBrowser.currentPath", path.toJson());
 
         Browser browser = new Browser();
         browser.setArguments(bundle);
@@ -122,6 +127,10 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
     public int getType() {
         return type;
+    }
+
+    public boolean isBrowsingPermittedDirs() {
+        return currentPath == null;
     }
 
     @Override
@@ -143,7 +152,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
             String path = bundle.getString("TEditBrowser.currentPath", "");
             if (path.isEmpty()) {
-                currentPath = ctx.getCurrentPath().clone();
+                currentPath = ctx.getCurrentPath() != null ? ctx.getCurrentPath().clone() : null;
                 return;
             }
 
@@ -154,7 +163,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 tmpPath = null;
             }
 
-            currentPath = tmpPath == null ? ctx.getCurrentPath().clone() : tmpPath;
+            currentPath = (tmpPath == null) ? (ctx.getCurrentPath() != null) ? ctx.getCurrentPath().clone() : null : tmpPath;
             return;
         }
 
@@ -164,7 +173,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         String path = savedInstanceState.getString("TEditBrowser.currentPath", "");
         if (path.isEmpty()) {
-            currentPath = ctx.getCurrentPath().clone();
+            currentPath = ctx.getCurrentPath() != null ? ctx.getCurrentPath().clone() : null;
             return;
         }
 
@@ -176,7 +185,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             Log.i("TEdit", e.getMessage());
         }
 
-        currentPath = tmpPath == null ? ctx.getCurrentPath().clone() : tmpPath;
+        currentPath = (tmpPath == null) ? (ctx.getCurrentPath() != null) ? ctx.getCurrentPath().clone() : null : tmpPath;
     }
 
     @Override
@@ -196,7 +205,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("TEditBrowser.currentPath", currentPath.toJson());
+        if (currentPath != null)
+            outState.putString("TEditBrowser.currentPath", currentPath.toJson());
         outState.putInt("TEditBrowser.type", type);
         outState.putLong("TEditBrowser.keyToSave", keyToSave);
     }
@@ -237,8 +247,9 @@ public class Browser extends ListFragment implements SettingsApplicable {
             return;
 
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-
-        if (info.position >= numDirs) {
+        if (isBrowsingPermittedDirs() && info.position > 0) {
+            menu.add(ContextMenu.NONE, 0, ContextMenu.NONE, R.string.remove);
+        } else if (!isBrowsingPermittedDirs() && info.position >= numDirs) {
             menu.add(ContextMenu.NONE, 0, ContextMenu.NONE, R.string.delete);
         }
     }
@@ -247,6 +258,19 @@ public class Browser extends ListFragment implements SettingsApplicable {
     public boolean onContextItemSelected(MenuItem item) {
         AndFile file = (AndFile)getListAdapter()
                 .getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
+
+        if (isBrowsingPermittedDirs() && file != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                if (((DocumentDescriptor)file).getTreeUri() != null) {
+                    ctx.releasePersistableUriPermission(((DocumentDescriptor)file).getTreeUri());
+                } else
+                    ctx.releasePersistableUriPermission(((DocumentFile)file.getFile()).getUri());
+            }
+
+            populatePermittedDirectories();
+
+            return true;
+        }
 
         if (item.getItemId() == 0) {
             if (file.isDirectory()) {
@@ -266,6 +290,26 @@ public class Browser extends ListFragment implements SettingsApplicable {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
+
+        if (currentPath == null) {
+            if (position == 0) {
+                ctx.launchDirPermissionIntent();
+                return;
+            }
+
+            AndFile file = (AndFile)listView.getAdapter().getItem(position);
+            if (file.exists() && file.isDirectory()) {
+                currentPath = AndPath.fromAndFile(file);
+                populateBrowser();
+                return;
+            }
+
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                    getString(R.string.missing_dir));
+            em.show(ctx.getSupportFragmentManager(), "dialog");
+
+            return;
+        }
 
         AndFile file = (AndFile)listView.getAdapter().getItem(position);
         if (position < numDirs) {
@@ -339,9 +383,16 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     public void upDir() {
-        if (currentPath.moveToParent() == null)
+        if (currentPath == null)
             return;
-        populateBrowser();
+
+        if (currentPath.moveToParent() == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                populatePermittedDirectories();
+            } else
+                return;
+        } else
+            populateBrowser();
     }
 
     public String getEnteredFilename() {
@@ -353,6 +404,11 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     private void populateBrowser() {
+        if (currentPath == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            populatePermittedDirectories();
+            return;
+        }
+
         if (!currentPath.getCurrent().exists()) {
             while(currentPath.moveToParent() != null && !currentPath.getCurrent().exists())
                 continue;
@@ -365,13 +421,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             }
         }
 
-        final TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
-                : (TextView)getView().findViewById(R.id.savebrowsepath);
-        pathView.setText(currentPath.getPath());
-        if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
-        } else
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+        setDisplayedPath(currentPath.getPath());
 
         AndFile[] dirList = currentPath.listFiles(new DirFilter());
         AndFile[] fileList = currentPath.listFiles(new TxtFilter());
@@ -433,6 +483,69 @@ public class Browser extends ListFragment implements SettingsApplicable {
         });
     }
 
+    private void populatePermittedDirectories() {
+        currentPath = null;
+        setDisplayedPath(getString(R.string.permittedDirs));
+
+        Uri[] uris = ctx.getPermittedUris();
+        AndFile[] dirs = new AndFile[uris.length + 1];
+        for (int i = 1; i < dirs.length; i++) {
+            dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, uris[i - 1]), uris[i - 1]);
+        }
+
+        setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                R.layout.browser_row : R.layout.browser_row_rtl, dirs) {
+
+            @Override
+            public int getCount() { return super.getCount(); }
+
+            @Override
+            public View getView(int position, View view, ViewGroup parent) {
+                View row = view;
+                ImageView iv;
+                TextView tv;
+
+                if (row == null) {
+                    row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
+                                    == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
+                            parent, false);
+                    iv = row.findViewById(R.id.dirIcon);
+                    tv = row.findViewById(R.id.dirText);
+
+                    tv.setTypeface(FontUtil.getSystemTypeface());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                        tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                                View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                    }
+                } else {
+                    iv = row.findViewById(R.id.dirIcon);
+                    tv = row.findViewById(R.id.dirText);
+                }
+
+                if (position == 0) {
+                    iv.setImageResource(R.drawable.dir_new_focused);
+                    tv.setText(ctx.getString(R.string.newPermittedDir));
+                } else {
+                    iv.setImageResource(R.drawable.dir_focused);
+                    tv.setText(getItem(position).getName());
+                }
+
+                return row;
+            }
+        });
+    }
+
+    private void setDisplayedPath(String path) {
+        final TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
+                : (TextView)getView().findViewById(R.id.savebrowsepath);
+        pathView.setText(path);
+        if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
+            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
+        } else
+            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+    }
+
     private static boolean isValidName (String name) {
         if (name.length() == 0) {
             return false;
@@ -447,6 +560,14 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     public AndFile saveFile(String filename, final String body) {
+        if (isBrowsingPermittedDirs()) {
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                    getString(R.string.error_selectdirectory));
+            em.show(ctx.getSupportFragmentManager(), "dialog");
+
+            return null;
+        }
+
         if (!currentPath.getCurrent().exists()) {
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.missing_dir));
@@ -640,7 +761,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
         return false;
     }
 
-    public void setVolume(AndFile volume) {
+    /*public void setVolume(AndFile volume) {
         if (currentPath.getRoot().getPathIdentifier().equals(volume.getPathIdentifier()))
             return;
 
@@ -659,7 +780,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
     public void launchVolumePicker() {
         VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier());
         vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
-    }
+    }*/
 
     private class DirFilter implements AndFileFilter {
         public boolean accept(AndFile file) {
@@ -677,7 +798,10 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     public void applySettings() {
-        populateBrowser();
+        if (isBrowsingPermittedDirs()) {
+            populatePermittedDirectories();
+        } else
+            populateBrowser();
 
         final TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
                 : (TextView)getView().findViewById(R.id.savebrowsepath);

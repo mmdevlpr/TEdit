@@ -18,6 +18,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
 
+import com.atr.tedit.TEditActivity;
 import com.atr.tedit.util.AndFileFilter;
 
 import java.io.File;
@@ -67,6 +68,19 @@ public abstract class AndFile<T> {
      */
     public static DocumentDescriptor createDescriptor(DocumentFile file) {
         return new DocumentDescriptor(file);
+    }
+
+    /**
+     * Creates a new instance of {@link DocumentDescriptor}.
+     *
+     * @param file The {@link android.support.v4.provider.DocumentFile}
+     * to encapsulate.
+     * @param treeUri The Uri returned from {@link TEditActivity#getPermittedUris()}
+     * @return A new {@link DocumentDescriptor} representing the
+     * supplied {@link android.support.v4.provider.DocumentFile}.
+     */
+    public static DocumentDescriptor createDescriptor(DocumentFile file, Uri treeUri) {
+        return new DocumentDescriptor(file, treeUri);
     }
 
     /**

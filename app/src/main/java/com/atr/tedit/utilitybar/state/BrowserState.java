@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.R;
@@ -70,6 +71,11 @@ public class BrowserState extends UtilityState {
             public void onClick(View view) {
                 if (!(BAR.ctx.getFrag() instanceof Browser))
                     return;
+
+                if (((Browser) BAR.ctx.getFrag()).isBrowsingPermittedDirs()) {
+                    BAR.ctx.launchDirPermissionIntent();
+                    return;
+                }
                 String bDir = ((Browser)BAR.ctx.getFrag()).getCurrentPath().toJson();
                 Browser.NewDirectory newDir = Browser.NewDirectory.newInstance(bDir);
                 newDir.show(BAR.ctx.getSupportFragmentManager(), "NewDirectory");
@@ -91,7 +97,7 @@ public class BrowserState extends UtilityState {
         help.setId(R.id.four);
 
         Button[] l;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             help.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -121,7 +127,18 @@ public class BrowserState extends UtilityState {
             });
 
             l = new Button[]{dir_parent, doc, newdir, tabs, help};
-        }
+        }*/
+
+        help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser, BAR.ctx.getString(R.string.browser));
+                hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+            }
+        });
+
+        l = new Button[]{dir_parent, doc, newdir, tabs, help};
+
         int count = 0;
         for (Button v : l) {
             if (count == l.length - 1) {
@@ -154,7 +171,7 @@ public class BrowserState extends UtilityState {
         LAYERS[0] = l;
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    /*@TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void launchVolumePicker() {
         boolean cardPresent = ContextCompat.getExternalFilesDirs(BAR.ctx, "external").length > 1;
 
@@ -203,5 +220,5 @@ public class BrowserState extends UtilityState {
 
             return super.onCreateDialog(savedInstanceState);
         }
-    }
+    }*/
 }

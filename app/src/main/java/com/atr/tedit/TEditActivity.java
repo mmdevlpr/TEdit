@@ -19,11 +19,13 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -82,6 +84,7 @@ public class TEditActivity extends AppCompatActivity {
     public static final int OPEN_BROWSER_PERMISSION = 4;
 
     public static final int SDCARD_PICKER_RESULT = 0;
+    public static final int PERMISSION_DIR_RESULT = 1;
 
     public static final int STATE_BROWSE = 0;
     public static final int STATE_TEXT = 1;
@@ -91,7 +94,7 @@ public class TEditActivity extends AppCompatActivity {
 
     private int state = STATE_BROWSE;
 
-    private boolean activateVolumePicker = false;
+    //private boolean activateVolumePicker = false;
 
     private DisplayMetrics dMetrics;
     private UtilityBar utilityBar;
@@ -103,7 +106,7 @@ public class TEditActivity extends AppCompatActivity {
     private boolean dbOpen = true;
 
     private FileDescriptor root;
-    private FileDescriptor storageRoot;
+    //private FileDescriptor storageRoot;
     private AndPath currentPath;
     private AndPath savePath;
 
@@ -123,11 +126,14 @@ public class TEditActivity extends AppCompatActivity {
         FontUtil.init(this);
 
         dMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dMetrics);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            getDisplay().getRealMetrics(dMetrics);
+        } else
+            getWindowManager().getDefaultDisplay().getMetrics(dMetrics);
 
         utilityBar = new UtilityBar((FrameLayout)findViewById(R.id.buttonbar), dMetrics,
                 getResources(), this);
-        gDetector = new GestureDetectorCompat(this, new Gestures(dMetrics));
+        gDetector = new GestureDetectorCompat(this, new Gestures(dMetrics.density));
 
         db = new TEditDB(this);
         dbOpen = true;
@@ -148,11 +154,12 @@ public class TEditActivity extends AppCompatActivity {
 
             if (Environment.MEDIA_MOUNTED.equals(mediaState)
                     || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
-                storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
-                currentPath = new FilePath(storageRoot);
+                //storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                //currentPath = new FilePath(storageRoot);
+                currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
             } else {
                 File sRoot = Environment.getExternalStorageDirectory();
-                storageRoot = sRoot == null || !sRoot.exists() ? root
+                FileDescriptor storageRoot = sRoot == null || !sRoot.exists() ? root
                         : AndFile.createDescriptor(sRoot);
                 currentPath = new FilePath(storageRoot);
             }
@@ -187,7 +194,7 @@ public class TEditActivity extends AppCompatActivity {
 
         if (Environment.MEDIA_MOUNTED.equals(mediaState)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
-            storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+            FileDescriptor storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
             AndPath tmpPath = null;
             try {
                 String strCPath = savedInstanceState.getString("TEdit.currentPath", "");
@@ -198,6 +205,8 @@ public class TEditActivity extends AppCompatActivity {
             }
             if (tmpPath != null) {
                 currentPath = tmpPath;
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                currentPath = null;
             } else
                 currentPath = new FilePath(storageRoot);
 
@@ -211,9 +220,11 @@ public class TEditActivity extends AppCompatActivity {
             if (tmpPath != null) {
                 savePath = tmpPath;
             }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            currentPath = null;
         } else {
             File sRoot = Environment.getExternalStorageDirectory();
-            storageRoot = sRoot == null || !sRoot.exists() ? root
+            FileDescriptor storageRoot = sRoot == null || !sRoot.exists() ? root
                     : AndFile.createDescriptor(sRoot);
             currentPath = new FilePath(storageRoot);
         }
@@ -299,24 +310,24 @@ public class TEditActivity extends AppCompatActivity {
             }
         }
 
-        if (currentPath == null) {
+        if (root == null || (currentPath == null && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)) {
             File rFile = Environment.getRootDirectory();
             root = AndFile.createDescriptor(rFile == null ? new File("/") : rFile);
             String mediaState = Environment.getExternalStorageState();
             if (Environment.MEDIA_MOUNTED.equals(mediaState)
                     || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
-                storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
-                currentPath = new FilePath(storageRoot);
+                //storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
+                currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
             } else {
                 File sRoot = Environment.getExternalStorageDirectory();
-                storageRoot = sRoot == null || !sRoot.exists() ? root
+                FileDescriptor storageRoot = sRoot == null || !sRoot.exists() ? root
                         : AndFile.createDescriptor(Environment.getExternalStorageDirectory());
                 currentPath = new FilePath(storageRoot);
             }
         }
 
         state = STATE_BROWSE;
-        frag = Browser.newInstance(currentPath.toJson());
+        frag = Browser.newInstance(currentPath);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.activitycontent, frag);
@@ -503,12 +514,12 @@ public class TEditActivity extends AppCompatActivity {
 
     public void openBrowser(AndPath path) {
         state = STATE_BROWSE;
-        swapFragment(Browser.newInstance(path.toJson()));
+        swapFragment(Browser.newInstance(path));
     }
 
     public void saveBrowser(AndPath path) {
         state = STATE_BROWSE;
-        swapFragment(Browser.newInstance(path.toJson(), lastTxt));
+        swapFragment(Browser.newInstance(path, lastTxt));
     }
 
     public void tabs() {
@@ -529,6 +540,15 @@ public class TEditActivity extends AppCompatActivity {
         if (lastTxt == -1 || !(frag instanceof Browser))
             return;
 
+        Browser browser = (Browser)frag;
+        if (browser.isBrowsingPermittedDirs()) {
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                    getString(R.string.error_selectdirectory));
+            em.show(getSupportFragmentManager(), "dialog");
+
+            return;
+        }
+
         if (!dbOpen) {
             ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                     getString(R.string.error_dbclosed));
@@ -547,7 +567,6 @@ public class TEditActivity extends AppCompatActivity {
             return;
         }
 
-        Browser browser = (Browser)frag;
         AndPath browserPath = browser.getCurrentPath();
         String body = null;
         if (cursor.getColumnIndex(TEditDB.KEY_BODY) != -1) {
@@ -615,9 +634,9 @@ public class TEditActivity extends AppCompatActivity {
         return root;
     }
 
-    public FileDescriptor getStorageRoot() {
+    /*public FileDescriptor getStorageRoot() {
         return storageRoot;
-    }
+    }*/
 
     public AndPath getCurrentPath() {
         return currentPath;
@@ -642,7 +661,7 @@ public class TEditActivity extends AppCompatActivity {
                     ft1 = getSupportFragmentManager().beginTransaction();
                     if (getFrag() != null)
                         ft1.remove(getFrag());
-                    frag = Browser.newInstance(currentPath.toJson());
+                    frag = Browser.newInstance(currentPath);
                     ft1.add(R.id.activitycontent, frag);
                     ft1.commit();
                     break;
@@ -669,7 +688,7 @@ public class TEditActivity extends AppCompatActivity {
                         ft1 = getSupportFragmentManager().beginTransaction();
                         if (getFrag() != null)
                             ft1.remove(getFrag());
-                        frag = Browser.newInstance(currentPath.toJson());
+                        frag = Browser.newInstance(currentPath);
                         ft1.add(R.id.activitycontent, frag);
                         ft1.commit();
                         break;
@@ -690,7 +709,7 @@ public class TEditActivity extends AppCompatActivity {
                     ft1 = getSupportFragmentManager().beginTransaction();
                     if (getFrag() != null)
                         ft1.remove(getFrag());
-                    frag = Browser.newInstance(currentPath.toJson());
+                    frag = Browser.newInstance(currentPath);
                     ft1.add(R.id.activitycontent, frag);
                     ft1.commit();
             }
@@ -699,14 +718,14 @@ public class TEditActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             processPermissionsResult();
 
-        if (activateVolumePicker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        /*if (activateVolumePicker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             activateVolumePicker = false;
             Fragment dp = getSupportFragmentManager().findFragmentByTag(DirectoryPicker.TAG);
             if (dp == null) {
                 ((Browser)getFrag()).launchVolumePicker();
             } else
                 ((DirectoryPicker)dp).launchVolumePicker();
-        }
+        }*/
     }
 
     @Override
@@ -719,7 +738,7 @@ public class TEditActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString("TEdit.currentPath", currentPath.toJson());
+        outState.putString("TEdit.currentPath", currentPath == null ? "" : currentPath.toJson());
         if (savePath != null)
             outState.putString("TEdit.savePath", savePath.toJson());
         outState.putLong("TEdit.lastTxt", lastTxt);
@@ -1158,29 +1177,80 @@ public class TEditActivity extends AppCompatActivity {
         return volumes;
     }
 
+    /*@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void launchSDcardIntent() {
         Log.i("TEdit", "Launching SDcard locater intent.");
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         startActivityForResult(intent, TEditActivity.SDCARD_PICKER_RESULT);
+    }*/
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void launchDirPermissionIntent() {
+        Log.i("TEdit", "Launching directory permission granter intent.");
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, TEditActivity.PERMISSION_DIR_RESULT);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if (requestCode == SDCARD_PICKER_RESULT) {
+        /*if (requestCode == SDCARD_PICKER_RESULT) {
             activateVolumePicker = true;
             if (resultCode != RESULT_OK)
                 return;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 processExternalVolumeAccess(resultData.getData());
+        }*/
+
+        if (requestCode == PERMISSION_DIR_RESULT) {
+            if (resultCode != RESULT_OK)
+                return;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                takePersistableUriPermission(resultData.getData());
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
+    /*@TargetApi(Build.VERSION_CODES.KITKAT)
     private void processExternalVolumeAccess(Uri treeUri) {
         getContentResolver().takePersistableUriPermission(treeUri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION |
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    }*/
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private void takePersistableUriPermission(Uri treeUri) {
+        getContentResolver().takePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public void releasePersistableUriPermission(Uri treeUri) {
+        boolean err = false;
+        try {
+            getContentResolver().releasePersistableUriPermission(treeUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            err = true;
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                    getString(R.string.error_nourirelease) + ": " + e.getMessage());
+            em.show(getSupportFragmentManager(), "dialog");
+
+            Log.e("TEdit", "Unable to release Uri permission for " + treeUri.toString() + ": " + e.getMessage());
+
+            Log.i("TEdit Uri", treeUri.toString());
+            for (int i = 0; i < getPermittedUris().length; i++) {
+                Log.i("TEdit Uri",getPermittedUris()[i].toString());
+            }
+        }
+
+        if (err || Settings.getStartupPath() == null)
+            return;
+
+        if (((DocumentFile)Settings.getStartupPath().getRoot().getFile()).getUri().toString().startsWith(treeUri.toString()))
+            Settings.setStartupPath(null);
     }
 
     private class PermissionRequest {
@@ -1199,10 +1269,13 @@ public class TEditActivity extends AppCompatActivity {
         private final float sensitivity;
         private final float minVelocity;
 
-        private Gestures(DisplayMetrics displayMetrics) {
-            sensitivity = displayMetrics.density * 32;
-            minVelocity = displayMetrics.density * 1500;
-            Log.i("Tedit Gesture Density", Float.toString(displayMetrics.density));
+        private Gestures(float density) {
+            //sensitivity = displayMetrics.density * 32;
+            //minVelocity = displayMetrics.density * 1500;
+            //Log.i("Tedit Gesture Density", Float.toString(displayMetrics.density));
+            sensitivity = density * 32;
+            minVelocity = density * 1500;
+            Log.i("Tedit Gesture Density", Float.toString(density));
         }
 
         @Override

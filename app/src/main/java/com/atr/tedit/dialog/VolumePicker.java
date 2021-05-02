@@ -57,7 +57,7 @@ public class VolumePicker extends TDialog {
         final TEditActivity ctx = (TEditActivity)getActivity();
         float density = ctx.getUtilityBar().dMetrics.density;
 
-        int choice = -1;
+        /*int choice = -1;
         if (savedInstanceState == null) {
             String strChoice = getArguments().getString("TEdit.volumePicker.currentChoice", "");
             if (strChoice.isEmpty()) {
@@ -147,7 +147,7 @@ public class VolumePicker extends TDialog {
                 }
                 dismiss();
             }
-        });
+        });*/
 
         return super.onCreateDialog(savedInstanceState);
     }

@@ -256,20 +256,28 @@ public class SettingsWindow {
             @Override
             public void onClick(View view) {
                 AndPath currentPath = tempSettings.startupDir;
-                if (!currentPath.getCurrent().exists()) {
+                if (currentPath != null && !currentPath.getCurrent().exists()) {
                     while(currentPath.moveToParent() != null && !currentPath.getCurrent().exists())
                         continue;
 
                     if (!currentPath.getCurrent().exists()) {
-                        if (!ctx.getStorageRoot().exists()) {
+                        /*if (!ctx.getStorageRoot().exists()) {
                             ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
                                     ctx.getString(R.string.missing_dir));
                             em.show(ctx.getSupportFragmentManager(), "dialog");
                             return;
                         }
 
-                        currentPath = new FilePath(ctx.getStorageRoot());
+                        currentPath = new FilePath(ctx.getStorageRoot());*/
+                        currentPath = null;
                     }
+                }
+
+                if (currentPath == null && (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)) {
+                    ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
+                            ctx.getString(R.string.missing_dir));
+                    em.show(ctx.getSupportFragmentManager(), "dialog");
+                    return;
                 }
 
                 DirectoryPicker dialog = DirectoryPicker.newInstance(currentPath);
@@ -451,7 +459,7 @@ public class SettingsWindow {
         settingsAnimator.findViewById(R.id.localSettingsScroll).scrollTo(0, 0);
 
         TextView pathView = settingsView.findViewById(R.id.startupDir);
-        pathView.setText(Settings.getStartupPath().getPath());
+        pathView.setText(Settings.getStartupPath() == null ? ctx.getText(R.string.permittedDirs) : Settings.getStartupPath().getPath());
 
         if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
             ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
@@ -514,12 +522,12 @@ public class SettingsWindow {
     }
 
     public void setStartupDirectory(AndPath newDirectory) {
-        if (Settings.getStartupPath().equals(newDirectory))
+        if ((Settings.getStartupPath() == null && newDirectory == null) || (Settings.getStartupPath() != null && Settings.getStartupPath().equals(newDirectory)))
             return;
 
         tempSettings.startupDir = newDirectory;
-        TextView pathView =  settingsView.findViewById(R.id.startupDir);
-        pathView.setText(newDirectory.getPath());
+        TextView pathView = settingsView.findViewById(R.id.startupDir);
+        pathView.setText(newDirectory == null ? ctx.getText(R.string.permittedDirs) : newDirectory.getPath());
         if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
             ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
         } else
@@ -591,8 +599,13 @@ public class SettingsWindow {
         if (!FontUtil.getEditorTypeface().equals(tf))
             FontUtil.setEditorTypeface(tempSettings.editorTypefacePath);
 
-        Settings.setStartupPath(tempSettings.startupDir.getCurrent().exists()
-                ? tempSettings.startupDir : Settings.getStartupPath());
+        if (tempSettings.startupDir == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                Settings.setStartupPath(null);
+        } else {
+            Settings.setStartupPath(tempSettings.startupDir.getCurrent().exists()
+                    ? tempSettings.startupDir : Settings.getStartupPath());
+        }
         Settings.setWordWrap(((CheckBox)settingsView.findViewById(R.id.wordWrap)).isChecked());
 
         Settings.saveSettings(ctx);
@@ -658,7 +671,7 @@ public class SettingsWindow {
             startupDir = AndPath.fromJson(ctx,
                     savedInstanceState.getString("TEdit.settingsWindow.startupDir", ""));
         } catch (Exception e) {
-            startupDir = new FilePath(ctx.getStorageRoot());
+            startupDir = null;
         }
         setStartupDirectory(startupDir);
         setSystemTypeface(savedInstanceState.getString("TEdit.settingsWindow.typeface", FontUtil.DEFAULT_PATH));
@@ -714,7 +727,8 @@ public class SettingsWindow {
 
         outState.putInt("TEdit.settingsWindow.panel", settingsAnimator.getDisplayedChild());
 
-        outState.putString("TEdit.settingsWindow.startupDir", tempSettings.startupDir.toJson());
+        if (tempSettings.startupDir != null)
+            outState.putString("TEdit.settingsWindow.startupDir", tempSettings.startupDir.toJson());
         outState.putString("TEdit.settingsWindow.typeface", tempSettings.typefacePath);
         int textDirection = ((RadioGroup)settingsView.findViewById(R.id.textDirGroup))
                 .getCheckedRadioButtonId() == R.id.textDirRTL ? Settings.TEXTDIR_RTL : Settings.TEXTDIR_LTR;

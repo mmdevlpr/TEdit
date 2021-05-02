@@ -1,11 +1,13 @@
 package com.atr.tedit.settings;
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.support.v4.provider.DocumentFile;
 
-import com.atr.tedit.BuildConfig;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.file.AndPath;
-import com.atr.tedit.file.FilePath;
 import com.atr.tedit.util.FontUtil;
 
 public class Settings {
@@ -18,11 +20,9 @@ public class Settings {
     private static int systemTextDirection = TEXTDIR_LTR;
     private static int editorTextDirection = TEXTDIR_LTR;
 
-    public static AndPath getStartupPath() {
-        return startupPath.clone();
-    }
+    public static AndPath getStartupPath() { return startupPath == null ? null : startupPath.clone(); }
 
-    protected static void setStartupPath(AndPath path) {
+    public static void setStartupPath(AndPath path) {
         startupPath = path;
     }
 
@@ -53,10 +53,29 @@ public class Settings {
     public static void loadSettings(final TEditActivity ctx) {
         SharedPreferences prefs = ctx.getSharedPreferences(ctx.getPackageName(), ctx.MODE_PRIVATE);
 
-        try {
-            startupPath = AndPath.fromJson(ctx, prefs.getString("startupPath", ""));
-        } catch (Exception e) {
-            startupPath = new FilePath(ctx.getStorageRoot());
+        String startupJson = prefs.getString("startupPath", "");
+        if (startupJson.equals("null") || startupJson.isEmpty()) {
+            startupPath = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? null : ctx.getCurrentPath().clone();
+        } else {
+            try {
+                startupPath = AndPath.fromJson(ctx, prefs.getString("startupPath", ""));
+            } catch (Exception e) {
+                startupPath = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? null : ctx.getCurrentPath().clone();
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && startupPath != null) {
+                Uri[] uris = ctx.getPermittedUris();
+                boolean found = false;
+                for (int i = 0; i < uris.length; i++) {
+                    if (((DocumentFile) startupPath.getRoot().getFile()).getUri().toString().startsWith(uris[i].toString())) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    startupPath = null;
+            }
         }
 
         wordWrap = prefs.getBoolean("wordWrap", true);
@@ -70,7 +89,7 @@ public class Settings {
     public static void saveSettings(final TEditActivity ctx) {
         SharedPreferences.Editor prefs = ctx.getSharedPreferences(ctx.getPackageName(), ctx.MODE_PRIVATE).edit();
 
-        prefs.putString("startupPath", startupPath.toJson());
+        prefs.putString("startupPath", startupPath == null ? "null" : startupPath.toJson());
         prefs.putBoolean("wordWrap", wordWrap);
         prefs.putInt("systemTextDirection", systemTextDirection);
         prefs.putInt("editorTextDirection", editorTextDirection);
@@ -82,13 +101,33 @@ public class Settings {
 
     public static boolean isFirstRun(final TEditActivity ctx) {
         SharedPreferences prefs = ctx.getSharedPreferences(ctx.getPackageName(), ctx.MODE_PRIVATE);
-        int lastVer = prefs.getInt("version", 0);
-        return lastVer < BuildConfig.VERSION_CODE;
+        long lastVer = prefs.getLong("longVersion", -1);
+        if (lastVer < 0)
+            lastVer = prefs.getInt("version", 0);
+        long currentVer = 0;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                currentVer = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES).getLongVersionCode();
+            } else
+                currentVer = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES).versionCode;
+        } catch (Exception e) {
+            currentVer = 15;
+        }
+        return lastVer < currentVer;
     }
 
     public static void saveVer(final TEditActivity ctx) {
         SharedPreferences.Editor prefs = ctx.getSharedPreferences(ctx.getPackageName(), ctx.MODE_PRIVATE).edit();
-        prefs.putInt("version", BuildConfig.VERSION_CODE);
+        long currentVer = 0;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                currentVer = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES).getLongVersionCode();
+            } else
+                currentVer = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES).versionCode;
+        } catch (Exception e) {
+            currentVer = 15;
+        }
+        prefs.putLong("longVersion", currentVer);
         prefs.commit();
     }
 }

@@ -15,6 +15,7 @@
 package com.atr.tedit.file.descriptor;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
 
 import java.io.FileNotFoundException;
@@ -23,8 +24,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class DocumentDescriptor extends AndFile<DocumentFile> {
+    private Uri treeUri;
+
     protected DocumentDescriptor(DocumentFile file) {
         super(file);
+    }
+
+    protected DocumentDescriptor(DocumentFile file, Uri treeUri) {
+        super(file);
+        this.treeUri = treeUri;
+    }
+
+    public Uri getTreeUri() {
+        return treeUri;
     }
 
     @Override

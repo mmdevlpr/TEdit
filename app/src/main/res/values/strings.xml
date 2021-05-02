@@ -20,6 +20,7 @@
     <string name="error_delete">Unable to delete file!</string>
     <string name="error_writefile">Unable to save file!</string>
     <string name="error_nowritepermission">Permission Denied!\n\nPlease enable storage permission by opening your Android Settings app and selecting Apps&#8212;>TEdit&#8212;>Permissions.</string>
+    <string name="error_selectdirectory">Please select a directory to save your file under.</string>
     <string name="error_permission_denied">Permission Denied</string>
     <string name="error_readfile">TEdit was not able to open the file.</string>
     <string name="error_invalidname">Invalid filename!</string>
@@ -27,6 +28,7 @@
     <string name="error_oom">Unfortunately your device ran out of memory whilst attempting to perform this operation.</string>
     <string name="alert_binaryfile">TEdit might not be able to read this file, are you sure you\'d like to open it?</string>
     <string name="delete">Delete</string>
+    <string name="remove">Remove</string>
     <string name="delete_msg">Are you sure you\'d like to delete</string>
     <string name="overwrite">Overwrite</string>
     <string name="overwrite_message">Do you wish to overwrite %s?</string>
@@ -41,6 +43,7 @@
     <string name="error_newtextbody">The contents of the document could not be retrieved.</string>
     <string name="error_nofilename">The filename could not be retrieved.</string>
     <string name="error_androidfilerename">Unable to save file. The Android distribution renamed the file to an unknown existing filename.</string>
+    <string name="error_nourirelease">TEdit was unable to release the permission</string>
     <string name="alert_androidrenamedfile">Android was not able to save the file under the requested name. The file was renamed to:</string>
     <string name="newdirectory">New Directory</string>
     <string name="newdirmessage">Directory name:</string>
@@ -117,4 +120,6 @@
     <string name="useglobal">Use Global</string>
     <string name="on">On</string>
     <string name="off">Off</string>
+    <string name="permittedDirs">Permitted Directories</string>
+    <string name="newPermittedDir">Permit New Directory</string>
 </resources>

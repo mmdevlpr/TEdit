@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.Gravity;
@@ -49,7 +50,8 @@ public class DirectoryPicker extends TDialog {
 
     public static DirectoryPicker newInstance(AndPath currentDirectory) {
         Bundle bundle = new Bundle();
-        bundle.putString("TEdit.directoryPicker.currentPath", currentDirectory.toJson());
+        if (currentDirectory != null)
+            bundle.putString("TEdit.directoryPicker.currentPath", currentDirectory.toJson());
 
         DirectoryPicker dp = new DirectoryPicker();
         dp.setArguments(bundle);
@@ -99,7 +101,7 @@ public class DirectoryPicker extends TDialog {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     if (i == 0) {
                         launchVolumePicker();
                         return;
@@ -116,6 +118,18 @@ public class DirectoryPicker extends TDialog {
                         return;
                     populateBrowser();
                     return;
+                }*/
+                if (i == 0) {
+                    if (currentPath == null) {
+                        ((TEditActivity)getContext()).launchDirPermissionIntent();
+                    } else {
+                        if (currentPath.moveToParent() == null) {
+                            populatePermittedDirs();
+                            return;
+                        }
+                        populateBrowser();
+                    }
+                    return;
                 }
 
                 AndFile file = (AndFile)listView.getAdapter().getItem(i);
@@ -127,7 +141,9 @@ public class DirectoryPicker extends TDialog {
                     return;
                 }
 
-                if (!currentPath.moveToChild(file)) {
+                if (currentPath == null) {
+                    currentPath = AndPath.fromAndFile(file);
+                } else if (!currentPath.moveToChild(file)) {
                     ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
                             getString(R.string.missing_dir));
                     em.show(((TEditActivity)getContext()).getSupportFragmentManager(), "dialog");
@@ -142,7 +158,10 @@ public class DirectoryPicker extends TDialog {
         viewLayout.addView(hsv);
         viewLayout.addView(listView);
 
-        populateBrowser();
+        /*if (currentPath != null) {
+            populateBrowser();
+        } else
+            populatePermittedDirs();*/
 
         setIcon(R.drawable.tedit_logo_brown);
         setTitle(R.string.directoryPicker);
@@ -164,7 +183,22 @@ public class DirectoryPicker extends TDialog {
         return super.onCreateDialog(savedInstanceState);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (currentPath == null) {
+            populatePermittedDirs();
+        } else
+            populateBrowser();
+    }
+
     private void populateBrowser() {
+        if (currentPath == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            populatePermittedDirs();
+            return;
+        }
+
         if (!currentPath.getCurrent().exists()) {
             while(currentPath.moveToParent() != null && !currentPath.getCurrent().exists())
                 continue;
@@ -191,11 +225,13 @@ public class DirectoryPicker extends TDialog {
             }
         });
 
-        List<AndFile> listContents = new ArrayList<>(contents.length
+        /*List<AndFile> listContents = new ArrayList<>(contents.length
                 + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? 2 : 1));
         listContents.add(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            listContents.add(null);
+            listContents.add(null);*/
+        List<AndFile> listContents = new ArrayList<>(contents.length + 1);
+        listContents.add(null);
         listContents.addAll(Arrays.asList(contents));
 
         listView.setAdapter(new ArrayAdapter<AndFile>(getContext(),
@@ -229,7 +265,7 @@ public class DirectoryPicker extends TDialog {
                 }
                 AndFile item = getItem(position);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     switch (position) {
                         case 0:
                             iv.setImageResource(R.drawable.drives_focused);
@@ -249,6 +285,13 @@ public class DirectoryPicker extends TDialog {
                 } else {
                     iv.setImageResource(R.drawable.dir_focused);
                     tv.setText(item.getName());
+                }*/
+                if (position == 0) {
+                    iv.setImageResource(R.drawable.dir_parent_focused);
+                    tv.setText("..");
+                } else {
+                    iv.setImageResource(R.drawable.dir_focused);
+                    tv.setText(item.getName());
                 }
 
                 return row;
@@ -256,7 +299,60 @@ public class DirectoryPicker extends TDialog {
         });
     }
 
-    public void launchVolumePicker() {
+    public void populatePermittedDirs() {
+        currentPath = null;
+        pathView.setText(getString(R.string.permittedDirs));
+
+        Uri[] uris = ((TEditActivity)getContext()).getPermittedUris();
+        AndFile[] dirs = new AndFile[uris.length + 1];
+        for (int i = 1; i < dirs.length; i++) {
+            dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(getContext(), uris[i - 1]), uris[i - 1]);
+        }
+
+        listView.setAdapter(new ArrayAdapter<AndFile>(getContext(),
+                (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                        R.layout.browser_row : R.layout.browser_row_rtl, dirs) {
+
+            @Override
+            public int getCount() { return super.getCount(); }
+
+            @Override
+            public View getView(int position, View view, ViewGroup parent) {
+                View row = view;
+                ImageView iv;
+                TextView tv;
+                if (row == null) {
+                    row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
+                                    == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
+                            parent, false);
+                    iv = row.findViewById(R.id.dirIcon);
+                    tv = row.findViewById(R.id.dirText);
+
+                    tv.setTypeface(FontUtil.getSystemTypeface());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                        tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                                View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                    }
+                } else {
+                    iv = row.findViewById(R.id.dirIcon);
+                    tv = row.findViewById(R.id.dirText);
+                }
+
+                if (position == 0) {
+                    iv.setImageResource(R.drawable.dir_new_focused);
+                    tv.setText(getContext().getText(R.string.newPermittedDir));
+                } else {
+                    iv.setImageResource(R.drawable.dir_focused);
+                    tv.setText(getItem(position).getName());
+                }
+
+                return row;
+            }
+        });
+    }
+
+    /*public void launchVolumePicker() {
         launchVolumePicker(true);
     }
 
@@ -294,12 +390,13 @@ public class DirectoryPicker extends TDialog {
 
         currentPath = AndPath.fromAndFile(volume);
         populateBrowser();
-    }
+    }*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString("TEdit.directoryPicker.currentPath", currentPath.toJson());
+        if (currentPath != null)
+            outState.putString("TEdit.directoryPicker.currentPath", currentPath.toJson());
     }
 }
