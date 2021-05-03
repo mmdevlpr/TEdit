@@ -653,15 +653,16 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     private DocumentFile createDocumentFile(String filename) {
-        String mime = DataAccessUtil.getFileNameMime(filename);
+        /*String mime = DataAccessUtil.getFileNameMime(filename);
         if (mime.isEmpty())
-            mime = "text/plain";
+            mime = "text/plain";*/
+        String mime = (filename.toLowerCase().endsWith(".txt")) ? "text/plain" : "";
         DocumentFile df = ((DocumentFile)currentPath.getCurrent().getFile()).createFile(mime, filename);
         if (df == null) {
             StringBuilder newName = new StringBuilder(filename);
             int pidx = filename.lastIndexOf(".");
             if (pidx >= 0 && pidx < filename.length() - 1) {
-                newName.delete(pidx + 1, newName.length());
+                newName.delete(pidx + 1, newName.length() - (pidx + 1));
                 newName.append(DataAccessUtil.checkExt(filename.substring(pidx + 1), "txt"));
             } else if (pidx == filename.length() - 1) {
                 newName.append("txt");
