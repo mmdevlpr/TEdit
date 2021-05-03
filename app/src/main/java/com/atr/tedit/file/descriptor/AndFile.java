@@ -326,7 +326,7 @@ public abstract class AndFile<T> {
             if (file.isDirectory()) {
                 fad[0][numDirs] = file;
                 numDirs++;
-            } else if (DataAccessUtil.hasExtension(file.getName()) || DataAccessUtil.mimeSupported(file.getMIME())) {
+            } else if (DataAccessUtil.mimeSupported(file.getMIME()) || !DataAccessUtil.hasExtension(file.getName())) {
                 fad[1][numFiles] = file;
                 numFiles++;
             }

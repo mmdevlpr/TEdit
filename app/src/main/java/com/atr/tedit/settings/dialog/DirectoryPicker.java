@@ -218,12 +218,21 @@ public class DirectoryPicker extends TDialog {
                 return file.isDirectory();
             }
         });
-        Arrays.sort(contents, new Comparator<AndFile>() {
-            @Override
-            public int compare(final AndFile o1, final AndFile o2) {
-                return o1.getPath().compareToIgnoreCase(o2.getPath());
-            }
-        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Arrays.sort(contents, new Comparator<AndFile>() {
+                @Override
+                public int compare(final AndFile o1, final AndFile o2) {
+                    return o1.getPath().compareToIgnoreCase(o2.getPath());
+                }
+            });
+        } else {
+            Arrays.sort(contents, new Comparator<AndFile>() {
+                @Override
+                public int compare(final AndFile o1, final AndFile o2) {
+                    return o1.getPath().compareToIgnoreCase(o2.getPath());
+                }
+            });
+        }
 
         /*List<AndFile> listContents = new ArrayList<>(contents.length
                 + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? 2 : 1));

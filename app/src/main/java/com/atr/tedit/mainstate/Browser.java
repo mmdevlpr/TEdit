@@ -58,6 +58,7 @@ import com.atr.tedit.dialog.PossibleBinary;
 import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
+import com.atr.tedit.file.FilePath;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.file.descriptor.DocumentDescriptor;
 import com.atr.tedit.settings.Settings;
@@ -423,35 +424,23 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         setDisplayedPath(currentPath.getPath());
 
-        /*AndFile[] dirList = currentPath.listFiles(new DirFilter());
-        AndFile[] fileList = currentPath.listFiles(new TxtFilter());
-        numDirs = dirList.length;
-        numFiles = fileList.length;
-
-        Comparator<AndFile> comparator = new Comparator<AndFile>() {
-            @Override
-            public int compare(final AndFile o1, final AndFile o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        };
-        Arrays.sort(dirList, comparator);
-        Arrays.sort(fileList, comparator);
-
-        ArrayList<AndFile> items = new ArrayList<>(fileList.length + dirList.length);
-        for (AndFile f : dirList) {
-            items.add(f);
-        }
-        for (AndFile f : fileList) {
-            items.add(f);
-        }*/
-
         AndFile[][] files = currentPath.listFilesAndDirs();
-        Comparator<AndFile> comparator = new Comparator<AndFile>() {
-            @Override
-            public int compare(final AndFile o1, final AndFile o2) {
-                return o1.getPath().compareToIgnoreCase(o2.getPath());
-            }
-        };
+        Comparator<AndFile> comparator;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            comparator = new Comparator<AndFile>() {
+                @Override
+                public int compare(final AndFile o1, final AndFile o2) {
+                    return o1.getPath().compareToIgnoreCase(o2.getPath());
+                }
+            };
+        } else {
+            comparator = new Comparator<AndFile>() {
+                @Override
+                public int compare(final AndFile o1, final AndFile o2) {
+                    return o1.getPath().compareToIgnoreCase(o2.getName());
+                }
+            };
+        }
 
         Arrays.sort(files[0], comparator);
         Arrays.sort(files[1], comparator);

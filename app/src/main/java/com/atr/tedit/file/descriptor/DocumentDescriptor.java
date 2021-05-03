@@ -116,7 +116,7 @@ public class DocumentDescriptor extends AndFile<DocumentFile> {
 
     @Override
     public OutputStream openOutputStream(Context ctx) throws IOException {
-        return ctx.getContentResolver().openOutputStream(file.getUri());
+        return ctx.getContentResolver().openOutputStream(file.getUri(), "rwt");
     }
 
     @Override

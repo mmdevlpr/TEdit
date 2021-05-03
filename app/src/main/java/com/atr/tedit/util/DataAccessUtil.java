@@ -281,8 +281,12 @@ public class DataAccessUtil {
             final String[] split = docId.split(":");
             final String type = split[0];
 
-            if ("primary".equalsIgnoreCase(type))
-                return Environment.getExternalStorageDirectory() + "/" + split[1];
+            if ("primary".equalsIgnoreCase(type)) {
+                if (split.length > 1) {
+                    return Environment.getExternalStorageDirectory().getPath() + "/" + split[1];
+                } else
+                    return Environment.getExternalStorageDirectory().getPath();
+            }
         } else if (isDownloadsDocument(uri)) {
             //DownloadsProvider
             final String id = DocumentsContract.getDocumentId(uri);
