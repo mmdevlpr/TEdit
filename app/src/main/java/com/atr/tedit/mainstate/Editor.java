@@ -189,8 +189,8 @@ public class Editor extends Fragment implements SettingsApplicable {
                     } else
                         docName.setText(file.getName());
 
-                    if (!file.canWrite() && file.exists())
-                        Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();
+                    /*if (!file.canWrite() && file.exists())
+                        Toast.makeText(ctx, R.string.readonlymode, Toast.LENGTH_SHORT).show();*/
                 }
             }
 
