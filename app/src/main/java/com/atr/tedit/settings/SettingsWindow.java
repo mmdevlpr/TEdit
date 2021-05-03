@@ -458,13 +458,17 @@ public class SettingsWindow {
         settingsAnimator.findViewById(R.id.settingsScroll).scrollTo(0, 0);
         settingsAnimator.findViewById(R.id.localSettingsScroll).scrollTo(0, 0);
 
-        TextView pathView = settingsView.findViewById(R.id.startupDir);
+        final TextView pathView = settingsView.findViewById(R.id.startupDir);
         pathView.setText(Settings.getStartupPath() == null ? ctx.getText(R.string.permittedDirs) : Settings.getStartupPath().getPath());
 
-        if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
-        } else
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+        pathView.post(new Runnable() {
+            public void run() {
+                if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
+                    ((HorizontalScrollView) pathView.getParent()).fullScroll(View.FOCUS_LEFT);
+                } else
+                    ((HorizontalScrollView) pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+            }
+        });
 
         Button fontBrowse = settingsView.findViewById(R.id.fontBrowse);
         fontBrowse.setTypeface(FontUtil.getSystemTypeface());
@@ -526,12 +530,17 @@ public class SettingsWindow {
             return;
 
         tempSettings.startupDir = newDirectory;
-        TextView pathView = settingsView.findViewById(R.id.startupDir);
+        final TextView pathView = settingsView.findViewById(R.id.startupDir);
         pathView.setText(newDirectory == null ? ctx.getText(R.string.permittedDirs) : newDirectory.getPath());
-        if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
-        } else
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+
+        pathView.post(new Runnable() {
+            public void run() {
+                if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
+                } else
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+            }
+        });
     }
 
     public void setSystemTypeface(String typefacePath) {

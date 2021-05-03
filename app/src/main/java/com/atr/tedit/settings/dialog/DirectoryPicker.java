@@ -212,6 +212,14 @@ public class DirectoryPicker extends TDialog {
         }
 
         pathView.setText(currentPath.getPath());
+        pathView.post(new Runnable() {
+            public void run() {
+                if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
+                } else
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+            }
+        });
 
         AndFile[] contents = currentPath.listFiles(new AndFileFilter() {
             public boolean accept(AndFile file) {
@@ -311,6 +319,14 @@ public class DirectoryPicker extends TDialog {
     public void populatePermittedDirs() {
         currentPath = null;
         pathView.setText(getString(R.string.permittedDirs));
+        pathView.post(new Runnable() {
+            public void run() {
+                if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
+                } else
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+            }
+        });
 
         Uri[] uris = ((TEditActivity)getContext()).getPermittedUris();
         AndFile[] dirs = new AndFile[uris.length + 1];

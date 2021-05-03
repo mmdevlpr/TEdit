@@ -563,17 +563,18 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
                 if (items.isEmpty()) {
                     animating = false;
+                    getListView().setEnabled(true);
                 } else {
                     getListView().post(new Runnable() {
                         public void run() {
                             int animId = Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR ? R.anim.browser_row_left : R.anim.browser_row_right;
                             int offset = 0;
-                            for (int i = getListView().getFirstVisiblePosition(); i <= getListView().getLastVisiblePosition(); i++) {
+                            for (int i = 0; i < getListView().getChildCount(); i++) {
+                                final View view = getListView().getChildAt(i);
                                 Animation anim = AnimationUtils.loadAnimation(ctx, animId);
                                 anim.setStartOffset(offset);
-                                final View view = getListView().getChildAt(i);
 
-                                if (i == getListView().getLastVisiblePosition()) {
+                                if (i == getListView().getChildCount() - 1) {
                                     anim.setAnimationListener(new Animation.AnimationListener() {
                                         @Override
                                         public void onAnimationStart(Animation anim) {
@@ -583,6 +584,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         @Override
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
+                                            getListView().setEnabled(true);
                                         }
 
                                         @Override
@@ -607,7 +609,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                 }
 
                                 view.startAnimation(anim);
-                                offset += 30;
+                                offset += 20;
                             }
                         }
                     });
@@ -619,16 +621,16 @@ public class Browser extends ListFragment implements SettingsApplicable {
             }
         };
 
+        getListView().setEnabled(false);
         if (getListView().getChildCount() > 0) {
             animating = true;
             int offset = 0;
-            for (int i = getListView().getLastVisiblePosition(); i >= getListView().getFirstVisiblePosition(); i--) {
+            for (int i = getListView().getChildCount() - 1; i >= 0; i--) {
+                final View view = getListView().getChildAt(i);
                 Animation anim = AnimationUtils.loadAnimation(ctx, R.anim.browser_row_down);
                 anim.setStartOffset(offset);
-                getListView().getChildAt(i).startAnimation(anim);
-                final View view = getListView().getChildAt(i);
 
-                if (i == getListView().getFirstVisiblePosition()) {
+                if (i == 0) {
                     anim.setAnimationListener(new Animation.AnimationListener() {
                         @Override
                         public void onAnimationStart(Animation anim) {
@@ -662,7 +664,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 }
 
                 view.startAnimation(anim);
-                offset += 30;
+                offset += 20;
             }
         }
 
@@ -770,17 +772,18 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
                 if (dirs.length == 0) {
                     animating = false;
+                    getListView().setEnabled(true);
                 } else {
                     getListView().post(new Runnable() {
                         public void run() {
                             int animId = Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR ? R.anim.browser_row_left : R.anim.browser_row_right;
                             int offset = 0;
-                            for (int i = getListView().getFirstVisiblePosition(); i <= getListView().getLastVisiblePosition(); i++) {
+                            for (int i = 0; i < getListView().getChildCount(); i++) {
+                                final View view = getListView().getChildAt(i);
                                 Animation anim = AnimationUtils.loadAnimation(ctx, animId);
                                 anim.setStartOffset(offset);
-                                final View view = getListView().getChildAt(i);
 
-                                if (i == getListView().getLastVisiblePosition()) {
+                                if (i == getListView().getChildCount() - 1) {
                                     anim.setAnimationListener(new Animation.AnimationListener() {
                                         @Override
                                         public void onAnimationStart(Animation anim) {
@@ -790,6 +793,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         @Override
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
+                                            getListView().setEnabled(true);
                                         }
 
                                         @Override
@@ -814,7 +818,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                 }
 
                                 view.startAnimation(anim);
-                                offset += 30;
+                                offset += 20;
                             }
                         }
                     });
@@ -824,6 +828,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             }
         };
 
+        getListView().setEnabled(false);
         if (getListView().getChildCount() == 0) {
             handler.sendEmptyMessage(0);
             return;
@@ -831,13 +836,12 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         animating = true;
         int offset = 0;
-        for (int i = getListView().getLastVisiblePosition(); i >= getListView().getFirstVisiblePosition(); i--) {
+        for (int i = getListView().getChildCount() - 1; i >= 0; i--) {
+            final View view = getListView().getChildAt(i);
             Animation anim = AnimationUtils.loadAnimation(ctx, R.anim.browser_row_down);
             anim.setStartOffset(offset);
-            getListView().getChildAt(i).startAnimation(anim);
-            final View view = getListView().getChildAt(i);
 
-            if (i == getListView().getFirstVisiblePosition()) {
+            if (i == 0) {
                 anim.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation anim) {
@@ -872,7 +876,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             }
 
             view.startAnimation(anim);
-            offset += 30;
+            offset += 20;
         }
     }
 
@@ -880,10 +884,14 @@ public class Browser extends ListFragment implements SettingsApplicable {
         final TextView pathView = type == TYPE_OPEN ? (TextView)getView().findViewById(R.id.browsepath)
                 : (TextView)getView().findViewById(R.id.savebrowsepath);
         pathView.setText(path);
-        if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
-        } else
-            ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+        pathView.post(new Runnable() {
+            public void run() {
+                if (Settings.getSystemTextDirection() == Settings.TEXTDIR_RTL) {
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_LEFT);
+                } else
+                    ((HorizontalScrollView)pathView.getParent()).fullScroll(View.FOCUS_RIGHT);
+            }
+        });
     }
 
     private static boolean isValidName (String name) {
