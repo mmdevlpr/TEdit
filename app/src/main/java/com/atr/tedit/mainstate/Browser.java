@@ -26,6 +26,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
@@ -41,6 +44,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -99,6 +104,9 @@ public class Browser extends ListFragment implements SettingsApplicable {
     private int numDirs;
     private int numFiles;
 
+    private boolean loading = false;
+    private boolean animating = false;
+
     private long keyToSave;
 
     public static Browser newInstance(AndPath path, long key) {
@@ -133,6 +141,10 @@ public class Browser extends ListFragment implements SettingsApplicable {
     public boolean isBrowsingPermittedDirs() {
         return currentPath == null;
     }
+
+    public boolean isLoading() { return loading; }
+
+    public boolean isAnimating() { return animating; }
 
     @Override
     public void onAttach(Context context) {
@@ -292,6 +304,9 @@ public class Browser extends ListFragment implements SettingsApplicable {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
+        if (isLoading())
+            return;
+
         if (currentPath == null) {
             if (position == 0) {
                 ctx.launchDirPermissionIntent();
@@ -424,126 +439,441 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         setDisplayedPath(currentPath.getPath());
 
-        AndFile[][] files = currentPath.listFilesAndDirs();
-        Comparator<AndFile> comparator;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            comparator = new Comparator<AndFile>() {
-                @Override
-                public int compare(final AndFile o1, final AndFile o2) {
-                    return o1.getPath().compareToIgnoreCase(o2.getPath());
-                }
-            };
-        } else {
-            comparator = new Comparator<AndFile>() {
-                @Override
-                public int compare(final AndFile o1, final AndFile o2) {
-                    return o1.getPath().compareToIgnoreCase(o2.getName());
-                }
-            };
-        }
-
-        Arrays.sort(files[0], comparator);
-        Arrays.sort(files[1], comparator);
-        numDirs = files[0].length;
-        numFiles = files[1].length;
-
-        ArrayList<AndFile> items = new ArrayList<>(numDirs + numFiles);
-        for (AndFile f : files[0]) {
-            items.add(f);
-        }
-        for (AndFile f : files[1]) {
-            items.add(f);
-        }
-
-        setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
-                R.layout.browser_row : R.layout.browser_row_rtl, items) {
-
-            @Override
-            public int getCount() { return super.getCount(); }
-
-            @Override
-            public View getView(int position, View view, ViewGroup parent) {
-                View row = view;
-                ImageView iv;
-                TextView tv;
-                if (row == null) {
-                    row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
-                                    == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
-                                    parent, false);
-                    iv = row.findViewById(R.id.dirIcon);
-                    tv = row.findViewById(R.id.dirText);
-
-                    tv.setTypeface(FontUtil.getSystemTypeface());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-                        tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
-                                View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+        if (currentPath.getCurrent().getType() == AndFile.TYPE_FILE) {
+            AndFile[][] files = currentPath.listFilesAndDirs();
+            Comparator<AndFile> comparator;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                comparator = new Comparator<AndFile>() {
+                    @Override
+                    public int compare(final AndFile o1, final AndFile o2) {
+                        return o1.getPath().compareToIgnoreCase(o2.getPath());
                     }
-                } else {
-                    iv = row.findViewById(R.id.dirIcon);
-                    tv = row.findViewById(R.id.dirText);
-                }
-                AndFile item = getItem(position);
-
-                iv.setImageResource(item.isDirectory() ? R.drawable.dir_focused : R.drawable.doc_focused);
-                tv.setText(item.getName());
-
-                return row;
+                };
+            } else {
+                comparator = new Comparator<AndFile>() {
+                    @Override
+                    public int compare(final AndFile o1, final AndFile o2) {
+                        return o1.getPath().compareToIgnoreCase(o2.getName());
+                    }
+                };
             }
-        });
+
+            Arrays.sort(files[0], comparator);
+            Arrays.sort(files[1], comparator);
+            numDirs = files[0].length;
+            numFiles = files[1].length;
+
+            ArrayList<AndFile> items = new ArrayList<>(numDirs + numFiles);
+            for (AndFile f : files[0]) {
+                items.add(f);
+            }
+            for (AndFile f : files[1]) {
+                items.add(f);
+            }
+
+            setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                    R.layout.browser_row : R.layout.browser_row_rtl, items) {
+
+                @Override
+                public int getCount() { return super.getCount(); }
+
+                @Override
+                public View getView(int position, View view, ViewGroup parent) {
+                    View row = view;
+                    ImageView iv;
+                    TextView tv;
+                    if (row == null) {
+                        row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
+                                        == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
+                                parent, false);
+                        iv = row.findViewById(R.id.dirIcon);
+                        tv = row.findViewById(R.id.dirText);
+
+                        tv.setTypeface(FontUtil.getSystemTypeface());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                            tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                            tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                        }
+                    } else {
+                        iv = row.findViewById(R.id.dirIcon);
+                        tv = row.findViewById(R.id.dirText);
+                    }
+                    AndFile item = getItem(position);
+
+                    iv.setImageResource(item.isDirectory() ? R.drawable.dir_focused : R.drawable.doc_focused);
+                    tv.setText(item.getName());
+
+                    return row;
+                }
+            });
+
+            return;
+        }
+
+        ctx.getUtilityBar().getState().setEnabled(false);
+        final ArrayList<AndFile> items = new ArrayList<>();
+        final Handler handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if (ctx.getUtilityBar().getState().isAnimating() || isAnimating()) {
+                    sendEmptyMessageDelayed(0, 41);
+                    return;
+                }
+
+                animating = true;
+                setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                        R.layout.browser_row : R.layout.browser_row_rtl, items) {
+
+                    @Override
+                    public int getCount() { return super.getCount(); }
+
+                    @Override
+                    public View getView(int position, View view, ViewGroup parent) {
+                        View row = view;
+                        ImageView iv;
+                        TextView tv;
+                        if (row == null) {
+                            row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
+                                            == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
+                                    parent, false);
+                            iv = row.findViewById(R.id.dirIcon);
+                            tv = row.findViewById(R.id.dirText);
+
+                            tv.setTypeface(FontUtil.getSystemTypeface());
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                                tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                                tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                                        View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                            }
+                        } else {
+                            iv = row.findViewById(R.id.dirIcon);
+                            tv = row.findViewById(R.id.dirText);
+                        }
+                        AndFile item = getItem(position);
+
+                        iv.setImageResource(item.isDirectory() ? R.drawable.dir_focused : R.drawable.doc_focused);
+                        tv.setText(item.getName());
+
+                        row.setAlpha(isAnimating() ? 0 : 1);
+
+                        return row;
+                    }
+                });
+
+                if (items.isEmpty()) {
+                    animating = false;
+                } else {
+                    getListView().post(new Runnable() {
+                        public void run() {
+                            int animId = Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR ? R.anim.browser_row_left : R.anim.browser_row_right;
+                            int offset = 0;
+                            for (int i = getListView().getFirstVisiblePosition(); i <= getListView().getLastVisiblePosition(); i++) {
+                                Animation anim = AnimationUtils.loadAnimation(ctx, animId);
+                                anim.setStartOffset(offset);
+                                final View view = getListView().getChildAt(i);
+
+                                if (i == getListView().getLastVisiblePosition()) {
+                                    anim.setAnimationListener(new Animation.AnimationListener() {
+                                        @Override
+                                        public void onAnimationStart(Animation anim) {
+                                            view.setAlpha(1);
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animation anim) {
+                                            animating = false;
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animation anim) {
+                                        }
+                                    });
+                                } else {
+                                    anim.setAnimationListener(new Animation.AnimationListener() {
+                                        @Override
+                                        public void onAnimationStart(Animation anim) {
+                                            view.setAlpha(1);
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animation anim) {
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animation anim) {
+                                        }
+                                    });
+                                }
+
+                                view.startAnimation(anim);
+                                offset += 30;
+                            }
+                        }
+                    });
+                }
+
+                loading = false;
+                if (!ctx.getUtilityBar().getState().isAnimating())
+                    ctx.getUtilityBar().getState().setEnabled(true);
+            }
+        };
+
+        if (getListView().getChildCount() > 0) {
+            animating = true;
+            int offset = 0;
+            for (int i = getListView().getLastVisiblePosition(); i >= getListView().getFirstVisiblePosition(); i--) {
+                Animation anim = AnimationUtils.loadAnimation(ctx, R.anim.browser_row_down);
+                anim.setStartOffset(offset);
+                getListView().getChildAt(i).startAnimation(anim);
+                final View view = getListView().getChildAt(i);
+
+                if (i == getListView().getFirstVisiblePosition()) {
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation anim) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation anim) {
+                            animating = false;
+                            view.setAlpha(0);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation anim) {
+                        }
+                    });
+                } else {
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation anim) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation anim) {
+                            view.setAlpha(0);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation anim) {
+                        }
+                    });
+                }
+
+                view.startAnimation(anim);
+                offset += 30;
+            }
+        }
+
+        loading = true;
+        new Thread(new Runnable() {
+            public void run() {
+                AndFile[][] files = currentPath.listFilesAndDirs();
+                Comparator<AndFile> comparator;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    comparator = new Comparator<AndFile>() {
+                        @Override
+                        public int compare(final AndFile o1, final AndFile o2) {
+                            return o1.getPath().compareToIgnoreCase(o2.getPath());
+                        }
+                    };
+                } else {
+                    comparator = new Comparator<AndFile>() {
+                        @Override
+                        public int compare(final AndFile o1, final AndFile o2) {
+                            return o1.getPath().compareToIgnoreCase(o2.getName());
+                        }
+                    };
+                }
+
+                Arrays.sort(files[0], comparator);
+                Arrays.sort(files[1], comparator);
+                numDirs = files[0].length;
+                numFiles = files[1].length;
+
+                for (AndFile f : files[0]) {
+                    items.add(f);
+                }
+                for (AndFile f : files[1]) {
+                    items.add(f);
+                }
+
+                handler.sendEmptyMessage(0);
+            }
+        }).start();
     }
 
     private void populatePermittedDirectories() {
         currentPath = null;
         setDisplayedPath(getString(R.string.permittedDirs));
 
-        Uri[] uris = ctx.getPermittedUris();
-        AndFile[] dirs = new AndFile[uris.length + 1];
-        for (int i = 1; i < dirs.length; i++) {
-            dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, uris[i - 1]), uris[i - 1]);
+        loading = true;
+        final Handler handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if (ctx.getUtilityBar().getState().isAnimating() || isAnimating()) {
+                    sendEmptyMessageDelayed(0, 41);
+                    return;
+                }
+
+                Uri[] uris = ctx.getPermittedUris();
+                AndFile[] dirs = new AndFile[uris.length + 1];
+                for (int i = 1; i < dirs.length; i++) {
+                    dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, uris[i - 1]), uris[i - 1]);
+                }
+
+                animating = true;
+                setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                        R.layout.browser_row : R.layout.browser_row_rtl, dirs) {
+
+                    @Override
+                    public int getCount() { return super.getCount(); }
+
+                    @Override
+                    public View getView(int position, View view, ViewGroup parent) {
+                        View row = view;
+                        ImageView iv;
+                        TextView tv;
+
+                        if (row == null) {
+                            row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
+                                            == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
+                                    parent, false);
+                            iv = row.findViewById(R.id.dirIcon);
+                            tv = row.findViewById(R.id.dirText);
+
+                            tv.setTypeface(FontUtil.getSystemTypeface());
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                                tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                                tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
+                                        View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+                            }
+                        } else {
+                            iv = row.findViewById(R.id.dirIcon);
+                            tv = row.findViewById(R.id.dirText);
+                        }
+
+                        if (position == 0) {
+                            iv.setImageResource(R.drawable.dir_new_focused);
+                            tv.setText(ctx.getString(R.string.newPermittedDir));
+                        } else {
+                            iv.setImageResource(R.drawable.dir_focused);
+                            tv.setText(getItem(position).getName());
+                        }
+
+                        row.setAlpha(isAnimating() ? 0 : 1);
+
+                        return row;
+                    }
+                });
+
+                if (dirs.length == 0) {
+                    animating = false;
+                } else {
+                    getListView().post(new Runnable() {
+                        public void run() {
+                            int animId = Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR ? R.anim.browser_row_left : R.anim.browser_row_right;
+                            int offset = 0;
+                            for (int i = getListView().getFirstVisiblePosition(); i <= getListView().getLastVisiblePosition(); i++) {
+                                Animation anim = AnimationUtils.loadAnimation(ctx, animId);
+                                anim.setStartOffset(offset);
+                                final View view = getListView().getChildAt(i);
+
+                                if (i == getListView().getLastVisiblePosition()) {
+                                    anim.setAnimationListener(new Animation.AnimationListener() {
+                                        @Override
+                                        public void onAnimationStart(Animation anim) {
+                                            view.setAlpha(1);
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animation anim) {
+                                            animating = false;
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animation anim) {
+                                        }
+                                    });
+                                } else {
+                                    anim.setAnimationListener(new Animation.AnimationListener() {
+                                        @Override
+                                        public void onAnimationStart(Animation anim) {
+                                            view.setAlpha(1);
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animation anim) {
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animation anim) {
+                                        }
+                                    });
+                                }
+
+                                view.startAnimation(anim);
+                                offset += 30;
+                            }
+                        }
+                    });
+                }
+
+                loading = false;
+            }
+        };
+
+        if (getListView().getChildCount() == 0) {
+            handler.sendEmptyMessage(0);
+            return;
         }
 
-        setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
-                R.layout.browser_row : R.layout.browser_row_rtl, dirs) {
+        animating = true;
+        int offset = 0;
+        for (int i = getListView().getLastVisiblePosition(); i >= getListView().getFirstVisiblePosition(); i--) {
+            Animation anim = AnimationUtils.loadAnimation(ctx, R.anim.browser_row_down);
+            anim.setStartOffset(offset);
+            getListView().getChildAt(i).startAnimation(anim);
+            final View view = getListView().getChildAt(i);
 
-            @Override
-            public int getCount() { return super.getCount(); }
-
-            @Override
-            public View getView(int position, View view, ViewGroup parent) {
-                View row = view;
-                ImageView iv;
-                TextView tv;
-
-                if (row == null) {
-                    row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
-                                    == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
-                            parent, false);
-                    iv = row.findViewById(R.id.dirIcon);
-                    tv = row.findViewById(R.id.dirText);
-
-                    tv.setTypeface(FontUtil.getSystemTypeface());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-                        tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
-                                View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
+            if (i == getListView().getFirstVisiblePosition()) {
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation anim) {
                     }
-                } else {
-                    iv = row.findViewById(R.id.dirIcon);
-                    tv = row.findViewById(R.id.dirText);
-                }
 
-                if (position == 0) {
-                    iv.setImageResource(R.drawable.dir_new_focused);
-                    tv.setText(ctx.getString(R.string.newPermittedDir));
-                } else {
-                    iv.setImageResource(R.drawable.dir_focused);
-                    tv.setText(getItem(position).getName());
-                }
+                    @Override
+                    public void onAnimationEnd(Animation anim) {
+                        animating = false;
+                        view.setAlpha(0);
+                        handler.sendEmptyMessage(0);
+                    }
 
-                return row;
+                    @Override
+                    public void onAnimationRepeat(Animation anim) {
+                    }
+                });
+            } else {
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation anim) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation anim) {
+                        view.setAlpha(0);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation anim) {
+                    }
+                });
             }
-        });
+
+            view.startAnimation(anim);
+            offset += 30;
+        }
     }
 
     private void setDisplayedPath(String path) {

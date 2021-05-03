@@ -18,6 +18,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -61,7 +62,7 @@ public class UtilityBar {
     public final int barWidth;
     public final int barHeight;
 
-    public final Handler handler = new Handler();
+    public final Handler handler = new Handler(Looper.getMainLooper());
 
     public UtilityBar(FrameLayout buttonBar, DisplayMetrics displayMetrics,
                          Resources resources, TEditActivity context) {

@@ -281,7 +281,7 @@ public class DataAccessUtil {
             final String[] split = docId.split(":");
             final String type = split[0];
 
-            if ("primary".equalsIgnoreCase(type)) {
+            if ("primary".equalsIgnoreCase(type) && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
                 if (split.length > 1) {
                     return Environment.getExternalStorageDirectory().getPath() + "/" + split[1];
                 } else

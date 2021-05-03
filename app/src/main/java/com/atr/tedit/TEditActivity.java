@@ -1270,9 +1270,6 @@ public class TEditActivity extends AppCompatActivity {
         private final float minVelocity;
 
         private Gestures(float density) {
-            //sensitivity = displayMetrics.density * 32;
-            //minVelocity = displayMetrics.density * 1500;
-            //Log.i("Tedit Gesture Density", Float.toString(displayMetrics.density));
             sensitivity = density * 32;
             minVelocity = density * 1500;
             Log.i("Tedit Gesture Density", Float.toString(density));
@@ -1280,6 +1277,9 @@ public class TEditActivity extends AppCompatActivity {
 
         @Override
         public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+            if ((getFrag() instanceof Browser) && ((Browser)getFrag()).isLoading())
+                return false;
+
             float displacement = event1.getX() - event2.getX();
             float rate = Math.abs(velocityX);
 
