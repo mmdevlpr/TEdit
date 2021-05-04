@@ -49,6 +49,7 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -59,6 +60,7 @@ import android.widget.Toast;
 
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
+import com.atr.tedit.dialog.HelpDialog;
 import com.atr.tedit.dialog.PossibleBinary;
 import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.dialog.VolumePicker;
@@ -721,7 +723,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
                     return;
                 }
 
-                Uri[] uris = ctx.getPermittedUris();
+                final Uri[] uris = ctx.getPermittedUris();
                 AndFile[] dirs = new AndFile[uris.length + 1];
                 for (int i = 1; i < dirs.length; i++) {
                     dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, uris[i - 1]), uris[i - 1]);
@@ -796,6 +798,31 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
                                             getListView().setEnabled(true);
+                                            if (uris.length == 0 && Settings.isShowPermitHelp()) {
+                                                final HelpDialog hd = HelpDialog.newInstance(R.layout.help_permitted_directories, ctx.getString(R.string.permittedDirs));
+                                                hd.show(ctx.getSupportFragmentManager(), "HelpDialog");
+                                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                                    public void run() {
+                                                        hd.setNeutralButton(R.string.okay, new View.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(View view) {
+                                                                CheckBox cb = (CheckBox)hd.getLayout().findViewById(R.id.dontshow);
+                                                                Settings.setShowPermitHelp(!cb.isChecked());
+                                                                Settings.saveSettings(ctx);
+                                                                hd.dismiss();
+                                                            }
+                                                        });
+                                                    }
+                                                });
+
+                                                if (Settings.isFirstRun(ctx)) {
+                                                    Settings.saveVer(ctx);
+                                                    ctx.displayWhatsNew();
+                                                }
+                                            } else if (Settings.isFirstRun(ctx)) {
+                                                Settings.saveVer(ctx);
+                                                ctx.displayWhatsNew();
+                                            }
                                         }
 
                                         @Override

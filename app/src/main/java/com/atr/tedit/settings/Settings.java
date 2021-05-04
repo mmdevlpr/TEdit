@@ -25,6 +25,9 @@ public class Settings {
     private static int systemTextDirection = TEXTDIR_LTR;
     private static int editorTextDirection = TEXTDIR_LTR;
 
+    private static boolean showPermitHelp = true;
+    private static boolean firstRun = true;
+
     public static AndPath getStartupPath() { return startupPath == null ? null : startupPath.clone(); }
 
     public static void setStartupPath(AndPath path) {
@@ -53,6 +56,14 @@ public class Settings {
 
     protected static void setActionOnBack(int aob) {
         actionOnBack = (aob > AOB_PARENT) ? AOB_PARENT : (aob < AOB_CLOSE) ? AOB_CLOSE : aob;
+    }
+
+    public static boolean isShowPermitHelp() {
+        return showPermitHelp;
+    }
+
+    public static void setShowPermitHelp(boolean show) {
+        showPermitHelp = show;
     }
 
     public static int getEditorTextDirection() {
@@ -99,6 +110,8 @@ public class Settings {
         FontUtil.setEditorTypeface(prefs.getString("editorTypeface", "metropolis_regular"));
 
         actionOnBack = prefs.getInt("actionOnBack", AOB_PARENT);
+
+        showPermitHelp = prefs.getBoolean("showPermitHelp", true);
     }
 
     public static void saveSettings(final TEditActivity ctx) {
@@ -112,10 +125,15 @@ public class Settings {
         prefs.putString("editorTypeface", FontUtil.getEditorPath());
         prefs.putInt("actionOnBack", actionOnBack);
 
+        prefs.putBoolean("showPermitHelp", showPermitHelp);
+
         prefs.commit();
     }
 
     public static boolean isFirstRun(final TEditActivity ctx) {
+        if (!firstRun)
+            return false;
+
         SharedPreferences prefs = ctx.getSharedPreferences(ctx.getPackageName(), ctx.MODE_PRIVATE);
         long lastVer = prefs.getLong("longVersion", -1);
         if (lastVer < 0)
@@ -145,5 +163,6 @@ public class Settings {
         }
         prefs.putLong("longVersion", currentVer);
         prefs.commit();
+        firstRun = false;
     }
 }

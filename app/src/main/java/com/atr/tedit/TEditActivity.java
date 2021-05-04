@@ -338,10 +338,10 @@ public class TEditActivity extends AppCompatActivity {
         ft.add(R.id.activitycontent, frag);
         ft.commit();
 
-        if (Settings.isFirstRun(this)) {
+        /*if (Settings.isFirstRun(this)) {
             Settings.saveVer(this);
             displayWhatsNew();
-        }
+        }*/
     }
 
     private void initializeToText(AndFile file) {
@@ -482,7 +482,7 @@ public class TEditActivity extends AppCompatActivity {
         }
     }
 
-    private void displayWhatsNew() {
+    public void displayWhatsNew() {
         HelpDialog hd = HelpDialog.newInstance(R.layout.whats_new, getString(R.string.whatsnew));
         hd.show(getSupportFragmentManager(), "HelpDialog");
     }

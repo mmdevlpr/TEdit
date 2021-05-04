@@ -67,7 +67,7 @@
     <string name="icon_author">Icon Design by David Mind</string>
     <string name="help_newdoc">Create a new document.</string>
     <string name="help_parentdir">Move to the parent directory.</string>
-    <string name="help_newdir">Create a new directory.</string>
+    <string name="help_newdir">Create a new directory if not in the Permitted Directories root browser view or running an Android version older than 4.1. When in the file browser\'s root view, Permitted Directories, selecting this button will launch Android\'s Files application where you can browse to and select a directory to grant TEdit permission to access.</string>
     <string name="help_drives">Select a volume to browse. Root, internal or, if present, SDcard.</string>
     <string name="help_tabs">View the list of currently open documents.</string>
     <string name="help_browseclose">Use your device\'s back button to close the browser. If you have one or more open documents this will switch to the last open document otherwise, this will quit the TEdit application.</string>
@@ -96,12 +96,14 @@
     <string name="help_settings_typeface">A stylized text appearance.</string>
     <string name="label_textdirection">Text Direction:</string>
     <string name="help_settings_textdirection">The directionality of text for your language.</string>
-    <string name="help_settings_aob">Select how TEdit reacts when the Android Back button/gesture is activated when viewing the file browser. Selecting Parent Directory will cause TEdit to move to the parent directory when the Back action is initiated. When viewing the Permitted Directories activating the Back action twice will close TEdit or move to one of the open text files if there are any. Selecting Close Browser TEdit will immediate close or move to one of the open text files when the back action is activated.</string>
+    <string name="help_settings_aob">Select how TEdit reacts when the Android Back button/gesture is activated when viewing the file browser. Selecting Parent Directory will cause TEdit to move to the parent directory when the Back action is initiated. When viewing the Permitted Directories activating the Back action twice will close TEdit or move to one of the open text files if there are any. Selecting Close Browser will cause TEdit to immediately close or move to one of the open text files when the back action is activated.</string>
     <string name="label_editor">Editor:</string>
     <string name="help_settings_editor">These settings will be applied, by default, to all text editor views. The settings here can be overridden for individual text documents via the Local settings menu available by swiping to the right from a text editor view.</string>
     <string name="help_settings_wordwrap">Whether or not text in the editor should scroll horizontally.</string>
     <string name="label_local">Local:</string>
     <string name="help_settings_local">Local settings are applied only to the individual text document from which the Local settings menu was accessed. These settings will apply to that particular text document until it is closed. Select &quot;Use Global&quot; for any of the settings to revert that setting to the setting specified in the global options menu.</string>
+    <string name="help_permitdirectory">Welcome to the TEdit Permitted Directories display. This is the root display of the TEdit File Browser and will enable you to manage which directories on your device TEdit has access to. Initially this display will only show the Permit New Directory option. To display additional directories you must first grant TEdit permission to access those directories and you can accomplish this by selecting either the New Directory button on TEdit\'s taskbar or selecting the Permit New Directory option.\n\nTapping the New Directory button or selecting the Permit New Directory option will launch Android\'s Files application. Within this application locate and enter the directory you wish to grant TEdit access to then select the Allow or Select button, the text and position of this button may vary by Android implementation. Once you\'ve granted TEdit access to one or more directories they will show in the Permitted Directories display where you can select and browse their contents.\n\nIt is not necessary to grant TEdit permission to access a directory if you\'ve already granted TEdit permission to a parent of that directory.</string>
+    <string name="dontshowagain">Don\'t Show Again</string>
     <string name="settings_global">GLOBAL</string>
     <string name="settings_local">LOCAL</string>
     <string name="settings_system">System Settings</string>
