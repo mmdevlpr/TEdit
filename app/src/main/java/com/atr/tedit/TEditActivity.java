@@ -19,7 +19,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.net.Uri;
@@ -28,7 +27,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -58,7 +56,6 @@ import com.atr.tedit.mainstate.Tabs;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.settings.SettingsWindow;
 import com.atr.tedit.settings.TxtSettings;
-import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.FontUtil;
@@ -97,8 +94,6 @@ public class TEditActivity extends AppCompatActivity {
 
     private int state = STATE_BROWSE;
 
-    //private boolean activateVolumePicker = false;
-
     private DisplayMetrics dMetrics;
     private UtilityBar utilityBar;
 
@@ -109,7 +104,6 @@ public class TEditActivity extends AppCompatActivity {
     private boolean dbOpen = true;
 
     private FileDescriptor root;
-    //private FileDescriptor storageRoot;
     private AndPath currentPath;
     private AndPath savePath;
 
@@ -159,8 +153,6 @@ public class TEditActivity extends AppCompatActivity {
 
             if (Environment.MEDIA_MOUNTED.equals(mediaState)
                     || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
-                //storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
-                //currentPath = new FilePath(storageRoot);
                 currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
             } else {
                 File sRoot = Environment.getExternalStorageDirectory();
@@ -639,10 +631,6 @@ public class TEditActivity extends AppCompatActivity {
         return root;
     }
 
-    /*public FileDescriptor getStorageRoot() {
-        return storageRoot;
-    }*/
-
     public AndPath getCurrentPath() {
         return currentPath;
     }
@@ -722,15 +710,6 @@ public class TEditActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             processPermissionsResult();
-
-        /*if (activateVolumePicker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            activateVolumePicker = false;
-            Fragment dp = getSupportFragmentManager().findFragmentByTag(DirectoryPicker.TAG);
-            if (dp == null) {
-                ((Browser)getFrag()).launchVolumePicker();
-            } else
-                ((DirectoryPicker)dp).launchVolumePicker();
-        }*/
     }
 
     @Override
@@ -1200,13 +1179,6 @@ public class TEditActivity extends AppCompatActivity {
         return volumes;
     }
 
-    /*@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void launchSDcardIntent() {
-        Log.i("TEdit", "Launching SDcard locater intent.");
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        startActivityForResult(intent, TEditActivity.SDCARD_PICKER_RESULT);
-    }*/
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void launchDirPermissionIntent() {
         Log.i("TEdit", "Launching directory permission granter intent.");
@@ -1216,15 +1188,6 @@ public class TEditActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        /*if (requestCode == SDCARD_PICKER_RESULT) {
-            activateVolumePicker = true;
-            if (resultCode != RESULT_OK)
-                return;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                processExternalVolumeAccess(resultData.getData());
-        }*/
-
         if (requestCode == PERMISSION_DIR_RESULT) {
             if (resultCode != RESULT_OK)
                 return;
@@ -1233,13 +1196,6 @@ public class TEditActivity extends AppCompatActivity {
                 takePersistableUriPermission(resultData.getData());
         }
     }
-
-    /*@TargetApi(Build.VERSION_CODES.KITKAT)
-    private void processExternalVolumeAccess(Uri treeUri) {
-        getContentResolver().takePersistableUriPermission(treeUri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION |
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-    }*/
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void takePersistableUriPermission(Uri treeUri) {

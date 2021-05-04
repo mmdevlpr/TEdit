@@ -14,12 +14,9 @@
  */
 package com.atr.tedit.mainstate;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -30,18 +27,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Parcelable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.provider.DocumentFile;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -54,7 +47,6 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,14 +55,11 @@ import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.HelpDialog;
 import com.atr.tedit.dialog.PossibleBinary;
 import com.atr.tedit.dialog.TDialog;
-import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
-import com.atr.tedit.file.FilePath;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.file.descriptor.DocumentDescriptor;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.settings.TxtSettings;
-import com.atr.tedit.util.AndFileFilter;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.FontUtil;
@@ -1144,42 +1133,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         return false;
     }
-
-    /*public void setVolume(AndFile volume) {
-        if (currentPath.getRoot().getPathIdentifier().equals(volume.getPathIdentifier()))
-            return;
-
-        if (!volume.exists()) {
-            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                    getString(R.string.missing_dir));
-            em.show(ctx.getSupportFragmentManager(), "dialog");
-            return;
-        }
-
-        currentPath = AndPath.fromAndFile(volume);
-        populateBrowser();
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    public void launchVolumePicker() {
-        VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier());
-        vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
-    }*/
-
-    /*private class DirFilter implements AndFileFilter {
-        public boolean accept(AndFile file) {
-            return file.isDirectory();
-        }
-    }
-
-    private class TxtFilter implements AndFileFilter {
-        public boolean accept(AndFile file) {
-            if (file.isDirectory())
-                return false;
-
-            return !DataAccessUtil.hasExtension(file.getName()) || DataAccessUtil.mimeSupported(file.getMIME());
-        }
-    }*/
 
     public void applySettings() {
         if (isBrowsingPermittedDirs()) {

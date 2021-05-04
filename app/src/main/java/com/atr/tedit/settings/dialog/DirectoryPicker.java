@@ -1,13 +1,10 @@
 package com.atr.tedit.settings.dialog;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
@@ -25,7 +22,6 @@ import android.widget.TextView;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
-import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
 
 import com.atr.tedit.dialog.TDialog;
@@ -33,7 +29,6 @@ import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.util.AndFileFilter;
 import com.atr.tedit.util.FontUtil;
-import com.atr.tedit.utilitybar.state.BrowserState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,24 +96,6 @@ public class DirectoryPicker extends TDialog {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if (i == 0) {
-                        launchVolumePicker();
-                        return;
-                    }
-
-                    if (i == 1) {
-                        if (currentPath.moveToParent() == null)
-                            return;
-                        populateBrowser();
-                        return;
-                    }
-                } else if (i == 0) {
-                    if (currentPath.moveToParent() == null)
-                        return;
-                    populateBrowser();
-                    return;
-                }*/
                 if (i == 0) {
                     if (currentPath == null) {
                         ((TEditActivity)getContext()).launchDirPermissionIntent();
@@ -157,11 +134,6 @@ public class DirectoryPicker extends TDialog {
         viewLayout.setOrientation(LinearLayout.VERTICAL);
         viewLayout.addView(hsv);
         viewLayout.addView(listView);
-
-        /*if (currentPath != null) {
-            populateBrowser();
-        } else
-            populatePermittedDirs();*/
 
         setIcon(R.drawable.tedit_logo_brown);
         setTitle(R.string.directoryPicker);
@@ -242,11 +214,6 @@ public class DirectoryPicker extends TDialog {
             });
         }
 
-        /*List<AndFile> listContents = new ArrayList<>(contents.length
-                + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? 2 : 1));
-        listContents.add(null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            listContents.add(null);*/
         List<AndFile> listContents = new ArrayList<>(contents.length + 1);
         listContents.add(null);
         listContents.addAll(Arrays.asList(contents));
@@ -282,27 +249,6 @@ public class DirectoryPicker extends TDialog {
                 }
                 AndFile item = getItem(position);
 
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    switch (position) {
-                        case 0:
-                            iv.setImageResource(R.drawable.drives_focused);
-                            tv.setText(getString(R.string.changevolume));
-                            break;
-                        case 1:
-                            iv.setImageResource(R.drawable.dir_parent_focused);
-                            tv.setText("..");
-                            break;
-                        default:
-                            iv.setImageResource(R.drawable.dir_focused);
-                            tv.setText(item.getName());
-                    }
-                } else if (position == 0) {
-                    iv.setImageResource(R.drawable.dir_parent_focused);
-                    tv.setText("..");
-                } else {
-                    iv.setImageResource(R.drawable.dir_focused);
-                    tv.setText(item.getName());
-                }*/
                 if (position == 0) {
                     iv.setImageResource(R.drawable.dir_parent_focused);
                     tv.setText("..");
@@ -376,46 +322,6 @@ public class DirectoryPicker extends TDialog {
             }
         });
     }
-
-    /*public void launchVolumePicker() {
-        launchVolumePicker(true);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void launchVolumePicker(boolean promptSD) {
-        TEditActivity ctx = (TEditActivity)getContext();
-        if (!promptSD) {
-            VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier(), TAG);
-            vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
-            return;
-        }
-
-        boolean cardPresent = ContextCompat.getExternalFilesDirs(getContext(), "external").length > 1;
-        Uri[] volumes = ctx.getPermittedUris();
-        if (volumes.length > 0 || !cardPresent) {
-            VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier(), TAG);
-            vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
-            return;
-        }
-
-        BrowserState.LaunchSDCardIntent lsd = new BrowserState.LaunchSDCardIntent();
-        lsd.show(ctx.getSupportFragmentManager(), "SDCardIntentDialog");
-    }
-
-    public void setVolume(AndFile volume) {
-        if (currentPath.getRoot().getPathIdentifier().equals(volume.getPathIdentifier()))
-            return;
-
-        if (!volume.exists()) {
-            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
-                    getString(R.string.missing_dir));
-            em.show(((TEditActivity)getContext()).getSupportFragmentManager(), "dialog");
-            return;
-        }
-
-        currentPath = AndPath.fromAndFile(volume);
-        populateBrowser();
-    }*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

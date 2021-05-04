@@ -22,12 +22,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.atr.tedit.settings.Settings;
 import com.atr.tedit.settings.TxtSettings;
-
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 /**
  * @author Adam T. Ryder

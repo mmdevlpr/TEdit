@@ -1,7 +1,6 @@
 package com.atr.tedit.settings;
 
 import android.annotation.TargetApi;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
@@ -32,7 +31,6 @@ import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.dialog.HelpDialog;
 import com.atr.tedit.file.AndPath;
-import com.atr.tedit.file.FilePath;
 import com.atr.tedit.mainstate.Editor;
 import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.settings.dialog.TypefacePicker;
@@ -261,14 +259,6 @@ public class SettingsWindow {
                         continue;
 
                     if (!currentPath.getCurrent().exists()) {
-                        /*if (!ctx.getStorageRoot().exists()) {
-                            ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
-                                    ctx.getString(R.string.missing_dir));
-                            em.show(ctx.getSupportFragmentManager(), "dialog");
-                            return;
-                        }
-
-                        currentPath = new FilePath(ctx.getStorageRoot());*/
                         currentPath = null;
                     }
                 }

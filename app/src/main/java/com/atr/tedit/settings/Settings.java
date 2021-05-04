@@ -134,6 +134,7 @@ public class Settings {
         if (!firstRun)
             return false;
 
+        firstRun = false;
         SharedPreferences prefs = ctx.getSharedPreferences(ctx.getPackageName(), ctx.MODE_PRIVATE);
         long lastVer = prefs.getLong("longVersion", -1);
         if (lastVer < 0)

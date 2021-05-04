@@ -2,8 +2,6 @@ package com.atr.tedit.settings;
 
 import android.util.Log;
 
-import com.atr.tedit.util.FontUtil;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;

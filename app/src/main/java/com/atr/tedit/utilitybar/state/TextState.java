@@ -168,8 +168,6 @@ public class TextState extends UtilityState {
                 v.setTranslationY(BAR.padding_h);
 
                 v.setFocusable(true);
-                //v.setWidth(BAR.bWidth);
-                //v.setHeight(BAR.bHeight);
                 v.setScaleX(1);
                 v.setScaleY(1);
                 v.setAlpha(1);

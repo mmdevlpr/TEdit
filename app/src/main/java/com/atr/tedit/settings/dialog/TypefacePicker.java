@@ -18,8 +18,6 @@ import com.atr.tedit.dialog.TDialog;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.util.FontUtil;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
