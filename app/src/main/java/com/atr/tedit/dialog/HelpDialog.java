@@ -15,10 +15,10 @@
 package com.atr.tedit.dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -64,8 +64,14 @@ public class HelpDialog extends TDialog {
         inflater.inflate(layout, (LinearLayout)viewLayout.findViewById(R.id.helpDisplay), true);
 
         TextView versionView = (TextView)viewLayout.findViewById(R.id.version);
-        if (versionView != null)
-            versionView.setText("v" + BuildConfig.VERSION_NAME);
+        if (versionView != null) {
+            try {
+                versionView.setText(getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), PackageManager.GET_ACTIVITIES).versionName);
+            } catch (Exception e) {
+                Log.i("TEdit", "Unable to obtain version name from Package Manager: " + e.getMessage());
+                versionView.setText("v" + BuildConfig.VERSION_NAME);
+            }
+        }
         FontUtil.applyFont(FontUtil.getDefault(), viewLayout);
         TextView titleView = (TextView)viewLayout.findViewById(R.id.apptitle);
         if (titleView != null)

@@ -5,6 +5,8 @@ TEdit is a simple text editor for Android devices. TEdit includes a graphical fi
 
 TEdit Features:
 
+- Compliant with Android 11 storage API restrictions.
+
 - Open multiple documents and switch between them with the Tabs view.
 
 - Search and replace text within your text documents.
@@ -14,6 +16,10 @@ TEdit Features:
 - Select text directionality, wrap modes and change fonts through the settings menu.
 
 - Use the local settings menu to make changes to wrap modes, text directinality and fonts for individual text views.
+
+[<img src="https://1337atr.weebly.com/files/theme/imgs/buttons/1337Button_gears.png"
+      alt="Get it at 1337 Gallery"
+      height="80">](https://1337atr.weebly.com/carpediem.html)
 
 [<img src="https://f-droid.org/badge/get-it-on.png"
       alt="Get it on F-Droid"
