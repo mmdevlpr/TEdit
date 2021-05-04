@@ -44,7 +44,8 @@
     <string name="error_nofilename">The filename could not be retrieved.</string>
     <string name="error_androidfilerename">Unable to save file. The Android distribution renamed the file to an unknown existing filename.</string>
     <string name="error_nourirelease">TEdit was unable to release the permission</string>
-    <string name="alert_androidrenamedfile">Android was not able to save the file under the requested name. The file was renamed to:</string>
+    <string name="error_filenotsaved">The file was not saved for an unknown reason.</string>
+    <string name="alert_androidrenamedfile">Android decided it knew better than you what the filename should be and renamed it to:</string>
     <string name="newdirectory">New Directory</string>
     <string name="newdirmessage">Directory name:</string>
     <string name="dircreated">Directory Created</string>

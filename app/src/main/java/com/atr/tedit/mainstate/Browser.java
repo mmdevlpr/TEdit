@@ -984,18 +984,33 @@ public class Browser extends ListFragment implements SettingsApplicable {
             file = AndFile.createDescriptor(df);
         }
 
-        if (writeFile(file, ctx, body))
+        if (writeFile(file, ctx, body)) {
+            if (file.getType() == AndFile.TYPE_DOCFILE && !file.getName().equals(filename)) {
+                Log.e("TEdit.Browser", "Android could not save the file "
+                        + "under the requested name, " + filename
+                        + ". The file was saved under the name: " + file.getName());
+                ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
+                        ctx.getString(R.string.alert_androidrenamedfile) + " " + file.getName());
+                em.show(ctx.getSupportFragmentManager(), "dialog");
+            }
+
             return file;
+        }
 
         return null;
     }
 
     private DocumentFile createDocumentFile(String filename) {
-        /*String mime = DataAccessUtil.getFileNameMime(filename);
-        if (mime.isEmpty())
-            mime = "text/plain";*/
         String mime = (filename.toLowerCase().endsWith(".txt")) ? "text/plain" : "";
         DocumentFile df = ((DocumentFile)currentPath.getCurrent().getFile()).createFile(mime, filename);
+
+        if (df == null && mime.isEmpty()) {
+            mime = DataAccessUtil.getFileNameMime(filename);
+            if (mime.isEmpty())
+                mime = "text/plain";
+            df = ((DocumentFile) currentPath.getCurrent().getFile()).createFile(mime, filename);
+        }
+
         if (df == null) {
             StringBuilder newName = new StringBuilder(filename);
             int pidx = filename.lastIndexOf(".");
@@ -1038,7 +1053,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             }
 
             newName.delete(pidx, newName.length());
-            df = ((DocumentFile)currentPath.getCurrent().getFile()).createFile(mime, newName.toString());
+            df = ((DocumentFile)currentPath.getCurrent().getFile()).createFile("text/plain", newName.toString());
             if (df == null) {
                 Log.e("TEdit.Browser", "Unable to save file " + currentPath.getPath() + "/" + filename
                         + ". The Android distribution renamed the file to an unknown existing filename.");
@@ -1047,15 +1062,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 em.show(ctx.getSupportFragmentManager(), "dialog");
                 return null;
             }
-        }
-
-        if (!df.getName().equals(filename)) {
-            Log.e("TEdit.Browser", "Android could not save the file "
-                    + "under the requested name, " + filename
-                    + ". The file was saved under the name: " + df.getName());
-            ErrorMessage em = ErrorMessage.getInstance(ctx.getString(R.string.alert),
-                    ctx.getString(R.string.alert_androidrenamedfile) + " " + df.getName());
-            em.show(ctx.getSupportFragmentManager(), "dialog");
         }
 
         return df;

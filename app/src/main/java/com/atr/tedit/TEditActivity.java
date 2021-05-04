@@ -585,6 +585,12 @@ public class TEditActivity extends AppCompatActivity {
         AndFile writtenFile = browser.saveFile(browser.getEnteredFilename(), body);
         if (writtenFile == null) {
             cursor.close();
+
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.error),
+                    getString(R.string.error_filenotsaved));
+            em.show(getSupportFragmentManager(), "dialog");
+            Log.e("TEdit", "File, " + browser.getEnteredFilename() + ", was not saved for an unknown reason.");
+
             return;
         }
 
