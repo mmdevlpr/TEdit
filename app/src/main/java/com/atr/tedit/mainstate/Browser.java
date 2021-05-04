@@ -398,17 +398,19 @@ public class Browser extends ListFragment implements SettingsApplicable {
         }
     }
 
-    public void upDir() {
-        if (currentPath == null)
-            return;
+    public boolean upDir() {
+        if (isBrowsingPermittedDirs())
+            return false;
 
         if (currentPath.moveToParent() == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 populatePermittedDirectories();
             } else
-                return;
+                return false;
         } else
             populateBrowser();
+
+        return true;
     }
 
     public String getEnteredFilename() {

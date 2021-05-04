@@ -231,7 +231,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:paddingLeft="24dp"
-                        app:layout_constraintBottom_toTopOf="@+id/editorLabel"
+                        app:layout_constraintBottom_toTopOf="@+id/aobLabel"
                         app:layout_constraintHorizontal_bias="0"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
@@ -256,6 +256,49 @@
                     </RadioGroup>
 
                     <TextView
+                        android:id="@+id/aobLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/settings_actiononback"
+                        android:textSize="16dp"
+                        app:layout_constraintBottom_toTopOf="@+id/aobGroup"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textDirGroup" />
+
+                    <RadioGroup
+                        android:id="@+id/aobGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:paddingLeft="24dp"
+                        app:layout_constraintBottom_toTopOf="@+id/editorLabel"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/aobLabel">
+
+                        <RadioButton
+                            android:id="@+id/aobParent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/settings_aobparent"
+                            android:textSize="16dp" />
+
+                        <RadioButton
+                            android:id="@+id/aobClose"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_weight="1"
+                            android:text="@string/settings_aobclose"
+                            android:textSize="16dp" />
+                    </RadioGroup>
+
+                    <TextView
                         android:id="@+id/editorLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -267,7 +310,7 @@
                         app:layout_constraintHorizontal_bias="0"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textDirGroup" />
+                        app:layout_constraintTop_toBottomOf="@+id/aobGroup" />
 
                     <TextView
                         android:id="@+id/editorFontLabel"

@@ -111,6 +111,9 @@
     <string name="settings_textDir">Text Direction:</string>
     <string name="LTR">Left to Right</string>
     <string name="RTL">Right to Left</string>
+    <string name="settings_actiononback">Action on Back:</string>
+    <string name="settings_aobclose">Close Browser</string>
+    <string name="settings_aobparent">Parent Directory</string>
     <string name="wordwrap">Word Wrap</string>
     <string name="label_wordwrap">Word Wrap:</string>
     <string name="settings_local_button">Local Settings</string>
@@ -123,4 +126,5 @@
     <string name="off">Off</string>
     <string name="permittedDirs">Permitted Directories</string>
     <string name="newPermittedDir">Permit New Directory</string>
+    <string name="backtoclose">Activate Back again to close.</string>
 </resources>

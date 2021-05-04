@@ -25,6 +25,9 @@ import android.database.SQLException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -118,6 +121,8 @@ public class TEditActivity extends AppCompatActivity {
     private Uri tmpUriToOpen;
 
     private PermissionRequest permissionRequest;
+
+    private boolean backTapped = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -585,12 +590,6 @@ public class TEditActivity extends AppCompatActivity {
         AndFile writtenFile = browser.saveFile(browser.getEnteredFilename(), body);
         if (writtenFile == null) {
             cursor.close();
-
-            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.error),
-                    getString(R.string.error_filenotsaved));
-            em.show(getSupportFragmentManager(), "dialog");
-            Log.e("TEdit", "File, " + browser.getEnteredFilename() + ", was not saved for an unknown reason.");
-
             return;
         }
 
@@ -796,7 +795,25 @@ public class TEditActivity extends AppCompatActivity {
 
             switch (state) {
                 case STATE_BROWSE:
-                    closeBrowser();
+                    if (Settings.getActionOnBack() == Settings.AOB_CLOSE) {
+                        closeBrowser();
+                    } else if (!((Browser)getFrag()).isLoading() && !((Browser)getFrag()).isAnimating() && !utilityBar.isAnimating()) {
+                        if (((Browser)getFrag()).upDir())
+                            break;
+                        if (backTapped) {
+                            closeBrowser();
+                            backTapped = false;
+                        } else {
+                            backTapped = true;
+                            Toast.makeText(this, getString(R.string.backtoclose), Toast.LENGTH_SHORT).show();
+                            new Handler(Looper.getMainLooper()) {
+                                @Override
+                                public void handleMessage(Message msg) {
+                                    backTapped = false;
+                                }
+                            }.sendEmptyMessageDelayed(0, 3000);
+                        }
+                    }
                     break;
                 case STATE_TEXT:
                     if (utilityBar.getState().STATE == UtilityBar.STATE_TEXT_SEARCH) {

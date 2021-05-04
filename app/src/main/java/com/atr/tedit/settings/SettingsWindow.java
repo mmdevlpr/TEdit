@@ -492,6 +492,11 @@ public class SettingsWindow {
             } else
                 ((RadioGroup) settingsView.findViewById(R.id.editorTextDirGroup)).check(R.id.editorTextDirRTL);
         }
+
+        if (Settings.getActionOnBack() == Settings.AOB_PARENT) {
+            ((RadioGroup) settingsView.findViewById(R.id.aobGroup)).check(R.id.aobParent);
+        } else
+            ((RadioGroup) settingsView.findViewById(R.id.aobGroup)).check(R.id.aobClose);
     }
 
     private void resetLocalSettings(TxtSettings txtSettings) {
@@ -596,6 +601,9 @@ public class SettingsWindow {
             if (Settings.getEditorTextDirection() != textDirection)
                 Settings.setEditorTextDirection(textDirection);
         }
+
+        Settings.setActionOnBack(((RadioGroup) settingsView.findViewById(R.id.aobGroup))
+                .getCheckedRadioButtonId() == R.id.aobParent ? Settings.AOB_PARENT : Settings.AOB_CLOSE);
 
         Typeface tf = FontUtil.getTypefaceFromPath(tempSettings.typefacePath, FontUtil.getSystemTypeface());
         if (!FontUtil.getSystemTypeface().equals(tf)) {

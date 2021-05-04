@@ -14,7 +14,12 @@ public class Settings {
     public static final int TEXTDIR_LTR = 0;
     public static final int TEXTDIR_RTL = 1;
 
+    public static final int AOB_CLOSE = 0;
+    public static final int AOB_PARENT = 1;
+
     private static AndPath startupPath;
+
+    private static int actionOnBack = AOB_PARENT;
 
     private static boolean wordWrap = true;
     private static int systemTextDirection = TEXTDIR_LTR;
@@ -40,6 +45,14 @@ public class Settings {
 
     protected static void setSystemTextDirection(int direction) {
         systemTextDirection = (direction > TEXTDIR_RTL) ? TEXTDIR_RTL : (direction < TEXTDIR_LTR) ? TEXTDIR_LTR : direction;
+    }
+
+    public static int getActionOnBack() {
+        return actionOnBack;
+    }
+
+    protected static void setActionOnBack(int aob) {
+        actionOnBack = (aob > AOB_PARENT) ? AOB_PARENT : (aob < AOB_CLOSE) ? AOB_CLOSE : aob;
     }
 
     public static int getEditorTextDirection() {
@@ -84,6 +97,8 @@ public class Settings {
 
         FontUtil.setSystemTypeface(prefs.getString("systemTypeface", "montserratalternates_regular"));
         FontUtil.setEditorTypeface(prefs.getString("editorTypeface", "metropolis_regular"));
+
+        actionOnBack = prefs.getInt("actionOnBack", AOB_PARENT);
     }
 
     public static void saveSettings(final TEditActivity ctx) {
@@ -95,6 +110,7 @@ public class Settings {
         prefs.putInt("editorTextDirection", editorTextDirection);
         prefs.putString("systemTypeface", FontUtil.getSystemPath());
         prefs.putString("editorTypeface", FontUtil.getEditorPath());
+        prefs.putInt("actionOnBack", actionOnBack);
 
         prefs.commit();
     }
