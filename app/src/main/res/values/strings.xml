@@ -70,7 +70,7 @@
     <string name="help_newdir">Create a new directory if not in the Permitted Directories root browser view. When in the file browser\'s root view, Permitted Directories, selecting this button will launch Android\'s Files application where you can browse to and select a directory to grant TEdit permission to access.</string>
     <string name="help_drives">Select a volume to browse. Root, internal or, if present, SDcard.</string>
     <string name="help_tabs">View the list of currently open documents.</string>
-    <string name="help_browseclose">Use your device\'s back button to close the browser. If you have one or more open documents this will switch to the last open document otherwise, this will quit the TEdit application.</string>
+    <string name="help_browseclose">Select the behavior of the Back button/gesture from the global settings menu. When Parent Directory is selected activating the Back button/gesture will move to the parent directory until the Permitted Directories view is displayed at which point activating the Back button/gesture twice will display one of the currently open text files or, if there are no open files, close TEdit. When Close Browser is selected activating the Back button/gesture will immediately close TEdit if there are no currently open text files, otherwise one of the open files will be displayed.</string>
     <string name="help_opendoc">Open a document.</string>
     <string name="help_savedoc">Save the current document. (ctrl+s)</string>
     <string name="help_saveas">Save a copy of the current document. (ctrl+shift+s)</string>
