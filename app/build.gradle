@@ -4,7 +4,7 @@ android {
     compileSdkVersion 30
     defaultConfig {
         applicationId "com.atr.tedit"
-        minSdkVersion 14
+        minSdkVersion 28
         targetSdkVersion 30
         versionCode 15
         versionName '2.4.0'

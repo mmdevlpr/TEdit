@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|left"
             android:layout_weight="1"
-            android:text="For Android versions 4.3 and above TEdit can now only access directories explicitly permitted by the user. Root file browser view now displays the directories permitted by the user and allows the user to launch the Files application to select new directories to grant TEdit permission to access." />
+            android:text="TEdit can now only access directories explicitly permitted by the user. Root file browser view now displays the directories permitted by the user and allows the user to launch the Files application to select new directories to grant TEdit permission to access." />
     </LinearLayout>
 
     <LinearLayout

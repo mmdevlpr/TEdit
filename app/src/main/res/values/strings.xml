@@ -67,7 +67,7 @@
     <string name="icon_author">Icon Design by David Mind</string>
     <string name="help_newdoc">Create a new document.</string>
     <string name="help_parentdir">Move to the parent directory.</string>
-    <string name="help_newdir">Create a new directory if not in the Permitted Directories root browser view or running an Android version older than 4.1. When in the file browser\'s root view, Permitted Directories, selecting this button will launch Android\'s Files application where you can browse to and select a directory to grant TEdit permission to access.</string>
+    <string name="help_newdir">Create a new directory if not in the Permitted Directories root browser view. When in the file browser\'s root view, Permitted Directories, selecting this button will launch Android\'s Files application where you can browse to and select a directory to grant TEdit permission to access.</string>
     <string name="help_drives">Select a volume to browse. Root, internal or, if present, SDcard.</string>
     <string name="help_tabs">View the list of currently open documents.</string>
     <string name="help_browseclose">Use your device\'s back button to close the browser. If you have one or more open documents this will switch to the last open document otherwise, this will quit the TEdit application.</string>

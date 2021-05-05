@@ -1,6 +1,6 @@
 - File browser is now compliant with Android 11 storage API security restrictions.
 
-- TEdit can now only open directories explicitly permitted by the user on Android versions 4.3 and newer.
+- TEdit can now only open directories explicitly permitted by the user.
 
 - Added threading and animation to the file browser when switching directories.
 
