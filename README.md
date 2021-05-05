@@ -37,37 +37,25 @@ src="http://i.creativecommons.org/p/zero/1.0/88x31.png"
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
 
 [<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen01.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen01.png)
+src="https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/1.png"
+ alt="TEdit Screen" width="183">](https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/1.png)
 
 [<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen02.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen02.png)
+src="https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/2.png"
+ alt="TEdit Screen" width="183">](https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/2.png)
 
 [<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen03.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen03.png)
+src="https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/3.png"
+ alt="TEdit Screen" width="183">](https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/3.png)
 
 [<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen04.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen04.png)
+src="https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/4.png"
+ alt="TEdit Screen" width="183">](https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/4.png)
 
 [<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen05.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen05.png)
-
-[<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen06.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen06.png)
-
-[<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen07.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen07.png)
+src="https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/5.png"
+ alt="TEdit Screen" width="183"">](https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/5.png)
 
 [<img 
 src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen08.png"
  alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen08.png)
-
-[<img 
-src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen09.png"
- alt="TEdit Screen" width="183" height="325">](https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen09.png)
