@@ -264,7 +264,10 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 .getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
 
         if (isBrowsingPermittedDirs() && file != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (file.equals(ctx.getRoot())) {
+                Settings.setEnableRoot(false);
+                Settings.saveSettings(ctx);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 if (((DocumentDescriptor)file).getTreeUri() != null) {
                     ctx.releasePersistableUriPermission(((DocumentDescriptor)file).getTreeUri());
                 } else
@@ -432,7 +435,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         setDisplayedPath(currentPath.getPath());
 
-        if (currentPath.getCurrent().getType() == AndFile.TYPE_FILE) {
+        /*if (currentPath.getCurrent().getType() == AndFile.TYPE_FILE) {
             AndFile[][] files = currentPath.listFilesAndDirs();
             Comparator<AndFile> comparator;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -502,7 +505,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             });
 
             return;
-        }
+        }*/
 
         ctx.getUtilityBar().getState().setEnabled(false);
         final ArrayList<AndFile> items = new ArrayList<>();
@@ -713,9 +716,18 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 }
 
                 final Uri[] uris = ctx.getPermittedUris();
-                AndFile[] dirs = new AndFile[uris.length + 1];
-                for (int i = 1; i < dirs.length; i++) {
-                    dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, uris[i - 1]), uris[i - 1]);
+                AndFile[] dirs;
+                if (Settings.isEnableRoot() && ctx.getRoot().exists()) {
+                    dirs = new AndFile[uris.length + 2];
+                    dirs[1] = ctx.getRoot();
+                    for (int i = 2; i < dirs.length; i++) {
+                        dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, uris[i - 2]), uris[i - 2]);
+                    }
+                } else {
+                    dirs = new AndFile[uris.length + 1];
+                    for (int i = 1; i < dirs.length; i++) {
+                        dirs[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, uris[i - 1]), uris[i - 1]);
+                    }
                 }
 
                 animating = true;

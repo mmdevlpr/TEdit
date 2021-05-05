@@ -317,7 +317,7 @@ public class SettingsWindow {
             settingsView.findViewById(R.id.localTextDirGroup).setVisibility(View.GONE);
         }
 
-        int colorCream = ctx.getResources().getColor(R.color.cream);
+        /*int colorCream = ctx.getResources().getColor(R.color.cream);
         ((CheckBox)settingsView.findViewById(R.id.wordWrap)).setTextColor(colorCream);
         ((RadioButton)settingsView.findViewById(R.id.textDirLTR)).setTextColor(colorCream);
         ((RadioButton)settingsView.findViewById(R.id.textDirRTL)).setTextColor(colorCream);
@@ -328,7 +328,7 @@ public class SettingsWindow {
         ((RadioButton)settingsView.findViewById(R.id.localWordWrapOff)).setTextColor(colorCream);
         ((RadioButton)settingsView.findViewById(R.id.localTextDirGlobal)).setTextColor(colorCream);
         ((RadioButton)settingsView.findViewById(R.id.localTextDirLTR)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.localTextDirRTL)).setTextColor(colorCream);
+        ((RadioButton)settingsView.findViewById(R.id.localTextDirRTL)).setTextColor(colorCream);*/
 
         settingsView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -487,6 +487,8 @@ public class SettingsWindow {
             ((RadioGroup) settingsView.findViewById(R.id.aobGroup)).check(R.id.aobParent);
         } else
             ((RadioGroup) settingsView.findViewById(R.id.aobGroup)).check(R.id.aobClose);
+
+        ((CheckBox) settingsView.findViewById(R.id.enableRoot)).setChecked(Settings.isEnableRoot());
     }
 
     private void resetLocalSettings(TxtSettings txtSettings) {
@@ -594,6 +596,8 @@ public class SettingsWindow {
 
         Settings.setActionOnBack(((RadioGroup) settingsView.findViewById(R.id.aobGroup))
                 .getCheckedRadioButtonId() == R.id.aobParent ? Settings.AOB_PARENT : Settings.AOB_CLOSE);
+
+        Settings.setEnableRoot(((CheckBox) settingsView.findViewById(R.id.enableRoot)).isChecked());
 
         Typeface tf = FontUtil.getTypefaceFromPath(tempSettings.typefacePath, FontUtil.getSystemTypeface());
         if (!FontUtil.getSystemTypeface().equals(tf)) {

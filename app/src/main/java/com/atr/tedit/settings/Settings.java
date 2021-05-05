@@ -20,6 +20,7 @@ public class Settings {
     private static AndPath startupPath;
 
     private static int actionOnBack = AOB_PARENT;
+    private static boolean enableRoot = false;
 
     private static boolean wordWrap = true;
     private static int systemTextDirection = TEXTDIR_LTR;
@@ -57,6 +58,10 @@ public class Settings {
     protected static void setActionOnBack(int aob) {
         actionOnBack = (aob > AOB_PARENT) ? AOB_PARENT : (aob < AOB_CLOSE) ? AOB_CLOSE : aob;
     }
+
+    public static boolean isEnableRoot() { return enableRoot; }
+
+    public static void setEnableRoot(boolean enable) { enableRoot = enable; }
 
     public static boolean isShowPermitHelp() {
         return showPermitHelp;
@@ -110,6 +115,7 @@ public class Settings {
         FontUtil.setEditorTypeface(prefs.getString("editorTypeface", "metropolis_regular"));
 
         actionOnBack = prefs.getInt("actionOnBack", AOB_PARENT);
+        enableRoot = prefs.getBoolean("enableRoot", false);
 
         showPermitHelp = prefs.getBoolean("showPermitHelp", true);
     }
@@ -124,6 +130,7 @@ public class Settings {
         prefs.putString("systemTypeface", FontUtil.getSystemPath());
         prefs.putString("editorTypeface", FontUtil.getEditorPath());
         prefs.putInt("actionOnBack", actionOnBack);
+        prefs.putBoolean("enableRoot", enableRoot);
 
         prefs.putBoolean("showPermitHelp", showPermitHelp);
 

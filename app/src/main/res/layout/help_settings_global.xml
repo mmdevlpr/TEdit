@@ -86,6 +86,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|left"
+        android:layout_marginTop="6dp"
+        android:text="@string/label_enableroot"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:text="@string/help_settings_enableroot" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
         android:layout_marginTop="18dp"
         android:text="@string/label_editor"
         android:textSize="24sp" />

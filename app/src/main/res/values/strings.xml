@@ -97,6 +97,7 @@
     <string name="label_textdirection">Text Direction:</string>
     <string name="help_settings_textdirection">The directionality of text for your language.</string>
     <string name="help_settings_aob">Select how TEdit reacts when the Android Back button/gesture is activated when viewing the file browser. Selecting Parent Directory will cause TEdit to move to the parent directory when the Back action is initiated. When viewing the Permitted Directories activating the Back action twice will close TEdit or move to one of the open text files if there are any. Selecting Close Browser will cause TEdit to immediately close or move to one of the open text files when the back action is activated.</string>
+    <string name="help_settings_enableroot">Allow browsing the device\'s root directory from the Permitted Directories view. This may not work on all devices and you will not be able to save files under the root volume unless your device is rooted.</string>
     <string name="label_editor">Editor:</string>
     <string name="help_settings_editor">These settings will be applied, by default, to all text editor views. The settings here can be overridden for individual text documents via the Local settings menu available by swiping to the right from a text editor view.</string>
     <string name="help_settings_wordwrap">Whether or not text in the editor should scroll horizontally.</string>
@@ -117,6 +118,8 @@
     <string name="settings_actiononback">Action on Back:</string>
     <string name="settings_aobclose">Close Browser</string>
     <string name="settings_aobparent">Parent Directory</string>
+    <string name="enableroot">Enable Root</string>
+    <string name="label_enableroot">Enable Root:</string>
     <string name="wordwrap">Word Wrap</string>
     <string name="label_wordwrap">Word Wrap:</string>
     <string name="settings_local_button">Local Settings</string>
