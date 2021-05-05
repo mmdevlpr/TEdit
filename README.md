@@ -19,7 +19,7 @@ TEdit Features:
 
 [<img src="https://1337atr.weebly.com/files/theme/imgs/buttons/1337Button_gears.png"
       alt="Get it at 1337 Gallery"
-      height="80">](https://1337atr.weebly.com/carpediem.html)
+      height="80">](https://1337atr.weebly.com/tedit.html)
 
 [<img src="https://f-droid.org/badge/get-it-on.png"
       alt="Get it on F-Droid"
