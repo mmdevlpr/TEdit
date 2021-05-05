@@ -54,7 +54,7 @@ src="https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/image
 
 [<img 
 src="https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/5.png"
- alt="TEdit Screen" width="183"">](https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/5.png)
+ alt="TEdit Screen" width="183">](https://raw.githubusercontent.com/ATryder/TEdit/master/metadata/en-US/images/phoneScreenshots/5.png)
 
 [<img 
 src="https://1337atr.weebly.com/files/theme/apps/tedit/TEdit_screen08.png"
