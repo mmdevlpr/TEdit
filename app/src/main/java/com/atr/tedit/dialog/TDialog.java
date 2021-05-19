@@ -368,7 +368,7 @@ public abstract class TDialog extends DialogFragment {
         if (title == null) {
             title = new TextView(new ContextThemeWrapper(getActivity(), theme));
             title.setTypeface(typeFace);
-            title.setTextColor(getResources().getColor(R.color.coffeeNcream));
+            title.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             title.setId(R.id.dialog_title);
         }
@@ -403,7 +403,7 @@ public abstract class TDialog extends DialogFragment {
         if (negativeButton == null) {
             negativeButton = new Button(new ContextThemeWrapper(getActivity(), theme));
             negativeButton.setTypeface(typeFace);
-            negativeButton.setTextColor(getResources().getColor(R.color.coffeeNcream));
+            negativeButton.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
             negativeButton.setId(R.id.dialog_negative_button);
         }
 
@@ -420,7 +420,7 @@ public abstract class TDialog extends DialogFragment {
         if (neutralButton == null) {
             neutralButton = new Button(new ContextThemeWrapper(getActivity(), theme));
             neutralButton.setTypeface(typeFace);
-            neutralButton.setTextColor(getResources().getColor(R.color.coffeeNcream));
+            neutralButton.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
             neutralButton.setId(R.id.dialog_neutral_button);
         }
 
@@ -437,7 +437,7 @@ public abstract class TDialog extends DialogFragment {
         if (positiveButton == null) {
             positiveButton = new Button(new ContextThemeWrapper(getActivity(), theme));
             positiveButton.setTypeface(typeFace);
-            positiveButton.setTextColor(getResources().getColor(R.color.coffeeNcream));
+            positiveButton.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
             positiveButton.setId(R.id.dialog_positive_button);
         }
 

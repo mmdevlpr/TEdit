@@ -76,7 +76,7 @@ public class SettingsWindow {
         lp.width = Math.round(width * 0.8f);
         settingsAnimator.setLayoutParams(lp);
 
-        int colorLightRust = ctx.getResources().getColor(R.color.lightRust);
+        int colorLightRust = ctx.getResources().getColor(R.color.lightRust, ctx.getTheme());
 
         Button saveButton = settingsView.findViewById(R.id.saveButton);
         Button cancelButton = settingsView.findViewById(R.id.cancelButton);
@@ -317,7 +317,7 @@ public class SettingsWindow {
             settingsView.findViewById(R.id.localTextDirGroup).setVisibility(View.GONE);
         }
 
-        /*int colorCream = ctx.getResources().getColor(R.color.cream);
+        /*int colorCream = ctx.getResources().getColor(R.color.cream, ctx.getTheme());
         ((CheckBox)settingsView.findViewById(R.id.wordWrap)).setTextColor(colorCream);
         ((RadioButton)settingsView.findViewById(R.id.textDirLTR)).setTextColor(colorCream);
         ((RadioButton)settingsView.findViewById(R.id.textDirRTL)).setTextColor(colorCream);
