@@ -487,6 +487,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 if (items.isEmpty()) {
                     animating = false;
                     getListView().setEnabled(true);
+                    if (getType() == TYPE_SAVE)
+                        getView().findViewById(R.id.savebutton).setEnabled(true);
                     if (!ctx.getUtilityBar().getState().isAnimating())
                         ctx.getUtilityBar().getState().setEnabled(true);
                 } else {
@@ -510,6 +512,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
                                             getListView().setEnabled(true);
+                                            if (getType() == TYPE_SAVE)
+                                                getView().findViewById(R.id.savebutton).setEnabled(true);
                                             if (!ctx.getUtilityBar().getState().isAnimating())
                                                 ctx.getUtilityBar().getState().setEnabled(true);
                                         }
@@ -548,6 +552,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         ctx.getUtilityBar().getState().setEnabled(false);
         getListView().setEnabled(false);
+        if (getType() == TYPE_SAVE)
+            getView().findViewById(R.id.savebutton).setEnabled(false);
         if (getListView().getChildCount() > 0) {
             animating = true;
             int offset = 0;
@@ -708,6 +714,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 if (dirs.length == 0) {
                     animating = false;
                     getListView().setEnabled(true);
+                    if (getType() == TYPE_SAVE)
+                        getView().findViewById(R.id.savebutton).setEnabled(true);
                     if (!ctx.getUtilityBar().getState().isAnimating())
                         ctx.getUtilityBar().getState().setEnabled(true);
                 } else {
@@ -731,6 +739,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
                                             getListView().setEnabled(true);
+                                            if (getType() == TYPE_SAVE)
+                                                getView().findViewById(R.id.savebutton).setEnabled(true);
                                             if (!ctx.getUtilityBar().getState().isAnimating())
                                                 ctx.getUtilityBar().getState().setEnabled(true);
                                             if (uris.length == 0 && Settings.isShowPermitHelp()) {
@@ -794,6 +804,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         getListView().setEnabled(false);
         ctx.getUtilityBar().getState().setEnabled(false);
+        if (getType() == TYPE_SAVE)
+            getView().findViewById(R.id.savebutton).setEnabled(false);
         if (getListView().getChildCount() == 0) {
             handler.sendEmptyMessage(0);
             return;
