@@ -6,11 +6,102 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/v242"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_marginBottom="6dp"
+        android:layout_weight="1"
+        android:padding="3dp"
+        android:text="Version 2.4.2:" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Fixed crash when attempting to save file before browser animation finished." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Fixed crash when tapping taskbar button before browser animation finished when switching from Tabs or Editor views." />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/v241"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_marginBottom="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_weight="1"
+        android:padding="3dp"
+        android:text="Version 2.4.1:" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/bulletpoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_weight="1"
+            android:text="Added Gradle Sha256 checksum for F-Droid builds." />
+    </LinearLayout>
+
+    <TextView
         android:id="@+id/v240"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|left"
         android:layout_marginBottom="6dp"
+        android:layout_marginTop="6dp"
         android:layout_weight="1"
         android:padding="3dp"
         android:text="Version 2.4.0:" />
