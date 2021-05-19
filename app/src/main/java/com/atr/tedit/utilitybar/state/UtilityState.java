@@ -23,6 +23,7 @@ import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
+import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.util.Callback;
 import com.atr.tedit.utilitybar.UtilityBar;
 
@@ -160,9 +161,11 @@ public abstract class UtilityState {
         BAR.handler.postDelayed(new Runnable() {
             public void run() {
                 animating = false;
-                View[] l = LAYERS[layer];
-                for (View v : l) {
-                    v.setEnabled(true);
+                if (!(BAR.ctx.getFrag() instanceof Browser) || !(((Browser)BAR.ctx.getFrag()).isAnimating() || ((Browser)BAR.ctx.getFrag()).isLoading())) {
+                    View[] l = LAYERS[layer];
+                    for (View v : l) {
+                        v.setEnabled(true);
+                    }
                 }
             }
         }, ANIMLENGTH + (animDelay * (LAYERS[layer].length - 1)));

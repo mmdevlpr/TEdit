@@ -435,79 +435,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
 
         setDisplayedPath(currentPath.getPath());
 
-        /*if (currentPath.getCurrent().getType() == AndFile.TYPE_FILE) {
-            AndFile[][] files = currentPath.listFilesAndDirs();
-            Comparator<AndFile> comparator;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                comparator = new Comparator<AndFile>() {
-                    @Override
-                    public int compare(final AndFile o1, final AndFile o2) {
-                        return o1.getPath().compareToIgnoreCase(o2.getPath());
-                    }
-                };
-            } else {
-                comparator = new Comparator<AndFile>() {
-                    @Override
-                    public int compare(final AndFile o1, final AndFile o2) {
-                        return o1.getPath().compareToIgnoreCase(o2.getName());
-                    }
-                };
-            }
-
-            Arrays.sort(files[0], comparator);
-            Arrays.sort(files[1], comparator);
-            numDirs = files[0].length;
-            numFiles = files[1].length;
-
-            ArrayList<AndFile> items = new ArrayList<>(numDirs + numFiles);
-            for (AndFile f : files[0]) {
-                items.add(f);
-            }
-            for (AndFile f : files[1]) {
-                items.add(f);
-            }
-
-            setListAdapter(new ArrayAdapter<AndFile>(ctx, (Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
-                    R.layout.browser_row : R.layout.browser_row_rtl, items) {
-
-                @Override
-                public int getCount() { return super.getCount(); }
-
-                @Override
-                public View getView(int position, View view, ViewGroup parent) {
-                    View row = view;
-                    ImageView iv;
-                    TextView tv;
-                    if (row == null) {
-                        row = ((Activity) getContext()).getLayoutInflater().inflate((Settings.getSystemTextDirection()
-                                        == Settings.TEXTDIR_LTR) ? R.layout.browser_row : R.layout.browser_row_rtl,
-                                parent, false);
-                        iv = row.findViewById(R.id.dirIcon);
-                        tv = row.findViewById(R.id.dirText);
-
-                        tv.setTypeface(FontUtil.getSystemTypeface());
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            tv.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-                            tv.setTextDirection((Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR) ?
-                                    View.TEXT_DIRECTION_LTR : View.TEXT_DIRECTION_RTL);
-                        }
-                    } else {
-                        iv = row.findViewById(R.id.dirIcon);
-                        tv = row.findViewById(R.id.dirText);
-                    }
-                    AndFile item = getItem(position);
-
-                    iv.setImageResource(item.isDirectory() ? R.drawable.dir_focused : R.drawable.doc_focused);
-                    tv.setText(item.getName());
-
-                    return row;
-                }
-            });
-
-            return;
-        }*/
-
-        ctx.getUtilityBar().getState().setEnabled(false);
         final ArrayList<AndFile> items = new ArrayList<>();
         final Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -560,6 +487,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 if (items.isEmpty()) {
                     animating = false;
                     getListView().setEnabled(true);
+                    if (!ctx.getUtilityBar().getState().isAnimating())
+                        ctx.getUtilityBar().getState().setEnabled(true);
                 } else {
                     getListView().post(new Runnable() {
                         public void run() {
@@ -581,6 +510,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
                                             getListView().setEnabled(true);
+                                            if (!ctx.getUtilityBar().getState().isAnimating())
+                                                ctx.getUtilityBar().getState().setEnabled(true);
                                         }
 
                                         @Override
@@ -612,11 +543,10 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 }
 
                 loading = false;
-                if (!ctx.getUtilityBar().getState().isAnimating())
-                    ctx.getUtilityBar().getState().setEnabled(true);
             }
         };
 
+        ctx.getUtilityBar().getState().setEnabled(false);
         getListView().setEnabled(false);
         if (getListView().getChildCount() > 0) {
             animating = true;
@@ -778,6 +708,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                 if (dirs.length == 0) {
                     animating = false;
                     getListView().setEnabled(true);
+                    if (!ctx.getUtilityBar().getState().isAnimating())
+                        ctx.getUtilityBar().getState().setEnabled(true);
                 } else {
                     getListView().post(new Runnable() {
                         public void run() {
@@ -799,6 +731,8 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
                                             getListView().setEnabled(true);
+                                            if (!ctx.getUtilityBar().getState().isAnimating())
+                                                ctx.getUtilityBar().getState().setEnabled(true);
                                             if (uris.length == 0 && Settings.isShowPermitHelp()) {
                                                 final HelpDialog hd = HelpDialog.newInstance(R.layout.help_permitted_directories, ctx.getString(R.string.permittedDirs));
                                                 hd.show(ctx.getSupportFragmentManager(), "HelpDialog");
@@ -859,6 +793,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
         };
 
         getListView().setEnabled(false);
+        ctx.getUtilityBar().getState().setEnabled(false);
         if (getListView().getChildCount() == 0) {
             handler.sendEmptyMessage(0);
             return;
