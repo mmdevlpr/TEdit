@@ -502,6 +502,13 @@ public class Browser extends ListFragment implements SettingsApplicable {
                         public void run() {
                             int animId = Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR ? R.anim.browser_row_left : R.anim.browser_row_right;
                             int offset = 0;
+
+                            try {
+                                getListView();
+                            } catch (Exception e) {
+                                return;
+                            }
+
                             for (int i = 0; i < getListView().getChildCount(); i++) {
                                 final View view = getListView().getChildAt(i);
                                 Animation anim = AnimationUtils.loadAnimation(ctx, animId);
@@ -517,11 +524,15 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         @Override
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
-                                            getListView().setEnabled(true);
-                                            if (getType() == TYPE_SAVE)
-                                                getView().findViewById(R.id.savebutton).setEnabled(true);
-                                            if (!ctx.getUtilityBar().getState().isAnimating())
-                                                ctx.getUtilityBar().getState().setEnabled(true);
+                                            try {
+                                                getListView().setEnabled(true);
+                                                if (getType() == TYPE_SAVE)
+                                                    getView().findViewById(R.id.savebutton).setEnabled(true);
+                                                if (!ctx.getUtilityBar().getState().isAnimating())
+                                                    ctx.getUtilityBar().getState().setEnabled(true);
+                                            } catch (Exception e) {
+
+                                            }
                                         }
 
                                         @Override
@@ -735,6 +746,13 @@ public class Browser extends ListFragment implements SettingsApplicable {
                         public void run() {
                             int animId = Settings.getSystemTextDirection() == Settings.TEXTDIR_LTR ? R.anim.browser_row_left : R.anim.browser_row_right;
                             int offset = 0;
+
+                            try {
+                                getListView();
+                            } catch (Exception e) {
+                                return;
+                            }
+
                             for (int i = 0; i < getListView().getChildCount(); i++) {
                                 final View view = getListView().getChildAt(i);
                                 Animation anim = AnimationUtils.loadAnimation(ctx, animId);
@@ -750,35 +768,39 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                         @Override
                                         public void onAnimationEnd(Animation anim) {
                                             animating = false;
-                                            getListView().setEnabled(true);
-                                            if (getType() == TYPE_SAVE)
-                                                getView().findViewById(R.id.savebutton).setEnabled(true);
-                                            if (!ctx.getUtilityBar().getState().isAnimating())
-                                                ctx.getUtilityBar().getState().setEnabled(true);
-                                            if (uris.length == 0 && Settings.isShowPermitHelp()) {
-                                                final HelpDialog hd = HelpDialog.newInstance(R.layout.help_permitted_directories, ctx.getString(R.string.permittedDirs));
-                                                hd.show(ctx.getSupportFragmentManager(), "HelpDialog");
-                                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                                    public void run() {
-                                                        hd.setNeutralButton(R.string.okay, new View.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(View view) {
-                                                                CheckBox cb = (CheckBox)hd.getLayout().findViewById(R.id.dontshow);
-                                                                Settings.setShowPermitHelp(!cb.isChecked());
-                                                                Settings.saveSettings(ctx);
-                                                                hd.dismiss();
-                                                            }
-                                                        });
-                                                    }
-                                                });
+                                            try {
+                                                getListView().setEnabled(true);
+                                                if (getType() == TYPE_SAVE)
+                                                    getView().findViewById(R.id.savebutton).setEnabled(true);
+                                                if (!ctx.getUtilityBar().getState().isAnimating())
+                                                    ctx.getUtilityBar().getState().setEnabled(true);
+                                                if (uris.length == 0 && Settings.isShowPermitHelp()) {
+                                                    final HelpDialog hd = HelpDialog.newInstance(R.layout.help_permitted_directories, ctx.getString(R.string.permittedDirs));
+                                                    hd.show(ctx.getSupportFragmentManager(), "HelpDialog");
+                                                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                                        public void run() {
+                                                            hd.setNeutralButton(R.string.okay, new View.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(View view) {
+                                                                    CheckBox cb = (CheckBox) hd.getLayout().findViewById(R.id.dontshow);
+                                                                    Settings.setShowPermitHelp(!cb.isChecked());
+                                                                    Settings.saveSettings(ctx);
+                                                                    hd.dismiss();
+                                                                }
+                                                            });
+                                                        }
+                                                    });
 
-                                                if (Settings.isFirstRun(ctx)) {
+                                                    if (Settings.isFirstRun(ctx)) {
+                                                        Settings.saveVer(ctx);
+                                                        ctx.displayWhatsNew();
+                                                    }
+                                                } else if (Settings.isFirstRun(ctx)) {
                                                     Settings.saveVer(ctx);
                                                     ctx.displayWhatsNew();
                                                 }
-                                            } else if (Settings.isFirstRun(ctx)) {
-                                                Settings.saveVer(ctx);
-                                                ctx.displayWhatsNew();
+                                            } catch (Exception e) {
+
                                             }
                                         }
 
