@@ -439,6 +439,12 @@ public class Browser extends ListFragment implements SettingsApplicable {
         final Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
+                try{
+                    getListView();
+                } catch (Exception e) {
+                    return;
+                }
+
                 if (ctx.getUtilityBar().getState().isAnimating() || isAnimating()) {
                     sendEmptyMessageDelayed(0, 41);
                     return;
@@ -646,6 +652,12 @@ public class Browser extends ListFragment implements SettingsApplicable {
         final Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
+                try{
+                    getListView();
+                } catch (Exception e) {
+                    return;
+                }
+
                 if (ctx.getUtilityBar().getState().isAnimating() || isAnimating()) {
                     sendEmptyMessageDelayed(0, 41);
                     return;

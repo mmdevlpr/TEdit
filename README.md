@@ -17,9 +17,9 @@ TEdit Features:
 
 - Use the local settings menu to make changes to wrap modes, text directinality and fonts for individual text views.
 
-[<img src="https://1337atr.weebly.com/files/theme/imgs/buttons/1337Button_gears.png"
+[<img src="https://www.inventati.org/1337gallery/imgs/buttons/1337Button_gears.png"
       alt="Get it at 1337 Gallery"
-      height="80">](https://1337atr.weebly.com/tedit.html)
+      height="80">](https://www.inventati.org/1337gallery/apps/tedit/tedit.html)
 
 [<img src="https://f-droid.org/badge/get-it-on.png"
       alt="Get it on F-Droid"
@@ -29,7 +29,7 @@ TEdit Features:
 src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
  alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.atr.tedit)
 
-You can find various APK installers for TEdit at http://1337atr.weebly.com/tedit.html
+You can find various APK installers for TEdit at http://www.inventati.org/1337gallery/apps/tedit/tedit.html
 
 [<img 
 src="http://i.creativecommons.org/p/zero/1.0/88x31.png"
