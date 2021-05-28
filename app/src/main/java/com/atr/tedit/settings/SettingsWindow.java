@@ -317,19 +317,6 @@ public class SettingsWindow {
             settingsView.findViewById(R.id.localTextDirGroup).setVisibility(View.GONE);
         }
 
-        /*int colorCream = ctx.getResources().getColor(R.color.cream, ctx.getTheme());
-        ((CheckBox)settingsView.findViewById(R.id.wordWrap)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.textDirLTR)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.textDirRTL)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.editorTextDirLTR)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.editorTextDirRTL)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.localWordWrapGlobal)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOn)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.localWordWrapOff)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.localTextDirGlobal)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.localTextDirLTR)).setTextColor(colorCream);
-        ((RadioButton)settingsView.findViewById(R.id.localTextDirRTL)).setTextColor(colorCream);*/
-
         settingsView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
