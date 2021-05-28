@@ -17,7 +17,7 @@ TEdit Features:
 
 - Use the local settings menu to make changes to wrap modes, text directinality and fonts for individual text views.
 
-[<img src="https://www.inventati.org/1337gallery/imgs/buttons/1337Button_gears.png"
+[<img src="https://www.inventati.org/1337gallery/imgs/1337Button_gears.png"
       alt="Get it at 1337 Gallery"
       height="80">](https://www.inventati.org/1337gallery/apps/tedit/tedit.html)
 
