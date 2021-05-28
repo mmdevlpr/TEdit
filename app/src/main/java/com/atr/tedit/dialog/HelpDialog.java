@@ -31,7 +31,7 @@ import com.atr.tedit.util.FontUtil;
 
 /**
  * @author Adam T. Ryder
- * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
+ * <a href="https://www.inventati.org/1337gallery">https://www.inventati.org/1337gallery</a>
  */
 
 public class HelpDialog extends TDialog {

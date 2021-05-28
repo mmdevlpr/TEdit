@@ -55,7 +55,7 @@ import java.io.FileNotFoundException;
  * {@link com.atr.tedit.file.descriptor.DocumentDescriptor}
  *
  * @author Adam T. Ryder
- * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
+ * <a href="https://www.inventati.org/1337gallery">https://www.inventati.org/1337gallery</a>
  */
 public abstract class AndPath<T extends AndFile> implements Cloneable {
     protected final T root;

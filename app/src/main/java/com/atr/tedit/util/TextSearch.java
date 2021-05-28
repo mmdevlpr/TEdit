@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * results from the previous search.
  *
  * @author: Adam T. Ryder
- * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
+ * <a href="https://www.inventati.org/1337gallery">https://www.inventati.org/1337gallery</a>
  */
 public class TextSearch {
     private SoftReference<SearchResult[]> searchCache;

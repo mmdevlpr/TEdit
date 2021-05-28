@@ -81,6 +81,6 @@ If there are other questions you think should be added to this FAQs document, fe
 
 For further inquiries, you can contact the developer you can contact the developer via email. Send a mail to  tryder@protonmail.com. The developer can also be contacted by opening an issue [here](https://github.com/ATryder/TEdit/issues/new) 
 
-You can also checkout the developer on this [website](https://1337atr.weebly.com)
+You can also checkout the developer on this [website](https://www.inventati.org/1337gallery)
 
 

@@ -37,7 +37,7 @@ import java.util.LinkedList;
  * @param <T> Either {@link java.io.File} or {@link android.support.v4.provider.DocumentFile}.
  *
  * @author Adam T. Ryder
- * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
+ * <a href="https://www.inventati.org/1337gallery">https://www.inventati.org/1337gallery</a>
  */
 public abstract class AndFile<T> {
     public static final int TYPE_FILE = 0;

@@ -32,7 +32,7 @@ import java.util.LinkedList;
  * Manages paths to {@link DocumentDescriptor}s on disk.
  *
  * @author Adam T. Ryder
- * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
+ * <a href="https://www.inventati.org/1337gallery">https://www.inventati.org/1337gallery</a>
  */
 public class DocumentPath extends AndPath<DocumentDescriptor> {
     private final LinkedList<DocumentDescriptor> path = new LinkedList<>();

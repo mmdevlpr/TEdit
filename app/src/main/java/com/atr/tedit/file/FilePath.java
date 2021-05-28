@@ -22,7 +22,7 @@ import org.json.JSONArray;
  * Manages paths to {@link FileDescriptor}s on disk.
  *
  * @author Adam T. Ryder
- * <a href="http://1337atr.weebly.com">http://1337atr.weebly.com</a>
+ * <a href="https://www.inventati.org/1337gallery">https://www.inventati.org/1337gallery</a>
  */
 public class FilePath extends AndPath<FileDescriptor> {
     public FilePath(FileDescriptor root) {

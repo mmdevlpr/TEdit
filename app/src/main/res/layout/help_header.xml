@@ -52,6 +52,6 @@
             android:autoLink="web"
             android:clickable="true"
             android:layout_marginBottom="21dp"
-            android:text="http://1337atr.weebly.com" />
+            android:text="https://www.inventati.org/1337gallery" />
     </LinearLayout>
 </ScrollView>
