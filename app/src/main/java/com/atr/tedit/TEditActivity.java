@@ -56,6 +56,7 @@ import com.atr.tedit.mainstate.Tabs;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.settings.SettingsWindow;
 import com.atr.tedit.settings.TxtSettings;
+import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.util.DataAccessUtil;
 import com.atr.tedit.dialog.ErrorMessage;
 import com.atr.tedit.util.FontUtil;
@@ -93,6 +94,8 @@ public class TEditActivity extends AppCompatActivity {
     public static AtomicInteger instances = new AtomicInteger(0);
 
     private int state = STATE_BROWSE;
+
+    private boolean activateVolumePicker = false;
 
     private DisplayMetrics dMetrics;
     private UtilityBar utilityBar;
@@ -710,6 +713,15 @@ public class TEditActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             processPermissionsResult();
+
+        if (activateVolumePicker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            activateVolumePicker = false;
+            Fragment dp = getSupportFragmentManager().findFragmentByTag(DirectoryPicker.TAG);
+            if (dp == null) {
+                ((Browser)getFrag()).launchVolumePicker();
+            } else
+                ((DirectoryPicker)dp).launchVolumePicker(false);
+        }
     }
 
     @Override
@@ -1179,6 +1191,12 @@ public class TEditActivity extends AppCompatActivity {
         return volumes;
     }
 
+    public void launchSDcardIntent() {
+        Log.i("TEdit", "Launching SDcard locater intent.");
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, TEditActivity.SDCARD_PICKER_RESULT);
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void launchDirPermissionIntent() {
         Log.i("TEdit", "Launching directory permission granter intent.");
@@ -1189,6 +1207,13 @@ public class TEditActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == PERMISSION_DIR_RESULT) {
+            if (resultCode != RESULT_OK)
+                return;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                takePersistableUriPermission(resultData.getData());
+        } else if (requestCode == SDCARD_PICKER_RESULT) {
+            activateVolumePicker = true;
             if (resultCode != RESULT_OK)
                 return;
 
@@ -1230,6 +1255,13 @@ public class TEditActivity extends AppCompatActivity {
 
         if (((DocumentFile)Settings.getStartupPath().getRoot().getFile()).getUri().toString().startsWith(treeUri.toString()))
             Settings.setStartupPath(null);
+    }
+
+    public int getThemeColor(int colorInt) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return getResources().getColor(colorInt, getTheme());
+        } else
+            return getResources().getColor(colorInt);
     }
 
     private class PermissionRequest {

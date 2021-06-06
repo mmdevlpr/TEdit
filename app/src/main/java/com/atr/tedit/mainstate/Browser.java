@@ -14,6 +14,7 @@
  */
 package com.atr.tedit.mainstate;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -55,7 +56,9 @@ import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.HelpDialog;
 import com.atr.tedit.dialog.PossibleBinary;
 import com.atr.tedit.dialog.TDialog;
+import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
+import com.atr.tedit.file.FilePath;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.file.descriptor.DocumentDescriptor;
 import com.atr.tedit.settings.Settings;
@@ -397,7 +400,7 @@ public class Browser extends ListFragment implements SettingsApplicable {
             return false;
 
         if (currentPath.moveToParent() == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 populatePermittedDirectories();
             } else
                 return false;
@@ -416,9 +419,12 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     private void populateBrowser() {
-        if (currentPath == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            populatePermittedDirectories();
-            return;
+        if (currentPath == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                populatePermittedDirectories();
+                return;
+            } else
+                currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
         }
 
         if (!currentPath.getCurrent().exists()) {
@@ -656,6 +662,14 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     private void populatePermittedDirectories() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            if (currentPath == null) {
+                currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
+            }
+            populateBrowser();
+            return;
+        }
+
         currentPath = null;
         setDisplayedPath(getString(R.string.permittedDirs));
 
@@ -1125,6 +1139,27 @@ public class Browser extends ListFragment implements SettingsApplicable {
         }
 
         return false;
+    }
+
+    public void setVolume(AndFile volume) {
+        if (currentPath.getRoot().getPathIdentifier().equals(volume.getPathIdentifier()))
+            return;
+
+        if (!volume.exists()) {
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                    getString(R.string.missing_dir));
+            em.show(ctx.getSupportFragmentManager(), "dialog");
+            return;
+        }
+
+        currentPath = AndPath.fromAndFile(volume);
+        populateBrowser();
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public void launchVolumePicker() {
+        VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier());
+        vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
     }
 
     public void applySettings() {

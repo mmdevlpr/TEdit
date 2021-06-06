@@ -1,10 +1,13 @@
 package com.atr.tedit.settings.dialog;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
@@ -22,13 +25,16 @@ import android.widget.TextView;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.ErrorMessage;
+import com.atr.tedit.dialog.VolumePicker;
 import com.atr.tedit.file.AndPath;
 
 import com.atr.tedit.dialog.TDialog;
+import com.atr.tedit.file.FilePath;
 import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.settings.Settings;
 import com.atr.tedit.util.AndFileFilter;
 import com.atr.tedit.util.FontUtil;
+import com.atr.tedit.utilitybar.state.BrowserState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,7 +102,19 @@ public class DirectoryPicker extends TDialog {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (i == 0) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    if (i == 0) {
+                        launchVolumePicker();
+                        return;
+                    }
+
+                    if (i == 1) {
+                        if (currentPath.moveToParent() == null)
+                            return;
+                        populateBrowser();
+                        return;
+                    }
+                } else if (i == 0) {
                     if (currentPath == null) {
                         ((TEditActivity)getContext()).launchDirPermissionIntent();
                     } else {
@@ -166,9 +184,12 @@ public class DirectoryPicker extends TDialog {
     }
 
     private void populateBrowser() {
-        if (currentPath == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            populatePermittedDirs();
-            return;
+        if (currentPath == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                populatePermittedDirs();
+                return;
+            } else
+                currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
         }
 
         if (!currentPath.getCurrent().exists()) {
@@ -198,24 +219,18 @@ public class DirectoryPicker extends TDialog {
                 return file.isDirectory();
             }
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Arrays.sort(contents, new Comparator<AndFile>() {
-                @Override
-                public int compare(final AndFile o1, final AndFile o2) {
-                    return o1.getPath().compareToIgnoreCase(o2.getPath());
-                }
-            });
-        } else {
-            Arrays.sort(contents, new Comparator<AndFile>() {
-                @Override
-                public int compare(final AndFile o1, final AndFile o2) {
-                    return o1.getPath().compareToIgnoreCase(o2.getPath());
-                }
-            });
-        }
+        Arrays.sort(contents, new Comparator<AndFile>() {
+            @Override
+            public int compare(final AndFile o1, final AndFile o2) {
+                return o1.getPath().compareToIgnoreCase(o2.getPath());
+            }
+        });
 
-        List<AndFile> listContents = new ArrayList<>(contents.length + 1);
+        List<AndFile> listContents = new ArrayList<>(contents.length
+                + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.P) ? 2 : 1));
         listContents.add(null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.P)
+            listContents.add(null);
         listContents.addAll(Arrays.asList(contents));
 
         listView.setAdapter(new ArrayAdapter<AndFile>(getContext(),
@@ -249,7 +264,21 @@ public class DirectoryPicker extends TDialog {
                 }
                 AndFile item = getItem(position);
 
-                if (position == 0) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    switch (position) {
+                        case 0:
+                            iv.setImageResource(R.drawable.drives_focused);
+                            tv.setText(getString(R.string.changevolume));
+                            break;
+                        case 1:
+                            iv.setImageResource(R.drawable.dir_parent_focused);
+                            tv.setText("..");
+                            break;
+                        default:
+                            iv.setImageResource(R.drawable.dir_focused);
+                            tv.setText(item.getName());
+                    }
+                } else if (position == 0) {
                     iv.setImageResource(R.drawable.dir_parent_focused);
                     tv.setText("..");
                 } else {
@@ -263,6 +292,14 @@ public class DirectoryPicker extends TDialog {
     }
 
     public void populatePermittedDirs() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            if (currentPath == null) {
+                currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
+            }
+            populateBrowser();
+            return;
+        }
+
         currentPath = null;
         pathView.setText(getString(R.string.permittedDirs));
         pathView.post(new Runnable() {
@@ -321,6 +358,52 @@ public class DirectoryPicker extends TDialog {
                 return row;
             }
         });
+    }
+
+    public void launchVolumePicker() {
+        launchVolumePicker(true);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void launchVolumePicker(boolean promptSD) {
+        TEditActivity ctx = (TEditActivity)getContext();
+        if (!promptSD) {
+            VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier(), TAG);
+            vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
+            return;
+        }
+
+        boolean cardPresent = ContextCompat.getExternalFilesDirs(getContext(), "external").length > 1;
+        Uri[] volumes = ctx.getPermittedUris();
+        for (int i = 0; i < volumes.length; i++) {
+            if (!AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, volumes[i]), volumes[i]).exists()) {
+                volumes = new Uri[0];
+                break;
+            }
+        }
+        if (volumes.length > 0 || !cardPresent) {
+            VolumePicker vp = VolumePicker.newInstance(currentPath.getRoot().getPathIdentifier(), TAG);
+            vp.show(ctx.getSupportFragmentManager(), "VolumePicker");
+            return;
+        }
+
+        BrowserState.LaunchSDCardIntent lsd = new BrowserState.LaunchSDCardIntent();
+        lsd.show(ctx.getSupportFragmentManager(), "SDCardIntentDialog");
+    }
+
+    public void setVolume(AndFile volume) {
+        if (currentPath != null && currentPath.getRoot().getPathIdentifier().equals(volume.getPathIdentifier()))
+            return;
+
+        if (!volume.exists()) {
+            ErrorMessage em = ErrorMessage.getInstance(getString(R.string.alert),
+                    getString(R.string.missing_dir));
+            em.show(((TEditActivity)getContext()).getSupportFragmentManager(), "dialog");
+            return;
+        }
+
+        currentPath = AndPath.fromAndFile(volume);
+        populateBrowser();
     }
 
     @Override

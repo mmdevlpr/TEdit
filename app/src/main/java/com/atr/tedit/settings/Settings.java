@@ -84,15 +84,15 @@ public class Settings {
 
         String startupJson = prefs.getString("startupPath", "");
         if (startupJson.equals("null") || startupJson.isEmpty()) {
-            startupPath = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? null : ctx.getCurrentPath().clone();
+            startupPath = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) ? null : ctx.getCurrentPath().clone();
         } else {
             try {
                 startupPath = AndPath.fromJson(ctx, prefs.getString("startupPath", ""));
             } catch (Exception e) {
-                startupPath = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? null : ctx.getCurrentPath().clone();
+                startupPath = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) ? null : ctx.getCurrentPath().clone();
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && startupPath != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && startupPath != null) {
                 Uri[] uris = ctx.getPermittedUris();
                 boolean found = false;
                 for (int i = 0; i < uris.length; i++) {

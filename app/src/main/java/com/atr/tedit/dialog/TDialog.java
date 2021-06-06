@@ -368,7 +368,7 @@ public abstract class TDialog extends DialogFragment {
         if (title == null) {
             title = new TextView(new ContextThemeWrapper(getActivity(), theme));
             title.setTypeface(typeFace);
-            title.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
+            title.setTextColor(((TEditActivity)getContext()).getThemeColor(R.color.coffeeNcream));
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             title.setId(R.id.dialog_title);
         }
@@ -403,7 +403,7 @@ public abstract class TDialog extends DialogFragment {
         if (negativeButton == null) {
             negativeButton = new Button(new ContextThemeWrapper(getActivity(), theme));
             negativeButton.setTypeface(typeFace);
-            negativeButton.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
+            negativeButton.setTextColor(((TEditActivity)getContext()).getThemeColor(R.color.coffeeNcream));
             negativeButton.setId(R.id.dialog_negative_button);
         }
 
@@ -420,7 +420,7 @@ public abstract class TDialog extends DialogFragment {
         if (neutralButton == null) {
             neutralButton = new Button(new ContextThemeWrapper(getActivity(), theme));
             neutralButton.setTypeface(typeFace);
-            neutralButton.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
+            neutralButton.setTextColor(((TEditActivity)getContext()).getThemeColor(R.color.coffeeNcream));
             neutralButton.setId(R.id.dialog_neutral_button);
         }
 
@@ -437,7 +437,7 @@ public abstract class TDialog extends DialogFragment {
         if (positiveButton == null) {
             positiveButton = new Button(new ContextThemeWrapper(getActivity(), theme));
             positiveButton.setTypeface(typeFace);
-            positiveButton.setTextColor(getResources().getColor(R.color.coffeeNcream, getContext().getTheme()));
+            positiveButton.setTextColor(((TEditActivity)getContext()).getThemeColor(R.color.coffeeNcream));
             positiveButton.setId(R.id.dialog_positive_button);
         }
 

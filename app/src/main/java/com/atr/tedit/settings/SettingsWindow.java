@@ -76,7 +76,7 @@ public class SettingsWindow {
         lp.width = Math.round(width * 0.8f);
         settingsAnimator.setLayoutParams(lp);
 
-        int colorLightRust = ctx.getResources().getColor(R.color.lightRust, ctx.getTheme());
+        int colorLightRust = ctx.getThemeColor(R.color.lightRust);
 
         Button saveButton = settingsView.findViewById(R.id.saveButton);
         Button cancelButton = settingsView.findViewById(R.id.cancelButton);
@@ -235,8 +235,13 @@ public class SettingsWindow {
         globalHelpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int helpLayout = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                        ? R.layout.help_settings_global : R.layout.help_settings_global_prelollipop;
+                int helpLayout;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    helpLayout = R.layout.help_settings_global;
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    helpLayout = R.layout.help_settings_global_prepie;
+                } else
+                    helpLayout = R.layout.help_settings_global_prelollipop;
                 HelpDialog hd = HelpDialog.newInstance(helpLayout, ctx.getString(R.string.settings_global_button));
                 hd.show(ctx.getSupportFragmentManager(), "HelpDialog");
             }
@@ -315,6 +320,26 @@ public class SettingsWindow {
             settingsView.findViewById(R.id.editorTextDirGroup).setVisibility(View.GONE);
             settingsView.findViewById(R.id.localTextDirLabel).setVisibility(View.GONE);
             settingsView.findViewById(R.id.localTextDirGroup).setVisibility(View.GONE);
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P){
+            settingsView.findViewById(R.id.enableRoot).setVisibility(View.GONE);
+
+            int colorCream = ctx.getThemeColor(R.color.cream);
+            ((CheckBox) settingsView.findViewById(R.id.wordWrap)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.textDirLTR)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.textDirRTL)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.editorTextDirLTR)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.editorTextDirRTL)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.aobClose)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.aobParent)).setTextColor(colorCream);
+            ((CheckBox) settingsView.findViewById(R.id.enableRoot)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.localWordWrapGlobal)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.localWordWrapOn)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.localWordWrapOff)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.localTextDirGlobal)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.localTextDirLTR)).setTextColor(colorCream);
+            ((RadioButton) settingsView.findViewById(R.id.localTextDirRTL)).setTextColor(colorCream);
         }
 
         settingsView.setOnTouchListener(new View.OnTouchListener() {

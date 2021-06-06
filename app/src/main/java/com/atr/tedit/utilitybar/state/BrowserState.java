@@ -14,14 +14,26 @@
  */
 package com.atr.tedit.utilitybar.state;
 
+import android.annotation.TargetApi;
+import android.app.Dialog;
+import android.content.Context;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.provider.DocumentFile;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.atr.tedit.dialog.TDialog;
+import com.atr.tedit.file.descriptor.AndFile;
 import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.R;
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.dialog.HelpDialog;
+import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.utilitybar.UtilityBar;
 
 public class BrowserState extends UtilityState {
@@ -83,16 +95,47 @@ public class BrowserState extends UtilityState {
         help.setId(R.id.four);
 
         Button[] l;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            help.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser_prepie, BAR.ctx.getString(R.string.browser));
+                    hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                }
+            });
 
-        help.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser, BAR.ctx.getString(R.string.browser));
-                hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+            Button drives = new Button(BAR.ctx);
+            drives.setBackgroundResource(R.drawable.button_drives);
+            drives.setId(R.id.five);
+            drives.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    launchVolumePicker();
+                }
+            });
+
+            l = new Button[]{dir_parent, doc, newdir, drives, tabs, help};
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                help.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser, BAR.ctx.getString(R.string.browser));
+                        hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                    }
+                });
+            } else {
+                help.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        HelpDialog hd = HelpDialog.newInstance(R.layout.help_browser_prelollipop, BAR.ctx.getString(R.string.browser));
+                        hd.show(BAR.ctx.getSupportFragmentManager(), "HelpDialog");
+                    }
+                });
             }
-        });
 
-        l = new Button[]{dir_parent, doc, newdir, tabs, help};
+            l = new Button[]{dir_parent, doc, newdir, tabs, help};
+        }
 
         int count = 0;
         for (Button v : l) {
@@ -125,4 +168,62 @@ public class BrowserState extends UtilityState {
         LAYERS = new View[1][];
         LAYERS[0] = l;
     }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void launchVolumePicker() {
+        boolean cardPresent = ContextCompat.getExternalFilesDirs(BAR.ctx, "external").length > 1;
+
+        Uri[] volumes = BAR.ctx.getPermittedUris();
+        for (int i = 0; i < volumes.length; i++) {
+            if (!AndFile.createDescriptor(DocumentFile.fromTreeUri(BAR.ctx, volumes[i]), volumes[i]).exists()) {
+                volumes = new Uri[0];
+                break;
+            }
+        }
+        if (volumes.length > 0 || !cardPresent) {
+            ((Browser)BAR.ctx.getFrag()).launchVolumePicker();
+            return;
+        }
+
+        LaunchSDCardIntent lsd = new LaunchSDCardIntent();
+        lsd.show(BAR.ctx.getSupportFragmentManager(), "SDCardIntentDialog");
+    }
+
+    public static class LaunchSDCardIntent extends TDialog {
+        private TEditActivity ctx;
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            this.ctx = (TEditActivity)context;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            setTitle(R.string.launch_sdpicker_title);
+            setIcon(R.drawable.tedit_logo_brown);
+            setMessage(R.string.launch_sdpicker);
+            setNegativeButton(getString(R.string.cancel), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    Fragment dp = ctx.getSupportFragmentManager().findFragmentByTag(DirectoryPicker.TAG);
+                    if (dp == null) {
+                        ((Browser) ctx.getFrag()).launchVolumePicker();
+                    } else
+                        ((DirectoryPicker)dp).launchVolumePicker(false);
+                }
+            });
+            setPositiveButton(getString(R.string.okay), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    ctx.launchSDcardIntent();
+                }
+            });
+
+            return super.onCreateDialog(savedInstanceState);
+        }
+    }
+
 }
