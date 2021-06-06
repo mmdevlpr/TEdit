@@ -1,0 +1,3 @@
+- Reintegrated support for Android devices older than 9 and newer than 4.
+
+- Users can now open new documents or switch to the Tabs view from the browser before the directory transition animation has finished.
