@@ -33,6 +33,8 @@ import com.atr.tedit.mainstate.Browser;
 import com.atr.tedit.settings.dialog.DirectoryPicker;
 import com.atr.tedit.util.FontUtil;
 
+import java.util.Arrays;
+
 public class VolumePicker extends TDialog {
     private AndFile[] volumes;
     private AndFile currentChoice;
@@ -78,8 +80,14 @@ public class VolumePicker extends TDialog {
 
         Uri[] vols = ctx.getPermittedUris();
         volumes = new AndFile[vols.length + 2];
+        int count = 0;
         for (int i = 0; i < vols.length; i++) {
-            volumes[i] = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, vols[i]));
+            AndFile af = AndFile.createDescriptor(DocumentFile.fromTreeUri(ctx, vols[i]), vols[i]);
+            if (af.exists())
+                volumes[count++] = af;
+        }
+        if (count + 2 < volumes.length) {
+            volumes = Arrays.copyOf(volumes, count + 2);
         }
         volumes[volumes.length - 2] = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
         volumes[volumes.length - 1] = ctx.getRoot();
