@@ -316,7 +316,6 @@ public class TEditActivity extends AppCompatActivity {
             String mediaState = Environment.getExternalStorageState();
             if (Environment.MEDIA_MOUNTED.equals(mediaState)
                     || Environment.MEDIA_MOUNTED_READ_ONLY.equals(mediaState)) {
-                //storageRoot = AndFile.createDescriptor(Environment.getExternalStorageDirectory());
                 currentPath = new FilePath(AndFile.createDescriptor(Environment.getExternalStorageDirectory()));
             } else {
                 File sRoot = Environment.getExternalStorageDirectory();
@@ -333,10 +332,10 @@ public class TEditActivity extends AppCompatActivity {
         ft.add(R.id.activitycontent, frag);
         ft.commit();
 
-        /*if (Settings.isFirstRun(this)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && Settings.isFirstRun(this)) {
             Settings.saveVer(this);
             displayWhatsNew();
-        }*/
+        }
     }
 
     private void initializeToText(AndFile file) {

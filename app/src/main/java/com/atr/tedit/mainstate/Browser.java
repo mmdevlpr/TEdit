@@ -396,6 +396,9 @@ public class Browser extends ListFragment implements SettingsApplicable {
     }
 
     public boolean upDir() {
+        if (isAnimating() || isLoading())
+            return true;
+
         if (isBrowsingPermittedDirs())
             return false;
 
@@ -445,6 +448,9 @@ public class Browser extends ListFragment implements SettingsApplicable {
         final Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
+                if (ctx.getState() != ctx.STATE_BROWSE)
+                    return;
+
                 try{
                     getListView();
                 } catch (Exception e) {
@@ -501,8 +507,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
                     getListView().setEnabled(true);
                     if (getType() == TYPE_SAVE)
                         getView().findViewById(R.id.savebutton).setEnabled(true);
-                    if (!ctx.getUtilityBar().getState().isAnimating())
-                        ctx.getUtilityBar().getState().setEnabled(true);
                 } else {
                     getListView().post(new Runnable() {
                         public void run() {
@@ -534,8 +538,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                                 getListView().setEnabled(true);
                                                 if (getType() == TYPE_SAVE)
                                                     getView().findViewById(R.id.savebutton).setEnabled(true);
-                                                if (!ctx.getUtilityBar().getState().isAnimating())
-                                                    ctx.getUtilityBar().getState().setEnabled(true);
                                             } catch (Exception e) {
 
                                             }
@@ -573,7 +575,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
             }
         };
 
-        ctx.getUtilityBar().getState().setEnabled(false);
         getListView().setEnabled(false);
         if (getType() == TYPE_SAVE)
             getView().findViewById(R.id.savebutton).setEnabled(false);
@@ -677,6 +678,9 @@ public class Browser extends ListFragment implements SettingsApplicable {
         final Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
+                if (ctx.getState() != ctx.STATE_BROWSE)
+                    return;
+
                 try{
                     getListView();
                 } catch (Exception e) {
@@ -753,8 +757,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
                     getListView().setEnabled(true);
                     if (getType() == TYPE_SAVE)
                         getView().findViewById(R.id.savebutton).setEnabled(true);
-                    if (!ctx.getUtilityBar().getState().isAnimating())
-                        ctx.getUtilityBar().getState().setEnabled(true);
                 } else {
                     getListView().post(new Runnable() {
                         public void run() {
@@ -786,8 +788,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
                                                 getListView().setEnabled(true);
                                                 if (getType() == TYPE_SAVE)
                                                     getView().findViewById(R.id.savebutton).setEnabled(true);
-                                                if (!ctx.getUtilityBar().getState().isAnimating())
-                                                    ctx.getUtilityBar().getState().setEnabled(true);
                                                 if (uris.length == 0 && Settings.isShowPermitHelp()) {
                                                     final HelpDialog hd = HelpDialog.newInstance(R.layout.help_permitted_directories, ctx.getString(R.string.permittedDirs));
                                                     hd.show(ctx.getSupportFragmentManager(), "HelpDialog");
@@ -851,7 +851,6 @@ public class Browser extends ListFragment implements SettingsApplicable {
         };
 
         getListView().setEnabled(false);
-        ctx.getUtilityBar().getState().setEnabled(false);
         if (getType() == TYPE_SAVE)
             getView().findViewById(R.id.savebutton).setEnabled(false);
         if (getListView().getChildCount() == 0) {

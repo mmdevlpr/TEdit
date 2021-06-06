@@ -70,7 +70,11 @@ public class BrowserState extends UtilityState {
                 if (!(BAR.ctx.getFrag() instanceof Browser))
                     return;
 
-                if (((Browser) BAR.ctx.getFrag()).isBrowsingPermittedDirs()) {
+                Browser browser = (Browser)BAR.ctx.getFrag();
+                if (browser.isAnimating() || browser.isLoading())
+                    return;
+
+                if (browser.isBrowsingPermittedDirs()) {
                     BAR.ctx.launchDirPermissionIntent();
                     return;
                 }
@@ -110,6 +114,9 @@ public class BrowserState extends UtilityState {
             drives.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Browser browser = (Browser)BAR.ctx.getFrag();
+                    if (browser.isAnimating() || browser.isLoading())
+                        return;
                     launchVolumePicker();
                 }
             });

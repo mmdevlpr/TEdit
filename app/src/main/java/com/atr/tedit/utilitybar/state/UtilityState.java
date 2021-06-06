@@ -161,11 +161,9 @@ public abstract class UtilityState {
         BAR.handler.postDelayed(new Runnable() {
             public void run() {
                 animating = false;
-                if (!(BAR.ctx.getFrag() instanceof Browser) || !(((Browser)BAR.ctx.getFrag()).isAnimating() || ((Browser)BAR.ctx.getFrag()).isLoading())) {
-                    View[] l = LAYERS[layer];
-                    for (View v : l) {
-                        v.setEnabled(true);
-                    }
+                View[] l = LAYERS[layer];
+                for (View v : l) {
+                    v.setEnabled(true);
                 }
             }
         }, ANIMLENGTH + (animDelay * (LAYERS[layer].length - 1)));

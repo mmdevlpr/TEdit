@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.provider.DocumentFile;
+import android.util.Log;
 
 import com.atr.tedit.TEditActivity;
 import com.atr.tedit.file.AndPath;
@@ -153,7 +154,8 @@ public class Settings {
             } else
                 currentVer = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES).versionCode;
         } catch (Exception e) {
-            currentVer = 15;
+            Log.w("TEdit Settings:", "Unable to assertain current version: " + e.getMessage());
+            currentVer = 19;
         }
         return lastVer < currentVer;
     }
@@ -167,7 +169,8 @@ public class Settings {
             } else
                 currentVer = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES).versionCode;
         } catch (Exception e) {
-            currentVer = 15;
+            Log.w("TEdit Settings:", "Unable to assertain current version: " + e.getMessage());
+            currentVer = 19;
         }
         prefs.putLong("longVersion", currentVer);
         prefs.commit();
